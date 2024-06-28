@@ -1,0 +1,78 @@
+.section-buttons {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.section-button {
+    background-color: #007BFF; /* Blue color */
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.section-button:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+}
+
+.section-button.selected {
+    background-color: #4CAF50; /* Green color for selected button */
+}
+
+.report-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+    padding: 16px;
+    margin-top: 20px;
+}
+
+.report-item {
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 16px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s, background-color 0.2s;
+}
+
+.report-item:hover {
+    transform: scale(1.02);
+}
+
+.report-item p {
+    margin: 8px 0;
+}
+
+.report-item strong {
+    color: #333;
+}
+
+.green-button-filled {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.green-button-filled:hover {
+    background-color: #45a049;
+}
+
+.low-percentile-item {
+    background-color: #ffcccc;
+    border-color: #ff0000; 
+}
+
+.center-button {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}

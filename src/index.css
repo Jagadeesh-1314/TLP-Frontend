@@ -1,0 +1,255 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  font-family: "Poppins", sans-serif !important;
+}
+
+body {
+  background-color: #ffffff;
+}
+
+button {
+  outline: 0;
+  height: fit-content;
+  width: fit-content;
+}
+
+button:focus-visible {
+  outline: 1;
+}
+
+code {
+  background-color: #dedede;
+  padding-left: 4px;
+  padding-right: 4px;
+  font-weight: 600;
+  border-radius: 3px;
+}
+
+:disabled {
+  filter: grayscale(1);
+  cursor: not-allowed;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background-color: white;
+  }
+}
+
+#bp-web-widget {
+  z-index: 51;
+}
+
+/* ANCHOR RED BUTTONS ||======================================================================== */
+.red-button-lg {
+  @apply text-xl text-red-500 hover:bg-red-50 rounded-sm duration-300 px-3 py-2;
+}
+
+.red-button {
+  @apply text-red-500 text-lg hover:bg-red-50 rounded-sm duration-300 px-3 py-1;
+}
+
+.red-button-sm {
+  @apply text-red-500 hover:bg-red-50 rounded-sm duration-300 px-3 py-2;
+}
+/* FILLED ||======================================================================== */
+.red-button-filled-lg {
+  @apply text-xl text-red-50 bg-red-500 hover:bg-red-600 rounded-md duration-300 px-4 py-2;
+}
+
+.red-button-filled {
+  @apply text-red-50 text-lg bg-red-500 hover:bg-red-600 rounded-md duration-300 px-4 py-2;
+}
+
+.red-button-filled-sm {
+  @apply text-red-50 bg-red-500 hover:bg-red-600 rounded-md duration-300 px-3 py-2;
+}
+/* OUTLINE ||======================================================================== */
+.red-button-outline-lg {
+  @apply text-xl text-red-500 hover:text-white hover:bg-red-500 border border-red-500 rounded-md duration-300 px-4 py-2;
+}
+
+.red-button-outline {
+  @apply text-red-500 text-lg hover:text-white hover:bg-red-500 border border-red-500 rounded-md duration-300 px-4 py-2;
+}
+
+.red-button-outline-sm {
+  @apply text-red-500 hover:text-white hover:bg-red-500 border border-red-500 rounded-md duration-300 px-3 py-2;
+}
+
+/* ANCHOR BLUE BUTTONS ||======================================================================== */
+.blue-button-lg {
+  @apply text-xl text-blue-500 hover:bg-blue-50 rounded-sm duration-300 px-3 py-2;
+}
+
+.blue-button {
+  @apply text-blue-500 text-lg hover:bg-blue-50 rounded-sm duration-300 px-3 py-1;
+}
+
+.blue-button-sm {
+  @apply text-blue-500 hover:bg-blue-50 rounded-sm duration-300 px-3 py-2;
+}
+/* FILLED ||======================================================================== */
+.blue-button-filled-lg {
+  @apply text-xl text-blue-50 bg-blue-500 hover:bg-blue-600 rounded-md duration-300 px-4 py-2;
+}
+
+.blue-button-filled {
+  @apply text-blue-50 text-lg bg-blue-500 hover:bg-blue-600 rounded-md duration-300 px-4 py-2;
+}
+
+.blue-button-filled-sm {
+  @apply text-blue-50 bg-blue-500 hover:bg-blue-600 rounded-md duration-300 px-3 py-2;
+}
+/* OUTLINE ||======================================================================== */
+.blue-button-outline-lg {
+  @apply text-xl text-blue-500 hover:text-white hover:bg-blue-500 border border-blue-500 rounded-md duration-300 px-4 py-2;
+}
+
+.blue-button-outline {
+  @apply text-blue-500 text-lg hover:text-white hover:bg-blue-500 border border-blue-500 rounded-md duration-300 px-4 py-2;
+}
+
+.blue-button-outline-sm {
+  @apply text-blue-500 hover:text-white hover:bg-blue-500 border border-blue-500 rounded-md duration-300 px-2 py-1;
+}
+
+/* ANCHOR GREEN BUTTONS ||======================================================================== */
+.green-button-lg {
+  @apply text-xl text-green-600 hover:bg-green-50 rounded-sm duration-300 px-3 py-2;
+}
+
+.green-button {
+  @apply text-green-600 text-lg hover:bg-green-50 rounded-sm duration-300 px-3 py-1;
+}
+
+.green-button-sm {
+  @apply text-green-600 hover:bg-green-50 rounded-sm duration-300 px-3 py-2;
+}
+/* FILLED ||======================================================================== */
+.green-button-filled-lg {
+  @apply text-xl text-green-50 bg-green-600 hover:bg-green-600 rounded-md duration-300 px-4 py-2;
+}
+
+.green-button-filled {
+  @apply text-green-50 text-lg bg-green-600 hover:bg-green-600 rounded-md duration-300 px-4 py-2;
+}
+
+.green-button-filled-sm {
+  @apply text-green-50 bg-green-600 hover:bg-green-600 rounded-md duration-300 px-3 py-2;
+}
+/* OUTLINE ||======================================================================== */
+.green-button-outline-lg {
+  @apply text-xl text-green-500 hover:bg-green-600 hover:text-white border border-green-600 rounded-md duration-300 px-4 py-2;
+}
+
+.green-button-outline {
+  @apply text-green-500 text-lg hover:bg-green-600 hover:text-white border border-green-600 rounded-md duration-300 px-4 py-2;
+}
+
+.green-button-outline-sm {
+  @apply text-green-500 hover:bg-green-600 hover:text-white border border-green-600 rounded-md duration-300 px-3 py-2;
+}
+
+.page-title {
+  @apply md:text-5xl text-4xl font-semibold text-blue-500;
+}
+
+.nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -5%;
+  width: 100%;
+  height: 2px;
+  background-color: rgb(59 130 246);
+  transform-origin: right;
+  transform: scaleX(0%);
+  border-radius: 0px 0px 3px 3px;
+  transition: transform 0.7s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.nav-link::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -5%;
+  width: 100%;
+  height: 2px;
+  background-color: rgba(59 130 246 / 0.3);
+  transform-origin: bottom;
+  transform: scaleY(0%);
+  border-radius: 0px 0px 3px 3px;
+  transition: transform 0.7s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.nav-link:hover::before,
+.nav-link:focus::before {
+  transform: scaleY(100%);
+}
+
+.active.nav-link::after {
+  transform-origin: left;
+  transform: scaleX(100%);
+}
+
+.datagrid-row-red {
+  @apply bg-red-200 hover:bg-red-300 text-red-600 !important;
+}
+
+.MuiDataGrid-virtualScroller::-webkit-scrollbar {
+  @apply w-2 h-2 duration-300;
+}
+
+.MuiDataGrid-virtualScroller::-webkit-scrollbar-track {
+  @apply bg-neutral-200;
+}
+
+.MuiDataGrid-virtualScroller::-webkit-scrollbar-thumb {
+  @apply bg-neutral-400 rounded-sm;
+}
+.MuiDataGrid-virtualScroller::-webkit-scrollbar-thumb:hover {
+  @apply bg-neutral-500 rounded-sm;
+}
+
+.MuiMultiSectionDigitalClockSection-root::-webkit-scrollbar {
+  @apply w-2 h-2 duration-300;
+}
+
+.MuiMultiSectionDigitalClockSection-root::-webkit-scrollbar-track {
+  @apply bg-neutral-200;
+}
+
+.MuiMultiSectionDigitalClockSection-root::-webkit-scrollbar-thumb {
+  @apply bg-neutral-400 rounded-sm;
+}
+.MuiMultiSectionDigitalClockSection-root::-webkit-scrollbar-thumb:hover {
+  @apply bg-neutral-500 rounded-sm;
+}
+
+.MuiDataGrid-root .MuiDataGrid-cell:focus-within {
+  outline: none !important;
+}
+.MuiDataGrid-withBorderColor {
+  outline: none !important;
+}
+
+.MuiDataGrid-columnHeaders {
+  background-color: rgb(210 210 210);
+  /* color: white; */
+}
+
+.center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}

@@ -1,0 +1,15 @@
+.page-helper-contents > section {
+  @apply flex flex-col gap-3;
+}
+
+.page-helper-section-title {
+  @apply bg-gray-300 p-3 lg:text-3xl md:text-2xl text-xl font-semibold rounded-sm;
+}
+
+.page-helper-section-content {
+  @apply text-lg;
+}
+
+.page-helper-contents a {
+  @apply text-blue-600 underline;
+}

@@ -1,0 +1,115 @@
+/* General container styling */
+.container {
+    margin: 'auto';
+    display: flex;
+    justify-content: center;
+    height: '90vh';
+    background-color: rgb(219, 238, 238);
+    
+}
+
+/* Form styling */
+.sem-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease-in-out;
+}
+
+.semester {
+    padding: 10px;
+    border-radius: 15px;
+    width: 120px;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    background: #f4f4f9;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease-in-out;
+}
+
+.semester:hover {
+    transform: scale(1.05);
+}
+
+
+/* Button styling */
+.button {
+    background-color: #6466e5;
+    border: none;
+    color: white;
+    padding: 10px 24px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    border-radius: 15px;
+    cursor: pointer;
+    width: 150px;
+    transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* .button:hover {
+    background-color: #45a049;
+    transform: scale(1.05);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+} */
+
+.button:hover, .button:active, .button:focus {
+    background-color: #45a049;
+    transform: scale(1.05);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+/* .button:focus {
+    background-color: #45a049;
+    transform: scale(1.05);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+} */
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .sem-form {
+        padding: 15px;
+        gap: 8px;
+    }
+
+    .semester {
+        width: 100px;
+        padding: 8px;
+    }
+
+    .button {
+        width: 130px;
+        padding: 8px 20px;
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 10px;
+    }
+
+    .sem-form {
+        flex-direction: column;
+        padding: 10px;
+        gap: 6px;
+    }
+
+    .semester {
+        width: 100%;
+        padding: 8px;
+    }
+
+    .button {
+        width: 100%;
+        padding: 10px;
+        font-size: 16px;
+    }
+}
