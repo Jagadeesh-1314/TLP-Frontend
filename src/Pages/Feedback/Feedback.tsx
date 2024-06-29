@@ -140,7 +140,7 @@ export default function Feedback() {
         if (data.done) {
           alert?.showAlert("Form Submitted", "success");
           sessionStorage.removeItem("currentPage");
-          localStorage.removeItem("score");
+          localStorage.clear();
           navigate("/thank-you");
         }
       }
