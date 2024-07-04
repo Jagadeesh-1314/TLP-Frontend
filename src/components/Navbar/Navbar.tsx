@@ -1,5 +1,5 @@
-import { useContext, useEffect, useState } from "react";
-import { useLocation, Link, useNavigate, useNavigation } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useLocation, Link, useNavigate } from "react-router-dom";
 import {
   BackupOutlined,
   FileDownloadOutlined,
@@ -17,9 +17,7 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import Axios from "axios";
 import { useAuth } from "../Auth/AuthProvider";
-import { LoadingContext } from "../Context/Loading";
 
 export default function Navbar({
   user,
@@ -60,7 +58,6 @@ export default function Navbar({
       : "GCET TLP FEEDBACK";
   }, [pathname]);
   const {logOut} = useAuth()!;
-  const {showLoading} = useContext(LoadingContext)!;
 
   return (
     <>
@@ -237,8 +234,6 @@ function SideMenu({
 
 
 function Logout({
-  // user,
-  desg,
   logOut,
 }: {
   // user: string;
@@ -261,16 +256,11 @@ function Logout({
     setOpen(false);
   };
 
-  const {user} = useAuth()!;
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
     setOpen(true);
   };
 
-  const [userName, setUsername] = useState<string>(()=>{
-
-    return user?.displayName || "A N"
-  });
 
 
   return (

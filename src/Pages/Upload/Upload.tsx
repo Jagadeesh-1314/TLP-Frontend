@@ -21,7 +21,6 @@ export default function Upload() {
 
   return (
     <>
-      {/* Results... registered Entries... code Names... Written-Test*/}
       <div className="grid lg:grid-cols-6 md:grid-cols-2 grid-cols-2 gap-x-4 gap-y-4 no-print">
         <CustTextField
           select
