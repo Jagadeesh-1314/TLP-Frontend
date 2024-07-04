@@ -48,20 +48,10 @@ export interface ExamSemProps {
 }
 
 export interface ManageDBResponseProps {
-  id: number;
-  rollNo: string;
+  facID: number;
   subCode: string;
-  subName: string;
-  grade: Grades;
-  acYear: 1 | 2 | 3 | 4;
-  sem: 1 | 2;
-  exYear: number;
-  exMonth: number;
-  user: string;
-  total: number;
-  regDate: Dayjs;
-  stat: "R" | "S";
-  branch: string;
+  sem: number;
+  sec: string;
 }
 
 export type ManageDBResponseArr = ManageDBResponseProps[];
@@ -70,10 +60,7 @@ export type AvailableDbTables =
   | "studentInfo"
   | "subjects"
   | "facutly"
-  | "paidReEvaluation"
-  | "printReval"
-  | "paidCBT"
-  | "printCBT";
+  | "timetable"
 
 export interface UserDetailsProps {
   username: string;

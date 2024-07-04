@@ -5,7 +5,7 @@ const PrivateRoute = () => {
   if (!sessionStorage.getItem('username')) return <Navigate to="/login" />;
 
   return <>
-    
+    <Title />
     <Outlet />
   </>
 };

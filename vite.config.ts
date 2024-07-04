@@ -11,7 +11,7 @@ export default defineConfig({
     port: 3005,
     proxy: {
       '/api': {
-        target: `http://${SERVER_IP}:6969/`,
+        target: `http://${SERVER_IP}:6968/`,
         changeOrigin: true,
       },
     },
