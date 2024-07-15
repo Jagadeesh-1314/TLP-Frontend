@@ -4,7 +4,7 @@ import { RadioGroup, FormControlLabel } from "@mui/material";
 
 interface ColorRadioButtonsProps {
   labels?: string[];
-  reset: boolean;
+  // reset: boolean;
   id: string;
   len: number;
   score: Record<string, Record<string, number>>;

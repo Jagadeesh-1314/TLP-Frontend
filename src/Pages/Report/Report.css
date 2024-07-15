@@ -1,11 +1,11 @@
-.section-buttons {
+.filter-buttons {
     margin-top: 20px;
     display: flex;
     gap: 10px;
     flex-wrap: wrap;
 }
 
-.section-button {
+.filter-button {
     background-color: #007BFF; /* Blue color */
     color: white;
     padding: 10px 15px;
@@ -15,12 +15,12 @@
     transition: background-color 0.3s ease;
 }
 
-.section-button:hover {
-    background-color: #0056b3; /* Darker blue on hover */
+.filter-button:hover {
+    background-color: #0056b3; 
 }
 
-.section-button.selected {
-    background-color: #4CAF50; /* Green color for selected button */
+.filter-button.selected {
+    background-color: #4CAF50; 
 }
 
 .report-container {
@@ -76,3 +76,4 @@
     justify-content: center;
     margin-top: 20px;
 }
+

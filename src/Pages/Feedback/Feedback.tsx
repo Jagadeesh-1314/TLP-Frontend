@@ -1,4 +1,4 @@
-import { useContext, useEffect, useLayoutEffect, useState } from "react";
+import { useContext, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Radiobuttons from "../../components/Custom/Radiobuttons";
 import { Box, Card, Step, StepLabel, Stepper } from "@mui/material";
@@ -30,10 +30,12 @@ export default function Feedback() {
 
   const [score, setScore] = useState<Score>(() => JSON.parse(localStorage.getItem("score") || "{}"));
   const [len, setLen] = useState<number>(() => Number(localStorage.getItem("len")) || 0);
-  const [reset, setReset] = useState<boolean>(() => JSON.parse(localStorage.getItem("reset") || "false"));
+  // const [reset, setReset] = useState<boolean>(() => JSON.parse(localStorage.getItem("reset") || "false"));
   const [theory, setTheory] = useState<Question[]>([]);
   const [lab, setLab] = useState<Question[]>([]);
   const [sub, setSub] = useState<Subjects[]>([]);
+  const [unfilledFields, setUnfilledFields] = useState<number[]>([]);
+  const questionRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   useEffect(() => {
     if (user) {
@@ -64,8 +66,8 @@ export default function Feedback() {
 
   useLayoutEffect(() => {
     localStorage.setItem("len", len.toString());
-    localStorage.setItem("reset", JSON.stringify(reset));
-  }, [len, reset]);
+    // localStorage.setItem("reset", JSON.stringify(reset));
+  }, [len, /*reset*/]);
 
   const handleCardClick = (index: number) => {
     const secondCard = document.querySelector(`#card-${index + 1}`);
@@ -74,18 +76,24 @@ export default function Feedback() {
     }
   };
 
+  const handleFieldSelect = (index: number) => {
+    setUnfilledFields((prev) => prev.filter((i) => i !== index));
+  };
+
   const isLastStep = sub && len === sub.length - 1;
 
   const cards = sub && (sub[len] && sub[len].qtype === "lab" ? lab : theory).map((obj, index) => (
     <Radiobuttons
       id={index.toString()}
       key={index}
+      ref={(el) => (questionRefs.current[index] = el)}
       score={score}
       len={len}
       setScore={setScore}
       onClick={() => handleCardClick(index)}
-      reset={reset}
       question={obj.question}
+      isUnfilled={unfilledFields.includes(index)}
+      onSelect={() => handleFieldSelect(index)}
     />
   ));
 
@@ -98,9 +106,23 @@ export default function Feedback() {
       const allFieldsFilled = requiredKeys.every((key) => currentScore[key] !== undefined && currentScore[key] !== null);
 
       if (!allFieldsFilled) {
+        const newUnfilledFields: number[] = [];
+        for (let key of requiredKeys) {
+          if (currentScore[key] === undefined || currentScore[key] === null) {
+            const index = parseInt(key);
+            newUnfilledFields.push(index);
+            const element = questionRefs.current[index];
+            if (element) {
+              element.scrollIntoView({ behavior: "smooth", block: "center" });
+              break;
+            }
+          }
+        }
+        setUnfilledFields(newUnfilledFields);
         alert?.showAlert("Please fill all the required fields.", "warning");
-        window.scrollTo(0, 0);
         return;
+      } else {
+        setUnfilledFields([]); 
       }
 
       if (isLastStep) {
@@ -134,14 +156,13 @@ export default function Feedback() {
       if (len < sub.length - 1) {
         setLen(len + 1);
         window.scrollTo(0, 0);
-        setReset(true);
       } else {
         const { data } = await Axios.post(`api/updatetoken?rollno=${user?.username}`)
         if (data.done) {
           alert?.showAlert("Form Submitted", "success");
+          navigate("/thank-you");
           sessionStorage.removeItem("currentPage");
           localStorage.clear();
-          navigate("/thank-you");
         }
       }
     } catch (err) {
