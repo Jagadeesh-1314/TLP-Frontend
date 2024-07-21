@@ -3,22 +3,28 @@ import Radio from "@mui/material/Radio";
 import { RadioGroup, FormControlLabel } from "@mui/material";
 
 interface ColorRadioButtonsProps {
-  labels?: string[];
-  // reset: boolean;
+  labels?: ("1" | "2" | "3" | "4" | "5")[];
   id: string;
   len: number;
   score: Record<string, Record<string, number>>;
   setScore: React.Dispatch<React.SetStateAction<Record<string, Record<string, number>>>>;
 }
 
-export default function ColorRadioButtons({ labels, id, score, setScore, len }: ColorRadioButtonsProps) {
-  labels = labels ?? ["1", "2", "3", "4", "5"];
+export default function ColorRadioButtons({ labels = ["1", "2", "3", "4", "5"], id, score, setScore, len }: ColorRadioButtonsProps) {
+
+  const textLabels: Record<"1" | "2" | "3" | "4" | "5", string> = {
+    "1": "Poor",
+    "2": "Fair",
+    "3": "Good",
+    "4": "Very Good",
+    "5": "Excellent"
+  };
 
   const handleScoreChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedScore = parseInt(event.target.value, 10);
-    setScore((prevScore: any) => ({
+    setScore((prevScore) => ({
       ...prevScore,
-      [len]: {...prevScore[len], [id]: selectedScore}
+      [len]: { ...prevScore[len], [id]: selectedScore }
     }));
   };
 
@@ -34,9 +40,9 @@ export default function ColorRadioButtons({ labels, id, score, setScore, len }: 
         {labels.map((value) => (
           <FormControlLabel
             key={value}
-            value={value.toString()}
-            control={<Radio style={{}} />}
-            label={value.toString()}
+            value={value}
+            control={<Radio />}
+            label={`${value.toString()} - ${textLabels[value]}`} 
             labelPlacement="end"
           />
         ))}

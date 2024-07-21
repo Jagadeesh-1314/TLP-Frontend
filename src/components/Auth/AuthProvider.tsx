@@ -15,12 +15,16 @@ type AuthContextType = {
     username: string,
     desg: string,
     displayName: string,
+    branch: string;
+    batch: number;
   } | null;
   Axios: AxiosStatic;
   setUser: (v:{
     username: string,
     desg: string,
     displayName: string,
+    branch: string;
+    batch: number;
   } | null)=>void;
   logOut: () => void;
 };
@@ -32,12 +36,14 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     username: string,
     desg: string,
     displayName: string,
+    branch: string;
+    batch: number;
   } | null>(null);
   const [token, setToken] = useState(localStorage.getItem("token") || "");
 
   useEffect(() => {
     if (sessionStorage.getItem('username')) {
-      setUser({username: sessionStorage.getItem('username')!,displayName:sessionStorage.getItem("displayName")!, desg:sessionStorage.getItem('desg')! })
+      setUser({username: sessionStorage.getItem('username')!,displayName:sessionStorage.getItem("displayName")!, desg:sessionStorage.getItem('desg')!, branch: sessionStorage.getItem('branch')!, batch: Number(sessionStorage.getItem('batch'))! })
       Axios.defaults.headers.common["Authorization"] = "Bearer " + token;
       localStorage.setItem("token", token);
       
@@ -50,6 +56,8 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     username: string,
     desg: string,
     displayName: string,
+    branch: string;
+    batch: number;
   } | null) => {
     setUser(v);
   }

@@ -80,31 +80,32 @@ export default function Feedback() {
     setUnfilledFields((prev) => prev.filter((i) => i !== index));
   };
 
-  const isLastStep = sub && len === sub.length - 1;
-
+  
   const cards = sub && (sub[len] && sub[len].qtype === "lab" ? lab : theory).map((obj, index) => (
     <Radiobuttons
-      id={index.toString()}
-      key={index}
-      ref={(el) => (questionRefs.current[index] = el)}
-      score={score}
-      len={len}
-      setScore={setScore}
-      onClick={() => handleCardClick(index)}
-      question={obj.question}
-      isUnfilled={unfilledFields.includes(index)}
-      onSelect={() => handleFieldSelect(index)}
+    id={index.toString()}
+    key={index}
+    itemKey={index}
+    ref={(el) => (questionRefs.current[index] = el)}
+    score={score}
+    len={len}
+    setScore={setScore}
+    onClick={() => handleCardClick(index)}
+    question={obj.question}
+    isUnfilled={unfilledFields.includes(index)}
+    onSelect={() => handleFieldSelect(index)}
     />
   ));
-
+  
+  const isLastStep = sub && len === sub.length - 1;
+  
   async function handleNext(): Promise<void> {
     try {
       if (!sub || sub.length === 0) return;
-
       const currentScore = score[len] || {};
       const requiredKeys = (sub[len].qtype === "theory" ? theory : lab).map((_, index) => index.toString());
       const allFieldsFilled = requiredKeys.every((key) => currentScore[key] !== undefined && currentScore[key] !== null);
-
+      
       if (!allFieldsFilled) {
         const newUnfilledFields: number[] = [];
         for (let key of requiredKeys) {
@@ -137,7 +138,8 @@ export default function Feedback() {
             subCode: sub[parseInt(i)].subCode,
             qtype: sub[parseInt(i)].qtype,
             score: score[i],
-            totalScore: avgScore
+            totalScore: avgScore,
+            batch: user?.batch
           };
           const { data } = await Axios.post('/api/score', dataObject, {
             headers: {
@@ -157,13 +159,9 @@ export default function Feedback() {
         setLen(len + 1);
         window.scrollTo(0, 0);
       } else {
-        const { data } = await Axios.post(`api/updatetoken?rollno=${user?.username}`)
-        if (data.done) {
           alert?.showAlert("Form Submitted", "success");
-          navigate("/thank-you");
+          navigate("/centralfacilities");
           sessionStorage.removeItem("currentPage");
-          localStorage.clear();
-        }
       }
     } catch (err) {
       console.error("Error posting score:", err);
@@ -221,7 +219,8 @@ export default function Feedback() {
           className="blue-button-filled col-span-1 flex items-center gap-2 mt-4"
           onClick={handleNext}
         >
-          {isLastStep ? "Submit" : "Next"}
+          {/* {isLastStep ? "Submit" : "Next"} */}
+          Next
         </button>
       </div>
     </div>

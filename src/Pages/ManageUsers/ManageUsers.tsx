@@ -52,6 +52,12 @@ export default function ManageUsers() {
       minWidth: 170,
     },
     {
+      field: "branch",
+      headerName: "Branch",
+      flex: 1,
+      minWidth: 170,
+    },
+    {
       field: "actions",
       type: "actions",
       headerName: "Actions",
@@ -167,17 +173,18 @@ function ManageUserDetails({
   // STATES && VARS  ||========================================================================
   const [openManageUsersDialog, setOpenManageUsersDialog] = useState(false);
   const [newUserDetails, setNewUserDetails] = useState(
-    row ?? { username: "", displayName: "", password: "", confirmPassword: "" }
+    row ?? { username: "", displayName: "", password: "", confirmPassword: "", branch: "" }
   );
   const [userExists, setUserExists] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   // METHODS  ||========================================================================
   const isSaveable = (): boolean => {
-    const { username, displayName, password, confirmPassword } = newUserDetails;
+    const { username, displayName, password, confirmPassword, branch } = newUserDetails;
 
     if (username === "") return false;
     if (displayName === "") return false;
+    if(branch === "") return false;
     if (type === "add") if (password === "") return false;
     if (password) {
       if (password !== confirmPassword) return false;
@@ -222,6 +229,7 @@ function ManageUserDetails({
                 displayName: "",
                 password: "",
                 confirmPassword: "",
+                branch: "",
               };
             return row as UserDetailsProps;
           });
@@ -337,6 +345,16 @@ function ManageUserDetails({
                 }
               />
               <CustTextField
+                label="Branch"
+                value={newUserDetails?.branch}
+                onChange={({ target: { value } }) =>
+                  setNewUserDetails({
+                    ...newUserDetails,
+                    branch: value.toUpperCase().trim(),
+                  })
+                }
+              />
+              <CustTextField
                 sx={{ mb: "auto" }}
                 label={type === "add" ? "Password" : "Edit Password"}
                 type={showPassword ? "text" : "password"}
@@ -348,7 +366,7 @@ function ManageUserDetails({
                   })
                 }
                 error={
-                  newUserDetails?.password?.trim()?.length < 8 &&
+                  newUserDetails?.password?.trim()?.length < 10 &&
                   newUserDetails?.password?.trim()?.length > 0
                 }
               />
