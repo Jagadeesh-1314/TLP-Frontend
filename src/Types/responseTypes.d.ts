@@ -67,6 +67,7 @@ export interface UserDetailsProps {
   displayName: string;
   password: string;
   confirmPassword: string;
+  branch: string;
 }
 
 export type UsersTableArr = UserDetailsProps[];

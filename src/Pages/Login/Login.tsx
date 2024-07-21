@@ -20,6 +20,8 @@ interface LoginCredentialsProps {
   username: string;
   password: string;
   displayName: string;
+  branch: string;
+  batch: number;
 }
 
 export default function LoginForm() {
@@ -32,6 +34,8 @@ export default function LoginForm() {
     username: "",
     password: "",
     displayName: "",
+    branch: "",
+    batch: 0,
   });
   const navigate = useNavigate();
   if(user) {
@@ -80,7 +84,9 @@ export default function LoginForm() {
                     sessionStorage.setItem("username", loginCreds.username);
                     sessionStorage.setItem("displayName", data.displayName);
                     sessionStorage.setItem("desg", data.desg);
-                    setUser({username: loginCreds.username,displayName:data.displayName, desg: data.desg })
+                    sessionStorage.setItem("branch", data.branch);
+                    sessionStorage.setItem("batch", data.batch);
+                    setUser({username: loginCreds.username, displayName:data.displayName, desg: data.desg, branch: data.branch, batch: data.batch })
                     document.cookie = `Token=${data.token}`;
                     if(data.desg === 'admin') {
                       navigate('/report');

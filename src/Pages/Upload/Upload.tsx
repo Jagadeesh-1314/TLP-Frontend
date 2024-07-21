@@ -68,7 +68,7 @@ export default function Upload() {
           <button
             type="submit"
             className="blue-button-filled col-span-1 h-fit flex items-center gap-2"
-            disabled={uploadingFile === null}
+            disabled={uploadingFile === null || !uploadingFile}
             onClick={async () => {
               if (!uploadingFile) {
                 alert?.showAlert("Please select a file", 'warning');

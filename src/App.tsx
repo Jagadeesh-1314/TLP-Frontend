@@ -24,14 +24,17 @@ interface Subjects {
 import Download from "./Pages/Download/Download";
 import Upload from "./Pages/Upload/Upload";
 import ManageDB from "./Pages/ManageDB/ManageDB";
-import Report  from "./Pages/Report/Report";
+import Report from "./Pages/Report/Report";
 import ManageUsers from "./Pages/ManageUsers/ManageUsers";
 import ControlForm from "./Pages/ControlForm/ControlForm";
 import Backup from "./Pages/Backup/BackUp";
-export const Bus = createContext<{sub:Subjects[] | null, setSub:React.Dispatch<React.SetStateAction<Subjects[] | null>>}|null>(null);
+import UnfilledList from "./Pages/UnfilledList/UnfilledList";
+import CFReport from "./Pages/CFReport/CFReport";
+export const Bus = createContext<{ sub: Subjects[] | null, setSub: React.Dispatch<React.SetStateAction<Subjects[] | null>> } | null>(null);
 
 const LoginForm = lazy(() => import("./Pages/Login/Login"));
 const Feedback = lazy(() => import("./Pages/Feedback/Feedback"));
+const CentralFacilities = lazy(() => import("./Pages/CentralFacilities/CentralFacilities"));
 // const Report = lazy(() => import("./Pages/Report/Report"));
 // const ControlForm = lazy(() => import("./Pages/ControlForm/ControlForm"));
 const Sem = lazy(() => import("./Pages/Sem/Sem"));
@@ -45,87 +48,99 @@ const ThankYou = lazy(() => import("./Pages/ThankYou/ThankYou"));
 const CompletedFeedback = lazy(() => import("./Pages/CompletedFeedback/CompletedFeedback"));
 
 function App() {
-const nav = useMemo(()=><Navbar
-  user={sessionStorage.getItem("username") as string}
-  desg={sessionStorage.getItem("desg") as string}
-/>,[])
-// const [sub, setSub] = useState<Subjects[] | null>([]);
+  const nav = useMemo(() => <Navbar
+    user={sessionStorage.getItem("username") as string}
+    desg={sessionStorage.getItem("desg") as string}
+  />, [])
+  // const [sub, setSub] = useState<Subjects[] | null>([]);
   const router = createBrowserRouter([
 
-    
-        {
-          path: "/login",
-          element: <LoginForm />
-        },
+
+    {
+      path: "/login",
+      element: <LoginForm />
+    },
+    {
+      path: "/",
+      element: (<>
+        {nav}
+        <PageLayout>
+          <Outlet />
+        </PageLayout>
+      </>
+      ),
+      children: [
         {
           path: "/",
-          element: (<>
-              {nav}
-            <PageLayout>
-              <Outlet />
-            </PageLayout>
-            </>
-          ),
+          element: <PrivateRoute />,
+
           children: [
             {
-              path: "/",
-              element: <PrivateRoute />,
-
-              children: [
-                {
-                  path: "/feedback",
-                  element: <Feedback />,
-                },
-                {
-                  path: "/report",
-                  element: <Report />
-                },
-                {
-                  path: "/control",
-                  element: <ControlForm />
-                },
-                {
-                  path: "/sem",
-                  element: <Sem />
-                },
-                {
-                  path: "/download",
-                  element: <Download />,
-                },
-                {
-                  path: "/upload",
-                  element: <Upload />,
-                },
-                {
-                  path: "/manage-users",
-                  element: <ManageUsers />,
-                },
-                {
-                  path: "/backup-and-restore",
-                  element: <Backup />,
-                },
-                {
-                  path: "/manage-database",
-                  element: <ManageDB />,
-                },
-                {
-                  path: "/test",
-                  element: <Test />,
-                },
-                {
-                  path: "/thank-you",
-                  element: <ThankYou />,
-                },
-                {
-                  path: "/completed",
-                  element: <CompletedFeedback />
-                },
-              ]
-            }
-
+              path: "/feedback",
+              element: <Feedback />,
+            },
+            {
+              path: "/report",
+              element: <Report />
+            },
+            {
+              path: "/control",
+              element: <ControlForm />
+            },
+            {
+              path: "/unfilled-list",
+              element: <UnfilledList />
+            },
+            {
+              path: "/sem",
+              element: <Sem />
+            },
+            {
+              path: "/centralfacilities",
+              element: <CentralFacilities />
+            },
+            {
+              path: "/cfreport",
+              element: <CFReport />
+            },
+            {
+              path: "/download",
+              element: <Download />,
+            },
+            {
+              path: "/upload",
+              element: <Upload />,
+            },
+            {
+              path: "/manage-users",
+              element: <ManageUsers />,
+            },
+            {
+              path: "/backup-and-restore",
+              element: <Backup />,
+            },
+            {
+              path: "/manage-database",
+              element: <ManageDB />,
+            },
+            {
+              path: "/test",
+              element: <Test />,
+            },
+            {
+              path: "/thank-you",
+              element: <ThankYou />,
+            },
+            {
+              path: "/completed",
+              element: <CompletedFeedback />
+            },
           ]
-        },
-      
+        }
+
+      ]
+    },
+
 
 
   ]);
@@ -146,8 +161,8 @@ const nav = useMemo(()=><Navbar
     >
       <LoadingProvider>
         <AlertProvider>
-      <AuthProvider>
-          <RouterProvider router={router} />
+          <AuthProvider>
+            <RouterProvider router={router} />
           </AuthProvider>
         </AlertProvider>
       </LoadingProvider>

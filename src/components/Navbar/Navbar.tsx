@@ -9,6 +9,7 @@ import {
   PlagiarismOutlined,
   ControlCamera,
   StorageOutlined,
+  FormatListBulleted,
 } from "@mui/icons-material";
 import {
   Divider,
@@ -31,10 +32,11 @@ export default function Navbar({
   const [openSideMenu, setOpenSideMenu] = useState(()=>{return false;});
   const navigate = useNavigate();
   const adminNavLinks = [
-    { name: "Download", icon: <FileDownloadOutlined /> },
+    { name: "Unfilled List", icon: <FormatListBulleted />},
     { name: "Report", icon: <PlagiarismOutlined /> },
-    { name: "Upload", icon: <FileUploadOutlined /> },
+    { name: "CFReport", icon: <PlagiarismOutlined /> },
     { name: "Control", icon: <ControlCamera/> },
+    { name: "Upload", icon: <FileUploadOutlined /> },
     { name: "Backup and Restore", icon: <BackupOutlined /> },
   ];
 
@@ -42,6 +44,7 @@ export default function Navbar({
   ];
 
   const miscLinks = [
+    { name: "Download", icon: <FileDownloadOutlined /> },
     { name: "Manage Database", icon: <StorageOutlined /> },
     { name: "Manage Users", icon: <PeopleAltOutlined /> },
   ];
@@ -147,10 +150,6 @@ function SideMenu({
   const handleLinkClick = () => {
     setOpenSideMenu(false);
   };
-  const loc = useLocation();
-  useEffect(()=>{
-    // alert(openSideMenu);
-  },[loc.pathname]);
   const miscAccess:boolean = (desg === "admin" && user === 'admin');
   return (
     <Drawer
@@ -302,7 +301,7 @@ function Logout({
           horizontal: 'right',
         }}
       >
-        <Typography sx={{ p: 2 }}>Logout as {isAdmin ? "admin" : <>{displayName} </>}?</Typography>
+        <Typography sx={{ p: 2 }}>Logout as {displayName}?</Typography>
         <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '0.5rem' }}>
           <button onClick={handleClose} className="blue-button-sm">Cancel</button>
           <button onClick={handleLogout} className="red-button-sm">Logout</button>

@@ -5,7 +5,7 @@ import { Typography } from "@mui/material";
 
 interface RadiobuttonsProps {
   id: string;
-  key: number;
+  itemKey: number;
   len: number;
   score: Record<string, Record<string, number>>;
   setScore: React.Dispatch<React.SetStateAction<Record<string, Record<string, number>>>>;
@@ -17,7 +17,7 @@ interface RadiobuttonsProps {
 
 const Radiobuttons = forwardRef<HTMLDivElement, RadiobuttonsProps>(({
   id,
-  key,
+  itemKey: itemKey,
   len,
   score,
   setScore,
@@ -32,7 +32,7 @@ const Radiobuttons = forwardRef<HTMLDivElement, RadiobuttonsProps>(({
   };
 
   return (
-    <div id={`card-${id}`} key={key} ref={ref} onClick={handleSelect} style={{ margin: 10, width: '95%' }}>
+    <div id={`card-${id}`} key={itemKey} ref={ref} onClick={handleSelect} style={{ margin: 10, width: '95%' }}>
       <Card
         sx={{
           width: '100%',
@@ -48,7 +48,7 @@ const Radiobuttons = forwardRef<HTMLDivElement, RadiobuttonsProps>(({
         variant="outlined"
       >
         <div>
-          <Typography>{question}</Typography>
+        <Typography>{`${parseInt(id) + 1}) ${question}`}</Typography> 
         </div>
         <ColorRadioButtons labels={["1", "2", "3", "4", "5"]} id={id} score={score} setScore={setScore} len={len} />
       </Card>
