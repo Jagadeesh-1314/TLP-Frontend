@@ -18,13 +18,16 @@
     "@mui/x-data-grid-generator": "^6.19.6",
     "@mui/x-date-pickers": "^6.19.6",
     "axios": "^1.6.7",
+    "chart.js": "^4.4.3",
     "dayjs": "^1.11.10",
     "dotenv": "^16.4.5",
     "js-cookies": "^1.0.4",
     "react": "^18.2.0",
     "react-barcode": "^1.4.6",
+    "react-chartjs-2": "^5.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.22.1",
+    "react-swipeable": "^7.0.1",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {

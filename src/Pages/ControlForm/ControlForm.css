@@ -37,11 +37,36 @@
 }
 
 .term-deactivated {
-    background-color: #4CAF50; 
+    background-color: #FF5722; 
     color: white;
 }
 
-@media screen and (max-width: 400px) {
+.fterm-container {
+    font-size: 3vh; 
+    font-weight: bold;
+    margin: 50px auto; 
+    padding: 3vh; 
+    border-radius: 5px;
+    width: 60vw; 
+    max-width: 500px; 
+    text-align: center; 
+    background-color: #007BFF; 
+    color: white; 
+    animation: backgroundAnimation 3s infinite alternate;
+}
+
+@keyframes backgroundAnimation {
+    0% {
+        background-color: #007BFF; 
+        color: white;
+    }
+    100% {
+        background-color: #4CAF50; 
+        color: white;
+    }
+}
+
+@media screen and (max-width: 550px) {
     .container {
         flex-direction: column;
         align-items: center;

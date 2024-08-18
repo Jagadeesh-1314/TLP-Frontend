@@ -6,18 +6,24 @@ import Axios from "axios";
 import { AlertContext } from "../../components/Context/AlertDetails";
 import { LoadingContext } from "../../components/Context/Loading";
 import * as xlsx from "xlsx";
+import dayjs from "dayjs";
+import { useAuth } from "../../components/Auth/AuthProvider";
 
 export default function Upload() {
+  const currentYear = dayjs().year();
   const [tableName, setTableName] = useState("timetable");
   const [uploadingFile, setUploadingFile] = useState<File | null>(null);
   const [subType, setSubType] = useState<string>("theory");
+  const [batch, setBatch] = useState<number>(currentYear);
   const alert = useContext(AlertContext);
   const folderLocationRef = useRef<HTMLInputElement>();
   const loading = useContext(LoadingContext);
+  const { user } = useAuth()!;
 
   useEffect(() => {
     folderLocationRef.current?.focus();
   }, []);
+
 
   return (
     <>
@@ -53,6 +59,22 @@ export default function Upload() {
             <MenuItem value="lab">Lab</MenuItem>
           </CustTextField>
         )}
+
+        {tableName === "studentinfo" && (
+          <CustTextField
+            select
+            label="Batch"
+            value={batch}
+            onChange={({ target: { value } }) => {
+              setBatch(parseInt(value));
+            }}
+          >
+            <MenuItem value = {currentYear}>{currentYear}</MenuItem>
+            <MenuItem value = {2021}>2021</MenuItem>
+            <MenuItem value={currentYear - 1}>{currentYear - 1} (Lateral Entry)</MenuItem>
+          </CustTextField>
+        )}
+
         <div className="col-span-4 row-start-2 flex gap-3 items-center">
           <input
             type="file"
@@ -79,6 +101,7 @@ export default function Upload() {
               const formData = new FormData();
               formData.append('file', uploadingFile);
               formData.append('subtype', subType);
+              formData.append('batch', batch.toString());
 
               await Axios.post(`/api/upload/${tableName}`, formData, {
                 headers: {
@@ -110,16 +133,16 @@ export default function Upload() {
                 let columnNames: string[] = [];
                 let name: string | null = null;
                 if (tableName === "timetable") {
-                  columnNames = ["facId", "subCode", "sem", "sec"];
+                  columnNames = ["facId", "subCode", "sem", "sec", "branch"];
                   name = "Time-Table";
                 } else if (tableName === "studentinfo") {
-                  columnNames = ["rollno", "sec", "sem"];
-                  name = "StudentsInfo";
+                  columnNames = ["rollno", "Name", "sec", "sem"];
+                  name = `${user?.branch} StudentsInfo ${currentYear}`;
                 } else if (tableName === "faculty") {
-                  columnNames = ["facId", "facName"];
+                  columnNames = ["facultyId", "facultyName"];
                   name = "Faculty";
                 } else if (tableName === "subjects") {
-                  columnNames = ["subCode", "subName"];
+                  columnNames = ["subjectCode", "subjectName"];
                   name = "Subjects";
                 }
                 const wb = xlsx.utils.book_new();

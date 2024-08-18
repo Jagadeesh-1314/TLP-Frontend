@@ -1,12 +1,22 @@
 import Axios from "axios";
 import { AlertContext } from "../../components/Context/AlertDetails";
+import { LoadingContext } from "../../components/Context/Loading";
 import { useContext, useState } from "react";
 import "./CFReport.css";
-import { LoadingContext } from "../../components/Context/Loading";
+import { Bar } from "react-chartjs-2";
 
 interface CFReportResponse {
-    details: { batch: number, branch: string }[];
+    details: { batch: number; branch: string, sem: number }[];
     done: boolean;
+}
+
+interface CFQuestion {
+    question: string;
+    branch: string;
+    sem: number;
+    count: number;
+    total: number;
+    adjusted_total: number;
 }
 
 interface CFReportItem {
@@ -19,13 +29,15 @@ export default function CFReport() {
     const alert = useContext(AlertContext);
     const loading = useContext(LoadingContext);
     const [batches, setBatches] = useState<number[]>([]);
-    const [branches, setBranches] = useState<string[]>([]);
+    const [sems, setSems] = useState<number[]>([]);
     const [selectedBatch, setSelectedBatch] = useState<number | null>(null);
-    const [selectedBranch, setSelectedBranch] = useState<string>("");
+    const [selectedSem, setSelectedSem] = useState<number>(0);
     const [show, setShow] = useState<boolean>(true);
     const [term, setTerm] = useState<number>(0);
     const [report, setReport] = useState<CFReportItem[]>([]);
     const [showReport, setShowReport] = useState<boolean>(false);
+    const [questions, setQuestions] = useState<CFQuestion[]>([]);
+    const [showQuestions, setShowQuestions] = useState<boolean>(false);
 
     async function generateReport1() {
         try {
@@ -35,14 +47,16 @@ export default function CFReport() {
                 setTerm(1);
                 const uniqueBatches = [...new Set(data.details.map(item => item.batch))];
                 setBatches(uniqueBatches);
+                const uniqueSems = [...new Set(data.details.map(item => item.sem))];
+                setSems(uniqueSems);
                 setShow(false);
                 alert?.showAlert("CF - Report-1 generated successfully", "success");
             } else {
                 alert?.showAlert("CF - Report-1 is empty", "warning");
             }
         } catch (err) {
-            console.error("Error fetching report:", err);
-            alert?.showAlert("Error fetching report", "error");
+            console.error("Error fetching Report 1:", err);
+            alert?.showAlert("Error fetching Report 1", "error");
         }
     }
 
@@ -54,36 +68,45 @@ export default function CFReport() {
                 setTerm(2);
                 const uniqueBatches = [...new Set(data.details.map(item => item.batch))];
                 setBatches(uniqueBatches);
-                const uniqueBranches = [...new Set(data.details.map(item => item.branch))];
-                setBranches(uniqueBranches);
+                const uniqueSems = [...new Set(data.details.map(item => item.sem))];
+                setSems(uniqueSems);
                 setShow(false);
                 alert?.showAlert("CF - Report-2 generated successfully", "success");
             } else {
                 alert?.showAlert("CF - Report-2 is empty", "warning");
             }
         } catch (err) {
-            console.error("Error fetching report:", err);
-            alert?.showAlert("Error fetching report", "error");
+            console.error("Error fetching Report 2:", err);
+            alert?.showAlert("Error fetching Report 2", "error");
         }
     }
 
     function handleBatchClick(batch: number) {
         setSelectedBatch(batch);
-        setSelectedBranch("");
+        setSelectedSem(0);
         setShowReport(false);
+        setShowQuestions(false);
     }
 
-    async function handleBranchClick(branch: string) {
-        setSelectedBranch(branch);
+    async function handleSemClick(sem: number) {
+        setSelectedSem(sem);
+        setShowReport(true);
         if (selectedBatch !== null) {
             try {
-                const response = await Axios.get<{ cfreport2: CFReportItem[] }>(`api/fetchcfreport${term}?batch=${selectedBatch}&branch=${branch}`);
+                const response = await Axios.post<{ cfreport: CFReportItem[] }>(
+                    `api/fetchcfreport`,
+                    {
+                        term: term,
+                        batch: selectedBatch,
+                        sem: sem,
+                    }
+                );
                 const data = response.data;
-                if (Array.isArray(data.cfreport2)) {
-                    setReport(data.cfreport2);
+                if (data.cfreport) {
+                    setReport(data.cfreport);
                     setShowReport(true);
                 } else {
-                    console.error("Data format is incorrect. Expected an array for 'cfreport2'.");
+                    console.error("Data format is incorrect. Expected an array for 'cfreport'.");
                     setReport([]);
                 }
             } catch (error) {
@@ -97,18 +120,18 @@ export default function CFReport() {
 
     const handleDownload = async () => {
         loading?.showLoading(true, "Downloading file...");
-
         try {
             const response = await Axios.get(
-                `/api/download/downloadReport`, {
-                params: {
-                    branch: selectedBranch,
-                    batch: selectedBatch,
-                    count: term,
-                },
-                responseType: "blob"
-            });
-
+                `/api/download/downloadcfreport`,
+                {
+                    params: {
+                        sem: sems,
+                        batch: selectedBatch,
+                        count: term,
+                    },
+                    responseType: "blob",
+                }
+            );
             if (response.data) {
                 const url = window.URL.createObjectURL(new Blob([response.data]));
                 const link = document.createElement("a");
@@ -138,6 +161,57 @@ export default function CFReport() {
             loading?.showLoading(false);
         }
     };
+
+    async function cfreportquestions() {
+        setShowQuestions(true);
+        try {
+            const response = await Axios.get<{ cfreportquestions: CFQuestion[] }>(`api/cfreportquestions`);
+            const data = response.data;
+            setQuestions(data.cfreportquestions || []);
+            setShowQuestions(true);
+        } catch (error) {
+            console.error("Error fetching questions:", error);
+            alert?.showAlert("Error fetching questions", "error");
+        }
+    }
+
+
+    const data = {
+        labels: questions.map(q => q.question),
+        datasets: [
+            {
+                label: 'Percentile',
+                data: questions.map(q => q.adjusted_total),
+                backgroundColor: (context: { dataset: { data: { [x: string]: any; }; }; dataIndex: string | number; }) => {
+                    const value = context.dataset.data[context.dataIndex];
+                    return value >= 70 ? '#3CB371' : 'red';
+                },
+                barThickness: 35,
+            },
+        ],
+    };
+
+    const options = {
+        indexAxis: 'y' as const,
+        scales: {
+            x: {
+                ticks: {
+                    stepSize: 20,
+                },
+                min: 0,
+                max: 100,
+            },
+            y: {
+                ticks: {
+                    font: {
+                        weight: 'bold' as const,
+                        size: 15,
+                    },
+                },
+            },
+        },
+    };
+
 
     return (
         <>
@@ -173,13 +247,13 @@ export default function CFReport() {
                     </div>
                     {selectedBatch !== null && (
                         <div className="filter-buttons">
-                            {branches.map((branch, index) => (
+                            {sems.map((sem, index) => (
                                 <button
                                     key={index}
-                                    className={`filter-button ${selectedBranch === branch ? 'selected' : ''}`}
-                                    onClick={() => handleBranchClick(branch)}
+                                    className={`filter-button ${selectedSem === sem ? 'selected' : ''}`}
+                                    onClick={() => handleSemClick(sem)}
                                 >
-                                    Branch {branch}
+                                    Semester {sem}
                                 </button>
                             ))}
                         </div>
@@ -193,6 +267,12 @@ export default function CFReport() {
                                             <p><strong>Branch:</strong> {item.branch}</p>
                                             <p><strong>Batch:</strong> {item.batch}</p>
                                             <p><strong>Percentile:</strong> {item.percentile}</p>
+                                            <button
+                                                className="Show-Questions-button"
+                                                onClick={cfreportquestions}
+                                            >
+                                                Show Questions
+                                            </button>
                                         </div>
                                     ))
                                 ) : (
@@ -201,12 +281,47 @@ export default function CFReport() {
                                     </div>
                                 )}
                             </div>
-                            {report.length > 0 && (
-                                <div className="download-button-container">
-                                    <button className="download-button" onClick={handleDownload}>
-                                        Download
-                                    </button>
-                                </div>
+                            {showQuestions && (
+                                <>
+                                    <div className="questions-table-container">
+                                        <div className="close-button-container">
+                                            <button
+                                                className="close-button"
+                                                onClick={() => setShowQuestions(false)}
+                                            >
+                                                Close
+                                            </button>
+                                        </div>
+                                        <table className="questions-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>S.NO</th>
+                                                    <th>Question</th>
+                                                    <th>Percentile</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {questions.map((item, index) => (
+                                                    <tr key={index}>
+                                                        <td>{index + 1}</td>
+                                                        <td>{item.question}</td>
+                                                        <td>{item.adjusted_total}</td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <Bar data={data} options={options} />
+                                </>
+                            )}
+                            {showQuestions && (
+                                <>
+                                    <div className="download-button-container">
+                                        <button className="download-button" onClick={handleDownload}>
+                                            Download
+                                        </button>
+                                    </div>
+                                </>
                             )}
                         </>
                     )}

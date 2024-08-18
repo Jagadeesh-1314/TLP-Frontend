@@ -4,6 +4,9 @@ import { useContext, useState } from "react";
 import "./Report.css";
 import { FilterList } from "@mui/icons-material";
 import { LoadingContext } from "../../components/Context/Loading";
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from "chart.js";
+import { Bar } from 'react-chartjs-2';
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 interface Report {
     facName: string;
@@ -100,6 +103,7 @@ export default function Report() {
         setSelectedSec("");
         setFilterLowPercentile(false);
         setFilterClicked(false);
+        setShowReport(false);
         Axios.get<{ sec: Details[] }>(`api/details?batch=${selectedBatch}&sem=${sem}`)
             .then(({ data }) => {
                 if (Array.isArray(data.sec)) {
@@ -116,6 +120,8 @@ export default function Report() {
 
     function handleSecClick(sec: string) {
         setSelectedSec(sec);
+        setFilterLowPercentile(false);
+        setFilterClicked(false);
         if (selectedBatch !== null && selectedSem !== null) {
             Axios.get<{ report: Report[] }>(`api/fetchreport${term}?batch=${selectedBatch}&sem=${selectedSem}&sec=${sec}`)
                 .then(({ data }) => {
@@ -136,7 +142,7 @@ export default function Report() {
 
         try {
             const response = await Axios.get(
-                `/api/download/downloadReport`, {
+                `/api/download/downloadreport`, {
                 params: {
                     sem: selectedSem,
                     sec: selectedSec,
@@ -177,6 +183,69 @@ export default function Report() {
         }
     };
 
+
+    // const data = {
+    //     labels: report.map(r => r.subname),
+    //     datasets: [
+    //         {
+    //             label: "Percentile",
+    //             data: report.map(r => r.percentile), 
+    //             backgroundColor: report.map(r => (r.percentile > 70 ? '#3CB371' : "red" )),
+    //         },
+    //     ],
+    // };
+
+    // const options = {
+    //     scales: {
+    //         y: {
+    //             ticks: {
+    //                 stepSize: 20,
+    //             },
+    //             min: 20,
+    //             max: 100,
+    //         },
+    //     },
+    // };
+
+
+    const data = {
+        labels: report.map(r => r.subname),
+        datasets: [
+            {
+                label: 'Percentile',
+                data: report.map(r => r.percentile),
+                backgroundColor: (context: { dataset: { data: { [x: string]: any; }; }; dataIndex: string | number; }) => {
+                    const value = context.dataset.data[context.dataIndex];
+                    return value >= 70 ? '#3CB371' : 'red';
+                },
+                barThickness: 35,
+            },
+        ],
+    };
+
+    const options = {
+        indexAxis: 'y' as const,
+        scales: {
+            x: {
+                ticks: {
+                    stepSize: 20,
+                },
+                min: 0,
+                max: 100,
+            },
+            y: {
+                ticks: {
+                    font: {
+                        weight: 'bold' as const,
+                        size: 15,
+                    },
+                },
+            },
+        },
+    };
+    
+
+
     return (
         <>
             {show ? (
@@ -198,7 +267,7 @@ export default function Report() {
                 </div>
             ) : (
                 <>
-                    <div className="filter-buttons">
+                    <div className="filter-buttons no-print">
                         {batches.map((batch, index) => (
                             <button
                                 key={index}
@@ -210,7 +279,7 @@ export default function Report() {
                         ))}
                     </div>
                     {selectedBatch !== null && (
-                        <div className="filter-buttons">
+                        <div className="filter-buttons no-print">
                             {sems.map((sem, index) => (
                                 <button
                                     key={index}
@@ -223,7 +292,7 @@ export default function Report() {
                         </div>
                     )}
                     {selectedSem !== null && (
-                        <div className="filter-buttons">
+                        <div className="filter-buttons no-print">
                             {secs.map((sec, index) => (
                                 <button
                                     key={index}
@@ -272,11 +341,16 @@ export default function Report() {
                                             <p>No members found with percentile less than or equal to 70.</p>
                                         </div>
                                     ) : (
-                                        <div className="download-button-container">
-                                            <button className="download-button" onClick={handleDownload}>
-                                                Download
-                                            </button>
-                                        </div>
+                                        <>
+                                            {/* <div className="chart-wrapper"> */}
+                                            <Bar data={data} options={options} />
+                                            {/* </div> */}
+                                            <div className="download-button-container no-print">
+                                                <button className="download-button" onClick={handleDownload}>
+                                                    Download Report
+                                                </button>
+                                            </div>
+                                        </>
                                     )}
 
                                 </>

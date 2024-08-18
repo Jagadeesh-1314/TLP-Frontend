@@ -271,7 +271,7 @@ function Logout({
               className="text-lg font-semibold tracking-wider bg-zinc-300 text-black flex justify-center items-center rounded-full size-10"
               onClick={handleClick}
             >
-              {displayName?.split(" ").map((word) => word[0].toUpperCase()).join("")}
+              {displayName?.split(" ").map((word) => word.toUpperCase()).join("")}
             </button>
           </Tooltip>
         </>

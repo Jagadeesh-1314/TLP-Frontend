@@ -1,3 +1,10 @@
+.center-button {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+    gap: 10px;
+}
+
 .filter-buttons {
     margin-top: 20px;
     display: flex;
@@ -6,9 +13,9 @@
 }
 
 .filter-button {
-    background-color: #007BFF; 
+    background-color: #007BFF;
     color: white;
-    padding: 10px 15px;
+    padding: 8px 12px;
     border: none;
     border-radius: 4px;
     cursor: pointer;
@@ -16,28 +23,35 @@
 }
 
 .filter-button:hover {
-    background-color: #0056b3; 
+    background-color: #0056b3;
 }
 
 .filter-button.selected {
-    background-color: #4CAF50; 
+    background-color: #4CAF50;
 }
 
 .report-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 16px;
-    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     margin-top: 20px;
+    padding: 16px;
+    width: 100%;
+    max-width: 50vh;
+    margin: 0 auto;
 }
 
 .report-item {
     background: #f9f9f9;
     border: 1px solid #ddd;
     border-radius: 8px;
-    padding: 16px;
+    text-align: center;
+    padding: 12px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     transition: transform 0.2s, background-color 0.2s;
+    width: 100%;
+    max-width: 600px;
+    margin: 10px 0;
 }
 
 .report-item:hover {
@@ -45,7 +59,7 @@
 }
 
 .report-item p {
-    margin: 8px 0;
+    margin: 6px 0;
 }
 
 .report-item strong {
@@ -55,7 +69,7 @@
 .green-button-filled {
     background-color: #4CAF50;
     color: white;
-    padding: 10px 20px;
+    padding: 8px 16px;
     border: none;
     border-radius: 4px;
     cursor: pointer;
@@ -68,45 +82,131 @@
 
 .low-percentile-item {
     background-color: #ffcccc;
-    border-color: #ff0000; 
-}
-
-.center-button {
-    display: flex;
-    justify-content: center;
-    margin-top: 20px;
-    gap: 10px;
+    border-color: #ff0000;
 }
 
 .no-report-message {
     text-align: center;
     margin: 20px;
-    padding: 20px;
+    padding: 12px;
     border: 1px solid #ff0000;
     border-radius: 5px;
     background-color: #f78b8b;
     color: #333;
-    font-size: 23px; 
-    font-weight: bold; 
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.download-button-container {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
 }
 
 .download-button {
     background-color: #1f73e0;
     border: none;
     color: white;
-    padding: 15px 32px;
+    padding: 12px 24px;
     text-align: center;
     text-decoration: none;
     display: inline-block;
-    font-size: 16px;
+    font-size: 14px;
     margin: 4px 2px;
     border-radius: 20px;
     transition-duration: 0.4s;
-  }
+}
+
+.Show-Questions-button {
+    background-color: #1f73e0;
+    border: none;
+    color: white;
+    padding: 9px 18px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 15px;
+    margin: 4px 2px;
+    border-radius: 16px;
+    transition-duration: 0.4s;
+}
+
+.Show-Questions-button:hover {
+    background-color: #15c118;
+    color: #010101;
+}
+
+.questions-table-container {
+    margin-top: 20px;
+    overflow-x: auto;
+    display: flex;
+    justify-content: center;
+    position: relative;
+}
+
+.questions-table {
+    width: 90%;
+    max-width: 1000px;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 16px;
+    margin-top: 50px; /* Added space for the button */
+}
+
+.questions-table th,
+.questions-table td {
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+}
+
+.questions-table th {
+    background-color: #f4f4f4;
+}
+
+.questions-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
 
 @media screen and (max-width: 430px) {
     .center-button {
         flex-direction: column;
         align-items: center;
     }
+}
+
+/* Close Button */
+.close-button-container {
+    position: absolute;
+    top: 0;
+    z-index: 1;
+    padding: 5px;
+}
+
+.close-button {
+    background-color: #ff4d4d;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 8px 16px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.close-button:hover {
+    background-color: #e60000;
+    transform: scale(1.05);
+}
+
+.close-button:active {
+    transform: scale(0.95);
+}
+
+.close-button:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.5);
 }

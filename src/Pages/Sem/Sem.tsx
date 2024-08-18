@@ -10,7 +10,7 @@ interface Subjects {
     subCode: string;
     subname: string;
     qtype: string;
-    facID: number;
+    facID: string;
     facName: string;
 }
 
@@ -73,11 +73,18 @@ export default function Sem() {
             navigate("/completed");
             loading?.showLoading(false);
         } else if (sub.length > 0) {
-            navigate("/feedback");
-            loading?.showLoading(false);
-        } 
-    };
+            const storedPage = localStorage.getItem("currentPage");
+            console.log(storedPage)
+            if (storedPage === "CentralFacilities") {
+                navigate("/centralfacilities");
+            } else {
+                navigate("/feedback");
+            }
 
+            loading?.showLoading(false);
+        }
+    };
+    
     return (
         <>
             <div className="container" style={{
@@ -99,6 +106,9 @@ export default function Sem() {
                                         className="button"
                                         style={{ width: '100%' }}
                                         onClick={handleButtonClick}
+                                        disabled={semesterString !== ((user && user.sem) 
+                                            ? Math.floor((user.sem + 1) / 2).toString() + '-' + (user.sem % 2 !== 0 ? '1' : '2')
+                                            : null)}
                                     >
                                         {semesterString}
                                     </button>
