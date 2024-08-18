@@ -15,7 +15,7 @@ interface Subjects {
   subCode: string;
   subname: string;
   qtype: string;
-  facID: number;
+  facID: string;
   facName: string;
 }
 
@@ -42,6 +42,7 @@ export default function Feedback() {
       Axios.get<{ sub: Subjects[], token: string }>(`api/subjects?username=${user.username}`)
         .then(({ data }) => {
           setSub(data.sub);
+          console.log(data.sub)
         })
         .catch((error) => {
           console.error("Error fetching subjects:", error);
@@ -133,7 +134,6 @@ export default function Feedback() {
           const avgScore = totalScore / length;
 
           const dataObject = {
-            stuID: user?.username,
             facID: sub[parseInt(i)].facID,
             subCode: sub[parseInt(i)].subCode,
             qtype: sub[parseInt(i)].qtype,
@@ -141,7 +141,8 @@ export default function Feedback() {
             totalScore: avgScore,
             batch: user?.batch
           };
-          const { data } = await Axios.post('/api/score', dataObject, {
+          console.log(dataObject)
+          const { data } = await Axios.post(`api/score`, dataObject, {
             headers: {
               'Content-Type': 'application/json'
             }
@@ -160,6 +161,7 @@ export default function Feedback() {
         window.scrollTo(0, 0);
       } else {
           alert?.showAlert("Form Submitted", "success");
+          localStorage.setItem("currentPage", "CentralFacilities");
           navigate("/centralfacilities");
           sessionStorage.removeItem("currentPage");
       }

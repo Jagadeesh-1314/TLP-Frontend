@@ -48,7 +48,7 @@ export interface ExamSemProps {
 }
 
 export interface ManageDBResponseProps {
-  facID: number;
+  facID: string;
   subCode: string;
   sem: number;
   sec: string;

@@ -86,7 +86,8 @@ export default function LoginForm() {
                     sessionStorage.setItem("desg", data.desg);
                     sessionStorage.setItem("branch", data.branch);
                     sessionStorage.setItem("batch", data.batch);
-                    setUser({username: loginCreds.username, displayName:data.displayName, desg: data.desg, branch: data.branch, batch: data.batch })
+                    sessionStorage.setItem("sem", data.sem);
+                    setUser({username: loginCreds.username, displayName:data.displayName, desg: data.desg, branch: data.branch, batch: data.batch, sem: data.sem })
                     document.cookie = `Token=${data.token}`;
                     if(data.desg === 'admin') {
                       navigate('/report');

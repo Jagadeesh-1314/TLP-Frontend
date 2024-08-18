@@ -14,7 +14,7 @@ export default function ColorRadioButtons({ labels = ["1", "2", "3", "4", "5"], 
 
   const textLabels: Record<"1" | "2" | "3" | "4" | "5", string> = {
     "1": "Poor",
-    "2": "Fair",
+    "2": "Average",
     "3": "Good",
     "4": "Very Good",
     "5": "Excellent"
@@ -42,7 +42,7 @@ export default function ColorRadioButtons({ labels = ["1", "2", "3", "4", "5"], 
             key={value}
             value={value}
             control={<Radio />}
-            label={`${value.toString()} - ${textLabels[value]}`} 
+            label={`${textLabels[value]} - {'${value.toString()}'}`} 
             labelPlacement="end"
           />
         ))}

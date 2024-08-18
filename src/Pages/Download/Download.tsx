@@ -36,7 +36,7 @@ export default function Download() {
           }
         >
           <MenuItem value="report">Report</MenuItem>
-          <MenuItem value="theoryscore">Theory Score</MenuItem>
+          <MenuItem value="theoryscore1">Theory Score</MenuItem>
           <MenuItem value="labscore">Lab Score</MenuItem>
           
         </CustTextField>

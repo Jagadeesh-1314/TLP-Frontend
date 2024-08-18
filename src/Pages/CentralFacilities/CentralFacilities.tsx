@@ -4,6 +4,7 @@ import Radiobuttons from "../../components/Custom/Radiobuttons";
 import { useAuth } from "../../components/Auth/AuthProvider";
 import { AlertContext } from "../../components/Context/AlertDetails";
 import { useNavigate } from "react-router-dom";
+import Feedback  from "../Feedback/Feedback";
 
 interface Question {
     qtype: string;
@@ -24,6 +25,15 @@ export default function CentralFacilities() {
     const [score, setScore] = useState<Score>(() => JSON.parse(localStorage.getItem("score") || "{}"));
     const [len] = useState<number>(() => Number(localStorage.getItem("len")) || 0);
     const [unfilledFields, setUnfilledFields] = useState<number[]>([]);
+
+
+    useLayoutEffect(() => {
+        const storedPage = localStorage.getItem("currentPage");
+        if (storedPage === "CentralFacilities") {
+            localStorage.removeItem("currentPage");
+        }
+    }, []);
+
 
     const handleCardClick = (index: number) => {
         const secondCard = document.querySelector(`#card-${index + 1}`);
@@ -64,7 +74,6 @@ export default function CentralFacilities() {
         />
     ));
 
-
     async function handleSubmit(): Promise<void> {
         const requiredKeys = CentralFacilities.map((_, index) => index.toString());
         const currentScore = score[tmp] || {};
@@ -88,6 +97,9 @@ export default function CentralFacilities() {
         } else {
             setUnfilledFields([]);
         }
+        // await Feedback.handleNext();
+        // const f =  Feedback()
+        // console.log(f);
         const totalScore = Object.values(score[tmp]).reduce((a, b) => a + b, 0);
         const length = CentralFacilities.length;
         const avgScore = totalScore / length;
