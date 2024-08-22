@@ -4,7 +4,8 @@ import Radiobuttons from "../../components/Custom/Radiobuttons";
 import { useAuth } from "../../components/Auth/AuthProvider";
 import { AlertContext } from "../../components/Context/AlertDetails";
 import { useNavigate } from "react-router-dom";
-import Feedback  from "../Feedback/Feedback";
+import Feedback from "../Feedback/Feedback";
+import Title from "../../components/Title";
 
 interface Question {
     qtype: string;
@@ -138,6 +139,7 @@ export default function CentralFacilities() {
 
     return (
         <div className="bg-blue-100 py-7 px-3 md:px-6 rounded-lg">
+            <Title title="Central Facilities Form" />
             <div className="flex flex-col items-center">
                 {cards}
                 <button

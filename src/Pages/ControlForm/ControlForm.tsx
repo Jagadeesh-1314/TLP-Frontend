@@ -2,6 +2,7 @@ import { useContext, useLayoutEffect, useState } from "react";
 import Axios from "axios";
 import { AlertContext } from "../../components/Context/AlertDetails";
 import "./ControlForm.css";
+import Title from "../../components/Title";
 
 export default function ControlForm() {
     const alert = useContext(AlertContext);
@@ -72,6 +73,7 @@ export default function ControlForm() {
 
     return (
         <>
+            <Title title="Contral Term and Promote" />
             <div className="container">
                 <button className="button" onClick={incrementcount}>
                     SET TERM - 2

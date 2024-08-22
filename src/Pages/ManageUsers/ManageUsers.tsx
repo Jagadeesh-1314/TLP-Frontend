@@ -22,6 +22,7 @@ import {
 import { DeleteOutline, EditOutlined } from "@mui/icons-material";
 import { CustDialog } from "../../components/Custom/CustDialog";
 import { CustTextField } from "../../components/Custom/CustTextField";
+import Title from "../../components/Title";
 
 // ANCHOR EXPORT FUNCTION  ||========================================================================
 export default function ManageUsers() {
@@ -104,6 +105,7 @@ export default function ManageUsers() {
   // ANCHOR JSX  ||========================================================================
   return (
     <>
+    <Title title="Manage Users" />
       <Container maxWidth="lg" className={`bg-white py-4`}>
         <CustDataGrid
           rows={userDetailsResponse}
@@ -184,7 +186,7 @@ function ManageUserDetails({
 
     if (username === "") return false;
     if (displayName === "") return false;
-    if(branch === "") return false;
+    if (branch === "") return false;
     if (type === "add") if (password === "") return false;
     if (password) {
       if (password !== confirmPassword) return false;
@@ -197,6 +199,9 @@ function ManageUserDetails({
   // JSX  ||========================================================================
   return (
     <>
+      <div className="flex flex-col text-center">
+        <Title title="Manage Users" />
+      </div>
       {type === "add" ? (
         <button
           className="blue-button-filled"
@@ -382,13 +387,13 @@ function ManageUserDetails({
                 }
                 error={
                   newUserDetails?.password !==
-                    newUserDetails?.confirmPassword &&
+                  newUserDetails?.confirmPassword &&
                   newUserDetails?.password?.trim()?.length >= 8
                 }
                 helperText={
                   newUserDetails?.password !==
                     newUserDetails?.confirmPassword &&
-                  newUserDetails?.confirmPassword?.trim()?.length > 0
+                    newUserDetails?.confirmPassword?.trim()?.length > 0
                     ? "Passwords do not match"
                     : ""
                 }

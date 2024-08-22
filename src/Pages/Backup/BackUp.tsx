@@ -4,6 +4,7 @@ import { useContext, useEffect, useRef, useState } from "react";
 import Axios from "axios";
 import { AlertContext } from "../../components/Context/AlertDetails";
 import { LoadingContext } from "../../components/Context/Loading";
+import Title from "../../components/Title";
 
 export default function backup() {
   const [action, setAction] = useState("backUp");
@@ -19,6 +20,7 @@ export default function backup() {
   return (
     <>
       {/* Backup... Restore... */}
+      <Title title="Backup and Restore" />
       <div className="grid lg:grid-cols-6 md:grid-cols-2 grid-cols-2 gap-x-4 gap-y-4 no-print">
         <CustTextField
           select

@@ -10,6 +10,7 @@ import {
   ControlCamera,
   StorageOutlined,
   FormatListBulleted,
+  PostAdd,
 } from "@mui/icons-material";
 import {
   Divider,
@@ -37,6 +38,7 @@ export default function Navbar({
     { name: "CFReport", icon: <PlagiarismOutlined /> },
     { name: "Control", icon: <ControlCamera/> },
     { name: "Upload", icon: <FileUploadOutlined /> },
+    { name: "Electives", icon: <PostAdd /> },
     { name: "Backup and Restore", icon: <BackupOutlined /> },
   ];
 

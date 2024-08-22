@@ -8,7 +8,7 @@ export default function ThankYou() {
             <div className="wrapper-1">
                 <div className="wrapper-2">
                     <h1>🎉 Thank you! ✅</h1>
-                    <p className="message">Your submission has been received successfully.</p>
+                    <p className="message">Your submission has been recorded successfully.</p>
                     
                         <button className="go-home" onClick={() => navigate("/sem")}>
                             Go Home
