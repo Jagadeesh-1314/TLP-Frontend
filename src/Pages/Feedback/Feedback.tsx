@@ -1,10 +1,12 @@
 import { useContext, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Radiobuttons from "../../components/Custom/Radiobuttons";
-import { Box, Card, Step, StepLabel, Stepper } from "@mui/material";
+import { Card } from "@mui/material";
 import Axios from "axios";
 import { AlertContext } from "../../components/Context/AlertDetails";
 import { useAuth } from "../../components/Auth/AuthProvider";
+import StepperComponent from "../../components/Custom/StepperComponent";
+import Title from "../../components/Title";
 
 interface Question {
   qtype: string;
@@ -39,7 +41,7 @@ export default function Feedback() {
 
   useEffect(() => {
     if (user) {
-      Axios.get<{ sub: Subjects[], token: string }>(`api/subjects?username=${user.username}`)
+      Axios.get<{ sub: Subjects[], token: string }>(`api/subjects`)
         .then(({ data }) => {
           setSub(data.sub);
           console.log(data.sub)
@@ -81,32 +83,32 @@ export default function Feedback() {
     setUnfilledFields((prev) => prev.filter((i) => i !== index));
   };
 
-  
+
   const cards = sub && (sub[len] && sub[len].qtype === "lab" ? lab : theory).map((obj, index) => (
     <Radiobuttons
-    id={index.toString()}
-    key={index}
-    itemKey={index}
-    ref={(el) => (questionRefs.current[index] = el)}
-    score={score}
-    len={len}
-    setScore={setScore}
-    onClick={() => handleCardClick(index)}
-    question={obj.question}
-    isUnfilled={unfilledFields.includes(index)}
-    onSelect={() => handleFieldSelect(index)}
+      id={index.toString()}
+      key={index}
+      itemKey={index}
+      ref={(el) => (questionRefs.current[index] = el)}
+      score={score}
+      len={len}
+      setScore={setScore}
+      onClick={() => handleCardClick(index)}
+      question={obj.question}
+      isUnfilled={unfilledFields.includes(index)}
+      onSelect={() => handleFieldSelect(index)}
     />
   ));
-  
+
   const isLastStep = sub && len === sub.length - 1;
-  
+
   async function handleNext(): Promise<void> {
     try {
       if (!sub || sub.length === 0) return;
       const currentScore = score[len] || {};
       const requiredKeys = (sub[len].qtype === "theory" ? theory : lab).map((_, index) => index.toString());
       const allFieldsFilled = requiredKeys.every((key) => currentScore[key] !== undefined && currentScore[key] !== null);
-      
+
       if (!allFieldsFilled) {
         const newUnfilledFields: number[] = [];
         for (let key of requiredKeys) {
@@ -124,7 +126,7 @@ export default function Feedback() {
         alert?.showAlert("Please fill all the required fields.", "warning");
         return;
       } else {
-        setUnfilledFields([]); 
+        setUnfilledFields([]);
       }
 
       if (isLastStep) {
@@ -160,10 +162,10 @@ export default function Feedback() {
         setLen(len + 1);
         window.scrollTo(0, 0);
       } else {
-          alert?.showAlert("Form Submitted", "success");
-          localStorage.setItem("currentPage", "CentralFacilities");
-          navigate("/centralfacilities");
-          sessionStorage.removeItem("currentPage");
+        alert?.showAlert("Form Submitted", "success");
+        localStorage.setItem("currentPage", "CentralFacilities");
+        navigate("/centralfacilities");
+        sessionStorage.removeItem("currentPage");
       }
     } catch (err) {
       console.error("Error posting score:", err);
@@ -172,17 +174,25 @@ export default function Feedback() {
 
   return (
     <div className="bg-blue-100 py-7 px-3 md:px-6 rounded-lg">
+      <Title title="Feedback Form" />
       <div className="flex flex-col items-center">
         <div className="flex justify-center" style={{ width: '85vw', overflowY: 'auto' }}>
-          <Box sx={{ width: "80%", paddingBlock: 10 }}>
-            <Stepper activeStep={len} alternativeLabel>
+          {/* <Box sx={{
+            width: '100%',
+            maxWidth: { xs: '95vw', sm: '85vw' },
+            margin: '0 auto',
+            padding: { xs: 1, sm: 3, md: 5 },
+            boxSizing: 'border-box'
+          }}>
+            <Stepper activeStep={len} alternativeLabel sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem', md: '1rem' } }}>
               {sub && sub.map((subject) => (
                 <Step key={subject.subCode}>
                   <StepLabel>{subject.subname}</StepLabel>
                 </Step>
               ))}
             </Stepper>
-          </Box>
+          </Box> */}
+          <StepperComponent sub={sub} len={len} />
         </div>
       </div>
 

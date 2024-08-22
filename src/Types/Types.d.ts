@@ -19,4 +19,5 @@ type Pages =
   | "unfilledlist"
   | "backup-and-restore"
   | "manage-database"
+  | "electives"
   | "test";

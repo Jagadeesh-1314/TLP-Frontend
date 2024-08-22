@@ -3,6 +3,7 @@ import Axios from 'axios';
 import './UnfilledList.css';
 import { LoadingContext } from '../../components/Context/Loading';
 import { AlertContext } from '../../components/Context/AlertDetails';
+import Title from '../../components/Title';
 
 interface Student {
     rollno: number;
@@ -96,63 +97,66 @@ export default function ControlForm() {
         .filter(student => selectedSec === "" || student.sec === selectedSec);
 
     return (
-        <div className="control-form">
-            <div className="filter-container">
-                <div className="filter-buttons">
-                    {sems.map((sem, index) => (
-                        <button
-                            key={index}
-                            onClick={() => handleSemClick(sem)}
-                            className={`filter-button ${selectedSem === sem ? 'selected' : ''}`}
-                        >
-                            Semester {sem}
-                        </button>
-                    ))}
-                </div>
-                {selectedSem !== null && (
+        <>
+            <Title title="Un-Filled List" />
+            <div className="control-form">
+                <div className="filter-container">
                     <div className="filter-buttons">
-                        {secs.map((sec, index) => (
+                        {sems.map((sem, index) => (
                             <button
                                 key={index}
-                                onClick={() => handleSecClick(sec)}
-                                className={`filter-button ${selectedSec === sec ? 'selected' : ''}`}
+                                onClick={() => handleSemClick(sem)}
+                                className={`filter-button ${selectedSem === sem ? 'selected' : ''}`}
                             >
-                                Section {sec}
+                                Semester {sem}
                             </button>
                         ))}
                     </div>
+                    {selectedSem !== null && (
+                        <div className="filter-buttons">
+                            {secs.map((sec, index) => (
+                                <button
+                                    key={index}
+                                    onClick={() => handleSecClick(sec)}
+                                    className={`filter-button ${selectedSec === sec ? 'selected' : ''}`}
+                                >
+                                    Section {sec}
+                                </button>
+                            ))}
+                        </div>
+                    )}
+                </div>
+                {showRollNumbers && (
+                    <>
+                        <div className="total-count">
+                            Total Count: {filteredStudents.length}
+                        </div>
+                        <table className="students-table">
+                            <thead>
+                                <tr>
+                                    <th>S. No.</th>
+                                    <th>Roll No</th>
+                                    <th>Student Name</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {filteredStudents.map((student, index) => (
+                                    <tr key={student.rollno}>
+                                        <td>{index + 1}</td>
+                                        <td>{student.rollno}</td>
+                                        <td>{student.name}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                        <div className="download-button-container">
+                            <button className="download-button" onClick={handleDownload}>
+                                Download
+                            </button>
+                        </div>
+                    </>
                 )}
             </div>
-            {showRollNumbers && (
-                <>
-                    <div className="total-count">
-                        Total Count: {filteredStudents.length}
-                    </div>
-                    <table className="students-table">
-                        <thead>
-                            <tr>
-                                <th>S. No.</th>
-                                <th>Roll No</th>
-                                <th>Student Name</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {filteredStudents.map((student, index) => (
-                                <tr key={student.rollno}>
-                                    <td>{index + 1}</td>
-                                    <td>{student.rollno}</td>
-                                    <td>{student.name}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                    <div className="download-button-container">
-                        <button className="download-button" onClick={handleDownload}>
-                            Download
-                        </button>
-                    </div>
-                </>
-            )}
-        </div>
+        </>
     );
 }        

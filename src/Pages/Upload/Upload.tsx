@@ -8,6 +8,7 @@ import { LoadingContext } from "../../components/Context/Loading";
 import * as xlsx from "xlsx";
 import dayjs from "dayjs";
 import { useAuth } from "../../components/Auth/AuthProvider";
+import Title from "../../components/Title";
 
 export default function Upload() {
   const currentYear = dayjs().year();
@@ -27,6 +28,7 @@ export default function Upload() {
 
   return (
     <>
+      <Title title="Upload" />
       <div className="grid lg:grid-cols-6 md:grid-cols-2 grid-cols-2 gap-x-4 gap-y-4 no-print">
         <CustTextField
           select
@@ -69,8 +71,8 @@ export default function Upload() {
               setBatch(parseInt(value));
             }}
           >
-            <MenuItem value = {currentYear}>{currentYear}</MenuItem>
-            <MenuItem value = {2021}>2021</MenuItem>
+            <MenuItem value={currentYear}>{currentYear}</MenuItem>
+            <MenuItem value={2021}>2021</MenuItem>
             <MenuItem value={currentYear - 1}>{currentYear - 1} (Lateral Entry)</MenuItem>
           </CustTextField>
         )}

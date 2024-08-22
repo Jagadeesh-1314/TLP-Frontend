@@ -1,0 +1,67 @@
+
+.rollno-container {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 10px;
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+@media (max-width: 1000px) {
+    .rollno-container {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 400px) {
+    .rollno-container {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.rollno-button {
+    padding: 10px;
+    text-align: center;
+    background-color: #e9ecef;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s;
+    font-size: 14px;
+    width: 100%;
+}
+.rollno-button:hover {
+    background-color: #c0c0c0;
+    transform: scale(1.05);
+}
+
+.rollno-button.selected {
+    background-color: #ff5500;
+    color: white;
+    font-weight: bold;
+    border-color: #1976d2;
+}
+.subject-selection {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.subject-selection .MuiAutocomplete-root {
+    width: 300px;
+    margin: 0 auto;
+}
+
+.subject-selection .MuiOutlinedInput-root {
+    border-radius: 8px;
+    padding: 10px;
+    background-color: #f5f5f5;
+}
+
+.subject-selection .MuiAutocomplete-option {
+    padding: 10px 20px;
+}
+
+.subject-selection .MuiAutocomplete-option:hover {
+    background-color: #e0e0e0;
+}

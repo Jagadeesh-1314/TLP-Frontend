@@ -4,6 +4,7 @@ import { LoadingContext } from "../../components/Context/Loading";
 import { useContext, useState } from "react";
 import "./CFReport.css";
 import { Bar } from "react-chartjs-2";
+import Title from "../../components/Title";
 
 interface CFReportResponse {
     details: { batch: number; branch: string, sem: number }[];
@@ -215,6 +216,7 @@ export default function CFReport() {
 
     return (
         <>
+            <Title title="Central Facilities Report" />
             {show ? (
                 <div className="center-button">
                     <button
@@ -260,10 +262,10 @@ export default function CFReport() {
                     )}
                     {showReport && (
                         <>
-                            <div className="report-container">
+                            <div className="report-container1">
                                 {report.length > 0 ? (
                                     report.map((item, index) => (
-                                        <div key={`${item.batch}-${item.branch}-${index}`} className="report-item">
+                                        <div key={`${item.batch}-${item.branch}-${index}`} className="report-item1">
                                             <p><strong>Branch:</strong> {item.branch}</p>
                                             <p><strong>Batch:</strong> {item.batch}</p>
                                             <p><strong>Percentile:</strong> {item.percentile}</p>
@@ -281,6 +283,7 @@ export default function CFReport() {
                                     </div>
                                 )}
                             </div>
+
                             {showQuestions && (
                                 <>
                                     <div className="questions-table-container">

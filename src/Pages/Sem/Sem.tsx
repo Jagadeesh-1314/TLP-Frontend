@@ -32,7 +32,7 @@ export default function Sem() {
     useEffect(() => {
         if (user?.username) {
             loading?.showLoading(true, "Loading data...");
-            Axios.get<{ sub: Subjects[], token: string }>(`api/subjects?username=${user.username}`)
+            Axios.get<{ sub: Subjects[], token: string }>(`api/subjects`)
                 .then(({ data }) => {
                     setSub(data.sub);
                     if (data.sub.length === 0) {
@@ -84,7 +84,7 @@ export default function Sem() {
             loading?.showLoading(false);
         }
     };
-    
+
     return (
         <>
             <div className="container" style={{
@@ -106,7 +106,7 @@ export default function Sem() {
                                         className="button"
                                         style={{ width: '100%' }}
                                         onClick={handleButtonClick}
-                                        disabled={semesterString !== ((user && user.sem) 
+                                        disabled={semesterString !== ((user && user.sem)
                                             ? Math.floor((user.sem + 1) / 2).toString() + '-' + (user.sem % 2 !== 0 ? '1' : '2')
                                             : null)}
                                     >

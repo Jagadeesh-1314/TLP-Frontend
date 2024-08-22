@@ -4,9 +4,10 @@ import { useContext, useState } from "react";
 import "./Report.css";
 import { FilterList } from "@mui/icons-material";
 import { LoadingContext } from "../../components/Context/Loading";
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from "chart.js";
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title as ChartTitle, Tooltip, Legend } from "chart.js";
 import { Bar } from 'react-chartjs-2';
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+import Title from "../../components/Title";
+ChartJS.register(CategoryScale, LinearScale, BarElement, ChartTitle, Tooltip, Legend);
 
 interface Report {
     facName: string;
@@ -19,13 +20,10 @@ interface Report {
 }
 
 interface ReportResponse {
-    details: { sem: number, batch: number }[];
+    details: { sem: number, batch: number, sec: string }[];
     done: boolean;
 }
 
-interface Details {
-    sec: string;
-}
 
 export default function Report() {
     const alert = useContext(AlertContext);
@@ -55,6 +53,9 @@ export default function Report() {
                 const uniqueSems = [...new Set(data.details.map(item => item.sem))];
                 const sortedSems = uniqueSems.sort((a, b) => a - b);
                 setSems(sortedSems);
+                const uniqueSecs = [...new Set(data.details.map(item => item.sec))];
+                const sortedSecs = uniqueSecs.sort((a, b) => a.localeCompare(b));
+                setSecs(sortedSecs);
                 setShow(false);
                 alert?.showAlert("Report-1 generated successfully", "success");
             } else {
@@ -78,6 +79,9 @@ export default function Report() {
                 const uniqueSems = [...new Set(data.details.map(item => item.sem))];
                 const sortedSems = uniqueSems.sort((a, b) => a - b);
                 setSems(sortedSems);
+                const uniqueSecs = [...new Set(data.details.map(item => item.sec))];
+                const sortedSecs = uniqueSecs.sort((a, b) => a.localeCompare(b));
+                setSecs(sortedSecs);
                 setShow(false);
                 alert?.showAlert("Report-2 generated successfully", "success");
             } else {
@@ -104,18 +108,6 @@ export default function Report() {
         setFilterLowPercentile(false);
         setFilterClicked(false);
         setShowReport(false);
-        Axios.get<{ sec: Details[] }>(`api/details?batch=${selectedBatch}&sem=${sem}`)
-            .then(({ data }) => {
-                if (Array.isArray(data.sec)) {
-                    const secValues = data.sec.map(item => item.sec).sort();
-                    setSecs(secValues);
-                } else {
-                    console.error("Data format is incorrect. Expected an array for 'sec'.");
-                }
-            })
-            .catch(error => {
-                console.error("Error fetching details:", error);
-            });
     }
 
     function handleSecClick(sec: string) {
@@ -243,11 +235,12 @@ export default function Report() {
             },
         },
     };
-    
+
 
 
     return (
         <>
+            <Title title="Report" />
             {show ? (
                 <div className="center-button">
                     <button

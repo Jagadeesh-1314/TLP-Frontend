@@ -30,6 +30,7 @@ import ControlForm from "./Pages/ControlForm/ControlForm";
 import Backup from "./Pages/Backup/BackUp";
 import UnfilledList from "./Pages/UnfilledList/UnfilledList";
 import CFReport from "./Pages/CFReport/CFReport";
+import Electives from "./Pages/Electives/Electives";
 export const Bus = createContext<{ sub: Subjects[] | null, setSub: React.Dispatch<React.SetStateAction<Subjects[] | null>> } | null>(null);
 
 const LoginForm = lazy(() => import("./Pages/Login/Login"));
@@ -118,6 +119,10 @@ function App() {
             {
               path: "/backup-and-restore",
               element: <Backup />,
+            },
+            {
+              path: "/electives",
+              element: <Electives />,
             },
             {
               path: "/manage-database",
