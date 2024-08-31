@@ -143,7 +143,7 @@ export default function Feedback() {
             totalScore: avgScore,
             batch: user?.batch
           };
-          console.log(dataObject)
+          // console.log(dataObject)
           const { data } = await Axios.post(`api/score`, dataObject, {
             headers: {
               'Content-Type': 'application/json'
@@ -162,7 +162,10 @@ export default function Feedback() {
         setLen(len + 1);
         window.scrollTo(0, 0);
       } else {
-        alert?.showAlert("Form Submitted", "success");
+        const { data } = await Axios.post(`api/updatetokenfacdone`);
+        if (data.done) {
+          alert?.showAlert("Form Submitted", "success");
+        }
         localStorage.setItem("currentPage", "CentralFacilities");
         navigate("/centralfacilities");
         sessionStorage.removeItem("currentPage");

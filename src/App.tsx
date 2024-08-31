@@ -1,4 +1,4 @@
-import { Suspense, createContext, lazy, useMemo } from "react";
+import { Suspense, createContext, lazy } from "react";
 import {
   RouterProvider,
   createBrowserRouter,
@@ -11,7 +11,6 @@ import LoadingProvider from "./components/Context/Loading";
 import AuthProvider from "./components/Auth/AuthProvider";
 import PrivateRoute from "./components/Auth/PrivateRouter";
 import PageLayout from "./components/Custom/PageLayout";
-import Navbar from "./components/Navbar/Navbar";
 
 interface Subjects {
   subCode: string;
@@ -21,6 +20,7 @@ interface Subjects {
   facName: string;
 }
 
+// import showNavbar from "./components/Custom/useShowNavbar";
 import Download from "./Pages/Download/Download";
 import Upload from "./Pages/Upload/Upload";
 import ManageDB from "./Pages/ManageDB/ManageDB";
@@ -47,12 +47,10 @@ const Sem = lazy(() => import("./Pages/Sem/Sem"));
 const Test = lazy(() => import("./misc/Test"));
 const ThankYou = lazy(() => import("./Pages/ThankYou/ThankYou"));
 const CompletedFeedback = lazy(() => import("./Pages/CompletedFeedback/CompletedFeedback"));
+const ShowNavbar = lazy(() => import('./components/Custom/useShowNavbar'))
 
 function App() {
-  const nav = useMemo(() => <Navbar
-    user={sessionStorage.getItem("username") as string}
-    desg={sessionStorage.getItem("desg") as string}
-  />, [])
+  // const nav = ;
   // const [sub, setSub] = useState<Subjects[] | null>([]);
   const router = createBrowserRouter([
 
@@ -64,7 +62,7 @@ function App() {
     {
       path: "/",
       element: (<>
-        {nav}
+        <ShowNavbar/>
         <PageLayout>
           <Outlet />
         </PageLayout>

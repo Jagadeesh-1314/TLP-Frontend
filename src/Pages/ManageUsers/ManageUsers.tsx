@@ -105,7 +105,7 @@ export default function ManageUsers() {
   // ANCHOR JSX  ||========================================================================
   return (
     <>
-    <Title title="Manage Users" />
+    {/* <Title title="Manage Users" /> */}
       <Container maxWidth="lg" className={`bg-white py-4`}>
         <CustDataGrid
           rows={userDetailsResponse}
@@ -200,7 +200,7 @@ function ManageUserDetails({
   return (
     <>
       <div className="flex flex-col text-center">
-        <Title title="Manage Users" />
+        {/* <Title title="Manage Users" /> */}
       </div>
       {type === "add" ? (
         <button
@@ -249,7 +249,8 @@ function ManageUserDetails({
             </span>
           ) : (
             <span className="text-4xl font-semibold text-blue-600">
-              Edit User {row?.username}
+              Edit User 45
+               {row?.username}
             </span>
           )}
         </DialogTitle>

@@ -37,8 +37,8 @@ export default function Navbar({
     { name: "Report", icon: <PlagiarismOutlined /> },
     { name: "CFReport", icon: <PlagiarismOutlined /> },
     { name: "Control", icon: <ControlCamera/> },
-    { name: "Upload", icon: <FileUploadOutlined /> },
     { name: "Electives", icon: <PostAdd /> },
+    { name: "Upload", icon: <FileUploadOutlined /> },
     { name: "Backup and Restore", icon: <BackupOutlined /> },
   ];
 

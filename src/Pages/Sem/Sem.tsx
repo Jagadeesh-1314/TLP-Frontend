@@ -14,11 +14,15 @@ interface Subjects {
     facName: string;
 }
 
+interface Token {
+    token: string;
+}
+
 export default function Sem() {
     const navigate = useNavigate();
-    const [done, setDone] = useState(false);
+    const [done, setDone] = useState<string>("");
+    const [subs, setSubs] = useState<boolean>(false);
     const { user } = useAuth()!;
-    const [sub, setSub] = useState<Subjects[]>([]);
     const alert = useContext(AlertContext);
 
     const semesters = [];
@@ -34,10 +38,11 @@ export default function Sem() {
             loading?.showLoading(true, "Loading data...");
             Axios.get<{ sub: Subjects[], token: string }>(`api/subjects`)
                 .then(({ data }) => {
-                    setSub(data.sub);
                     if (data.sub.length === 0) {
+                        setSubs(false);
                         alert?.showAlert("No subjects found", "info");
                     } else {
+                        setSubs(true);
                         alert?.showAlert("Subjects loaded", 'success');
                     }
                 })
@@ -46,43 +51,38 @@ export default function Sem() {
                     alert?.showAlert("Error fetching subjects", "error");
                 })
                 .finally(() => loading?.showLoading(false));
-
         }
     }, [user?.username]);
 
     useEffect(() => {
         if (user?.username) {
-            loading?.showLoading(true)
-            Axios.post(`api/token?rollno=${user?.username}`)
+            loading?.showLoading(true);
+            Axios.post<Token>(`api/token`)
                 .then(({ data }) => {
-                    setDone(data.done);
+                    setDone(data.token);
+                    console.log(data.token);
+                    
                 })
-                .catch((e) => {
-                    console.error("Error fetching token:", e);
+                .catch((error) => {
+                    console.error("Error fetching token:", error);
                     alert?.showAlert("Error fetching token", "error");
                 })
                 .finally(() => {
                     loading?.showLoading(false);
                 });
         }
-    }, [user?.username]);
+    }, []);
 
     const handleButtonClick = () => {
         loading?.showLoading(true, "Loading data...");
-        if (done) {
+        if (done === 'done' ) {
             navigate("/completed");
-            loading?.showLoading(false);
-        } else if (sub.length > 0) {
-            const storedPage = localStorage.getItem("currentPage");
-            console.log(storedPage)
-            if (storedPage === "CentralFacilities") {
-                navigate("/centralfacilities");
-            } else {
-                navigate("/feedback");
-            }
-
-            loading?.showLoading(false);
+        } else if (done === 'facdone') {
+            navigate("/centralfacilities");
+        } else if (subs) {
+            navigate("/feedback");
         }
+        loading?.showLoading(false);
     };
 
     return (
