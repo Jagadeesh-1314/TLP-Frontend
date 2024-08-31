@@ -4,7 +4,6 @@ import Radiobuttons from "../../components/Custom/Radiobuttons";
 import { useAuth } from "../../components/Auth/AuthProvider";
 import { AlertContext } from "../../components/Context/AlertDetails";
 import { useNavigate } from "react-router-dom";
-import Feedback from "../Feedback/Feedback";
 import Title from "../../components/Title";
 
 interface Question {
@@ -120,7 +119,7 @@ export default function CentralFacilities() {
             });
             if (data.done) {
                 alert?.showAlert("DONE", "success");
-                const { data } = await Axios.post(`api/updatetoken?rollno=${user?.username}`);
+                const { data } = await Axios.post(`api/updatetokendone`);
                 if (data.done) {
                     alert?.showAlert("Form Submitted", "success");
                     navigate("/thank-you");

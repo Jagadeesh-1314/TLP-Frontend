@@ -60,7 +60,6 @@ export default function CFReport() {
             alert?.showAlert("Error fetching Report 1", "error");
         }
     }
-
     async function generateReport2() {
         try {
             const response = await Axios.get<CFReportResponse>(`api/cfreport2`);
@@ -92,6 +91,7 @@ export default function CFReport() {
     async function handleSemClick(sem: number) {
         setSelectedSem(sem);
         setShowReport(true);
+        setShowQuestions(false);
         if (selectedBatch !== null) {
             try {
                 const response = await Axios.post<{ cfreport: CFReportItem[] }>(
@@ -126,7 +126,7 @@ export default function CFReport() {
                 `/api/download/downloadcfreport`,
                 {
                     params: {
-                        sem: sems,
+                        sem: selectedSem,
                         batch: selectedBatch,
                         count: term,
                     },
@@ -166,13 +166,68 @@ export default function CFReport() {
     async function cfreportquestions() {
         setShowQuestions(true);
         try {
-            const response = await Axios.get<{ cfreportquestions: CFQuestion[] }>(`api/cfreportquestions`);
+            const response = await Axios.post<{ cfreportquestions: CFQuestion[] }>(
+                `/api/cfreportquestions`,
+                {
+                    batch: selectedBatch,
+                    term: term,
+                    sem: selectedSem
+                }
+            );
             const data = response.data;
             setQuestions(data.cfreportquestions || []);
             setShowQuestions(true);
         } catch (error) {
             console.error("Error fetching questions:", error);
             alert?.showAlert("Error fetching questions", "error");
+        }
+    }
+
+
+
+
+    async function prev1() {
+        try {
+            setTerm(1);
+            const res1 = await Axios.post<CFReportResponse>(`api/fetchcfreport`, { term: 1 });
+            const data1 = res1.data;
+            if (data1.done) {
+                const uniqueBatches = [...new Set(data1.details.map(item => item.batch))];
+                setBatches(uniqueBatches);
+                const uniqueSems = [...new Set(data1.details.map(item => item.sem))];
+                setSems(uniqueSems);
+                setShow(false);
+                alert?.showAlert("Fecthing Previous CF - Report-1", "success");
+            } else {
+                alert?.showAlert("CF - Report-1 is empty", "warning");
+            }
+
+        } catch (error) {
+            console.error("Error fetching details:", error);
+            setReport([]);
+        }
+    }
+
+
+    async function prev2() {
+        try {
+            setTerm(2);
+            const response = await Axios.post<CFReportResponse>(`api/fetchcfreport`, { term: 2 });
+            const data = response.data;
+            if (data.done && data.details.length !== 0) {
+                const uniqueBatches = [...new Set(data.details.map(item => item.batch))];
+                setBatches(uniqueBatches);
+                const uniqueSems = [...new Set(data.details.map(item => item.sem))];
+                setSems(uniqueSems);
+                setShow(false);
+                alert?.showAlert("Fecthing Previous CF - Report-2", "success");
+            } else {
+                alert?.showAlert("CF - Report-2 is empty", "warning");
+            }
+
+        } catch (error) {
+            console.error("Error fetching details:", error);
+            setReport([]);
         }
     }
 
@@ -218,22 +273,41 @@ export default function CFReport() {
         <>
             <Title title="Central Facilities Report" />
             {show ? (
-                <div className="center-button">
-                    <button
-                        type="button"
-                        className="green-button-filled col-span-1 flex items-center gap-2"
-                        onClick={generateReport1}
-                    >
-                        Generate CF Report 1
-                    </button>
-                    <button
-                        type="button"
-                        className="green-button-filled col-span-1 flex items-center gap-2"
-                        onClick={generateReport2}
-                    >
-                        Generate CF Report 2
-                    </button>
-                </div>
+                <>
+                    <div className="center-button">
+                        <button
+                            type="button"
+                            className="green-button-filled col-span-1 flex items-center gap-2"
+                            onClick={generateReport1}
+                        >
+                            Generate CF Report 1
+                        </button>
+                        <button
+                            type="button"
+                            className="green-button-filled col-span-1 flex items-center gap-2"
+                            onClick={generateReport2}
+                        >
+                            Generate CF Report 2
+                        </button>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', position: 'absolute', bottom: '20px', right: '20px' }}>
+                        <button
+                            type="button"
+                            style={{ backgroundColor: '#4caf50', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '5px', cursor: 'pointer', marginBottom: '10px' }}
+                            onClick={() => prev1()}
+                        >
+                            Previous CF Report 1
+                        </button>
+                        <button
+                            type="button"
+                            style={{ backgroundColor: '#4caf50', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '5px', cursor: 'pointer' }}
+                            onClick={() => prev2()}
+                        >
+                            Previous CF Report 2
+                        </button>
+                    </div>
+
+                </>
             ) : (
                 <>
                     <div className="filter-buttons">
@@ -271,7 +345,7 @@ export default function CFReport() {
                                             <p><strong>Percentile:</strong> {item.percentile}</p>
                                             <button
                                                 className="Show-Questions-button"
-                                                onClick={cfreportquestions}
+                                                onClick={() => cfreportquestions()}
                                             >
                                                 Show Questions
                                             </button>
@@ -326,6 +400,7 @@ export default function CFReport() {
                                     </div>
                                 </>
                             )}
+
                         </>
                     )}
                 </>

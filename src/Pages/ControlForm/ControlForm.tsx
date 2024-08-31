@@ -81,7 +81,7 @@ export default function ControlForm() {
                 <button className="button" onClick={decrementcount}>
                     SET TERM - 1
                 </button>
-                <button className="button" onClick={promote}>
+                <button className="button" onClick={promote} disabled = {fTerm === 1}>
                     Promote Students
                 </button>
             </div>

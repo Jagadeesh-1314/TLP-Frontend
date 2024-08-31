@@ -6,7 +6,7 @@ import Title from '../../components/Title';
 import { Autocomplete, TextField } from '@mui/material';
 import "./Electives.css"
 
-interface Subjects {
+interface Details {
     sec: string;
     sem: number;
     rollno: string;
@@ -23,7 +23,7 @@ interface Faculty {
 }
 
 export default function ControlForm() {
-    const [students, setStudents] = useState<Subjects[]>([]);
+    const [students, setStudents] = useState<Details[]>([]);
     const [sems, setSems] = useState<number[]>([]);
     const [secs, setSecs] = useState<string[]>([]);
     const [selectedSem, setSelectedSem] = useState<number | null>(null);
@@ -40,7 +40,7 @@ export default function ControlForm() {
     useEffect(() => {
         async function fetchStudents() {
             try {
-                const response = await Axios.get<{ details: Subjects[] }>('api/details');
+                const response = await Axios.get<{ details: Details[] }>('api/details');
                 setStudents(response.data.details);
                 const uniqueSems = [...new Set(response.data.details.map(student => student.sem))];
                 const sortedSems = uniqueSems.sort((a, b) => a - b);
@@ -105,10 +105,45 @@ export default function ControlForm() {
         .filter(student => selectedSem === null || student.sem === selectedSem)
         .filter(student => selectedSec === "" || student.sec === selectedSec);
 
+
+    const handleSubmit = async () => {
+        try {
+            loading?.showLoading(true, "Submitting details");
+            const dataObject = {
+                facID: selectedFaculty,
+                subCode: selectedSubCode,
+                rollNumbers: rollNumbers,
+            };
+            console.log(dataObject)
+            const { data } = await Axios.post(`api/electivedetails`, dataObject, {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            if (data.done) {
+                alert?.showAlert("DONE", "success");
+                setSelectedSem(null);
+                setSelectedSec("");
+                setRollNumbers([]);
+                setShowRollNumbers(false);
+                setSelectedSubCode("");
+                setselectedFaculty("");
+                window.scrollTo(0, 0);
+            } else {
+                alert?.showAlert("NOT DONE", "error");
+            }
+        } catch (err) {
+            console.error("Error posting Details:", err);
+        } finally {
+            loading?.showLoading(false);
+        }
+
+    }
+
     return (
         <>
             <Title title="Electives Control" />
-            <div className="subject-selection">
+            <div className="selection">
                 <Autocomplete
                     options={electiveSubjects}
                     getOptionLabel={(option) => `${option.subCode} - ${option.subName}`}
@@ -126,7 +161,7 @@ export default function ControlForm() {
                     }}
                 />
             </div>
-            <div className="subject-selection">
+            <div className="selection">
                 <Autocomplete
                     options={faculty}
                     getOptionLabel={(option) => `${option.facID} - ${option.facName}`}
@@ -182,6 +217,14 @@ export default function ControlForm() {
                                 {student.rollno}
                             </button>
                         ))}
+                    </div>
+                )}
+
+                {showRollNumbers && (
+                    <div className="download-button-container no-print">
+                        <button className="download-button" onClick={handleSubmit}>
+                            Submit
+                        </button>
                     </div>
                 )}
             </div>
