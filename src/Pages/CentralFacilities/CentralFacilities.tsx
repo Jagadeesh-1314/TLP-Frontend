@@ -124,7 +124,7 @@ export default function CentralFacilities() {
                     alert?.showAlert("Form Submitted", "success");
                     navigate("/thank-you");
                     sessionStorage.removeItem("currentPage");
-                    // localStorage.clear();
+                    localStorage.clear();
                 }
             } else {
                 alert?.showAlert("NOT DONE", "error");

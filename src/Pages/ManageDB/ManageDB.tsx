@@ -28,7 +28,6 @@ import {
   ManageDBResponseProps,
 } from "../../Types/responseTypes";
 import { CustDialog } from "../../components/Custom/CustDialog";
-import dayjs from "dayjs";
 import { useAuth } from "../../components/Auth/AuthProvider";
 
 export default function ManageDB() {
@@ -51,7 +50,7 @@ export default function ManageDB() {
       minWidth: 170,
     },
     {
-      field: "subcode",
+      field: "subCode",
       headerName: "Subject Code",
       flex: 1,
       minWidth: 170,

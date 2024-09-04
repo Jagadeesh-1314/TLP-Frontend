@@ -38,9 +38,12 @@ export default function LoginForm() {
     batch: 0,
   });
   const navigate = useNavigate();
-  if(user) {
-    navigate('/sem')
-  }
+  // if(user?.desg === 'admin') {
+  //   navigate('/report')
+  // }
+  // else{
+  //   navigate('/sem')
+  // }
 
   const [desg, setDesg] = useState<string>("");
   useEffect(() => {
@@ -92,7 +95,6 @@ export default function LoginForm() {
                     if(data.desg === 'admin') {
                       navigate('/report');
                     } else {
-
                       navigate("/sem");
                     }
                   }
