@@ -169,7 +169,7 @@
     background-color: #f9f9f9;
 }
 
-@media screen and (max-width: 430px) {
+@media screen and (max-width: 600px) {
     .center-button {
         flex-direction: column;
         align-items: center;

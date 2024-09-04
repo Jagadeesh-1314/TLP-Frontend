@@ -31,6 +31,8 @@ import Backup from "./Pages/Backup/BackUp";
 import UnfilledList from "./Pages/UnfilledList/UnfilledList";
 import CFReport from "./Pages/CFReport/CFReport";
 import Electives from "./Pages/Electives/Electives";
+import AdminRoutes from "./components/Auth/AdminRoutes";
+import NonAdminRoutes from "./components/Auth/NonAdminRoutes";
 export const Bus = createContext<{ sub: Subjects[] | null, setSub: React.Dispatch<React.SetStateAction<Subjects[] | null>> } | null>(null);
 
 const LoginForm = lazy(() => import("./Pages/Login/Login"));
@@ -62,7 +64,7 @@ function App() {
     {
       path: "/",
       element: (<>
-        <ShowNavbar/>
+        <ShowNavbar />
         <PageLayout>
           <Outlet />
         </PageLayout>
@@ -70,82 +72,86 @@ function App() {
       ),
       children: [
         {
-          path: "/",
           element: <PrivateRoute />,
-
           children: [
             {
-              path: "/feedback",
-              element: <Feedback />,
+              element: <NonAdminRoutes />,
+              children: [
+                {
+                  path: "/feedback",
+                  element: <Feedback />,
+                },
+                {
+                  path: "/sem",
+                  element: <Sem />
+                },
+                {
+                  path: "/centralfacilities",
+                  element: <CentralFacilities />
+                },
+                {
+                  path: "/thank-you",
+                  element: <ThankYou />,
+                },
+                {
+                  path: "/completed",
+                  element: <CompletedFeedback />
+                },
+              ]
             },
             {
-              path: "/report",
-              element: <Report />
-            },
-            {
-              path: "/control",
-              element: <ControlForm />
-            },
-            {
-              path: "/unfilled-list",
-              element: <UnfilledList />
-            },
-            {
-              path: "/sem",
-              element: <Sem />
-            },
-            {
-              path: "/centralfacilities",
-              element: <CentralFacilities />
-            },
-            {
-              path: "/cfreport",
-              element: <CFReport />
-            },
-            {
-              path: "/download",
-              element: <Download />,
-            },
-            {
-              path: "/upload",
-              element: <Upload />,
-            },
-            {
-              path: "/manage-users",
-              element: <ManageUsers />,
-            },
-            {
-              path: "/backup-and-restore",
-              element: <Backup />,
-            },
-            {
-              path: "/electives",
-              element: <Electives />,
-            },
-            {
-              path: "/manage-database",
-              element: <ManageDB />,
-            },
-            {
-              path: "/test",
-              element: <Test />,
-            },
-            {
-              path: "/thank-you",
-              element: <ThankYou />,
-            },
-            {
-              path: "/completed",
-              element: <CompletedFeedback />
-            },
+              element: <AdminRoutes />,
+              children: [
+                {
+                  path: "/report",
+                  element: <Report />
+                },
+                {
+                  path: "/control",
+                  element: <ControlForm />
+                },
+                {
+                  path: "/unfilled-list",
+                  element: <UnfilledList />
+                },
+                {
+                  path: "/cfreport",
+                  element: <CFReport />
+                },
+                {
+                  path: "/download",
+                  element: <Download />,
+                },
+                {
+                  path: "/upload",
+                  element: <Upload />,
+                },
+                {
+                  path: "/manage-users",
+                  element: <ManageUsers />,
+                },
+                {
+                  path: "/backup-and-restore",
+                  element: <Backup />,
+                },
+                {
+                  path: "/electives",
+                  element: <Electives />,
+                },
+                {
+                  path: "/manage-database",
+                  element: <ManageDB />,
+                },
+                {
+                  path: "/test",
+                  element: <Test />,
+                },
+              ]
+            }
           ]
         }
-
       ]
-    },
-
-
-
+    }
   ]);
 
 

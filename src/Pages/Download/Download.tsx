@@ -20,7 +20,7 @@ export default function Download() {
   const loading = useContext(LoadingContext);
 
   // ANCHOR STATES && VARS  ||========================================================================
-  const [type, setType] = useState("report");
+  const [type, setType] = useState("report1");
   const buttonPopoverRef = useRef<HTMLButtonElement>(null);
 
 
@@ -35,7 +35,7 @@ export default function Download() {
             setType(value)
           }
         >
-          <MenuItem value="report">Report</MenuItem>
+          <MenuItem value="report1">Report</MenuItem>
           <MenuItem value="theoryscore1">Theory Score</MenuItem>
           <MenuItem value="labscore">Lab Score</MenuItem>
           
