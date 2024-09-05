@@ -7,6 +7,9 @@ const { SERVER_IP } = process.env;
 
 export default defineConfig({
   plugins: [react()],
+  preview: {
+    port: 3005,
+  },
   server: {
     host: true,
     port: 3005,
