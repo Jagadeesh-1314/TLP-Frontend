@@ -3,10 +3,10 @@ import { useAuth } from "./AuthProvider";
 
 const PrivateRoute = () => {
     const { user } = useAuth()!;
+    const lastPage = sessionStorage.getItem('lastPage')
     if (!user || user.desg !== 'admin') {
-        sessionStorage.clear()
         return (
-            <Navigate to={`/login`} />
+            <Navigate to={`${lastPage}`} />
         );
     }
 
