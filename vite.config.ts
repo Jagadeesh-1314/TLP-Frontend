@@ -8,6 +8,7 @@ const { SERVER_IP } = process.env;
 export default defineConfig({
   plugins: [react()],
   server: {
+    host: true,
     port: 3005,
     proxy: {
       '/api': {
