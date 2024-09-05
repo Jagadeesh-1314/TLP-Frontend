@@ -33,11 +33,9 @@ import { useAuth } from "../../components/Auth/AuthProvider";
 export default function ManageDB() {
   const alert = useContext(AlertContext);
   const loading = useContext(LoadingContext);
-  const { user } = useAuth()!;
 
   // ANCHOR STATES && VARS  ||========================================================================
   const [table, setTable] = useState<AvailableDbTables>("timetable");
-  const [rollNo, setRollNo] = useState("");
   const [responseData, setResponseData] = useState<ManageDBResponseArr>([]);
   const [selectedRows, setSelectedRows] = useState<GridRowSelectionModel>([]);
 
@@ -445,7 +443,7 @@ function ManageRowDetails({
                   <CustTextField
                     label="Section"
                     value={neuroDetails?.sec}
-                    onChange={({ target: { value } }) => {
+                    onChange={({ }) => {
                       setNeuroDetails({
                         ...neuroDetails,
                         sec: ""
@@ -459,7 +457,7 @@ function ManageRowDetails({
                 <CustTextField
                   value={neuroDetails}
                   label="User"
-                  onChange={({ target: { value } }) => {
+                  onChange={({ }) => {
                     setNeuroDetails({ ...neuroDetails });
                   }}
                 />

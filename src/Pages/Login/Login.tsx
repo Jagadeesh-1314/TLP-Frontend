@@ -27,7 +27,7 @@ interface LoginCredentialsProps {
 export default function LoginForm() {
   const alert = useContext(AlertContext);
   const loading = useContext(LoadingContext);
-  const {user, setUser} = useAuth()!;
+  const {setUser} = useAuth()!;
 
   const [showPass, setShowPass] = useState(false);
   const [loginCreds, setLoginCreds] = useState<LoginCredentialsProps>({
