@@ -3,6 +3,7 @@ import {
   RouterProvider,
   createBrowserRouter,
   Outlet,
+  Navigate,
 } from "react-router-dom";
 
 import AlertProvider from "./components/Context/AlertDetails";
@@ -71,6 +72,10 @@ function App() {
       </>
       ),
       children: [
+        {
+          path: '/',
+          element: <Navigate to='/login' />
+        },
         {
           element: <PrivateRoute />,
           children: [
