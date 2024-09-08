@@ -52,6 +52,7 @@ export interface ManageDBResponseProps {
   subCode: string;
   sem: number;
   sec: string;
+  branch: string;
 }
 
 export type ManageDBResponseArr = ManageDBResponseProps[];
@@ -59,7 +60,7 @@ export type ManageDBResponseArr = ManageDBResponseProps[];
 export type AvailableDbTables =
   | "studentInfo"
   | "subjects"
-  | "facutly"
+  | "faculty"
   | "timetable"
 
 export interface UserDetailsProps {

@@ -29,6 +29,7 @@ import {
 } from "../../Types/responseTypes";
 import { CustDialog } from "../../components/Custom/CustDialog";
 import { useAuth } from "../../components/Auth/AuthProvider";
+import Title from "../../components/Title";
 
 export default function ManageDB() {
   const alert = useContext(AlertContext);
@@ -39,7 +40,158 @@ export default function ManageDB() {
   const [responseData, setResponseData] = useState<ManageDBResponseArr>([]);
   const [selectedRows, setSelectedRows] = useState<GridRowSelectionModel>([]);
 
-  const datagridCols: GridColDef[] = [
+
+  const studentdatagridCols: GridColDef[] = [
+    { field: "id", headerName: "S No.", minWidth: 80, editable: false },
+    {
+      field: "rollno",
+      headerName: "ROLL-NO",
+      flex: 1,
+      minWidth: 170,
+    },
+    {
+      field: "Name",
+      headerName: "Student Name",
+      flex: 1,
+      minWidth: 170,
+    },
+    {
+      field: "sem",
+      headerName: "Semester",
+      flex: 1,
+      minWidth: 130,
+    },
+    {
+      field: "sec",
+      headerName: "Section",
+      flex: 1,
+      minWidth: 120,
+    },
+    {
+      field: "branch",
+      headerName: "Branch",
+      flex: 1,
+      minWidth: 130,
+    },
+    {
+      field: "actions",
+      type: "actions",
+      headerName: "Actions",
+      width: 130,
+      cellClassName: "actions",
+      renderCell: ({ row }) => {
+        return [
+          <ManageRowDetails
+            key={1}
+            row={row as ManageDBResponseProps}
+            type="edit"
+            responseData={responseData}
+            setResponseData={setResponseData}
+            table={table}
+          />,
+          <DeleteConfirmDialog
+            table={table}
+            tablesNames={tablesNames}
+            row={row}
+            setResponseData={setResponseData}
+            key={2}
+          />,
+        ];
+      },
+    },
+  ]
+
+  const facultydatagridCols: GridColDef[] = [
+    { field: "id", headerName: "S No.", minWidth: 80, editable: false },
+    {
+      field: "facID",
+      headerName: "Faculty ID",
+      flex: 1,
+      minWidth: 170,
+    },
+    {
+      field: "facName",
+      headerName: "Faculty Name",
+      flex: 1,
+      minWidth: 170,
+    },
+    {
+      field: "actions",
+      type: "actions",
+      headerName: "Actions",
+      width: 130,
+      cellClassName: "actions",
+      renderCell: ({ row }) => {
+        return [
+          <ManageRowDetails
+            key={1}
+            row={row as ManageDBResponseProps}
+            type="edit"
+            responseData={responseData}
+            setResponseData={setResponseData}
+            table={table}
+          />,
+          <DeleteConfirmDialog
+            table={table}
+            tablesNames={tablesNames}
+            row={row}
+            setResponseData={setResponseData}
+            key={2}
+          />,
+        ];
+      },
+    },
+  ]
+
+  const subjectsdatagridCols: GridColDef[] = [
+    { field: "id", headerName: "S No.", minWidth: 80, editable: false },
+    {
+      field: "subCode",
+      headerName: "Subject Code",
+      flex: 1,
+      minWidth: 170,
+    },
+    {
+      field: "subName",
+      headerName: "Subject Name",
+      flex: 1,
+      minWidth: 170,
+    },
+    {
+      field: "def",
+      headerName: "Subject Type",
+      flex: 1,
+      minWidth: 170,
+    },
+    {
+      field: "actions",
+      type: "actions",
+      headerName: "Actions",
+      width: 130,
+      cellClassName: "actions",
+      renderCell: ({ row }) => {
+        return [
+          <ManageRowDetails
+            key={1}
+            row={row as ManageDBResponseProps}
+            type="edit"
+            responseData={responseData}
+            setResponseData={setResponseData}
+            table={table}
+          />,
+          <DeleteConfirmDialog
+            table={table}
+            tablesNames={tablesNames}
+            row={row}
+            setResponseData={setResponseData}
+            key={2}
+          />,
+        ];
+      },
+    },
+  ]
+
+  const timetabledatagridCols: GridColDef[] = [
     { field: "id", headerName: "S No.", minWidth: 80, editable: false },
     {
       field: "facID",
@@ -66,8 +218,8 @@ export default function ManageDB() {
       minWidth: 120,
     },
     {
-      field: "user",
-      headerName: "User",
+      field: "branch",
+      headerName: "Branch",
       flex: 1,
       minWidth: 130,
     },
@@ -102,13 +254,14 @@ export default function ManageDB() {
   const tablesNames: Record<AvailableDbTables, string> = {
     studentInfo: "Student Database",
     subjects: "Subjects",
-    facutly: "faculty",
-    timetable: "timetable",
+    faculty: "Faculty",
+    timetable: "TimeTable",
   };
 
   // ANCHOR JSX  ||========================================================================
   return (
     <>
+      <Title title="Manage DataBase" />
       <div className="grid sm:grid-cols-3 grid-cols-1 gap-4 no-print items-center">
         <CustTextField
           select
@@ -123,7 +276,7 @@ export default function ManageDB() {
           <MenuItem value={"timetable"}>Time Table</MenuItem>
           <MenuItem value={"studentInfo"}>Student Database</MenuItem>
           <MenuItem value={"subjects"}>Subjects</MenuItem>
-          <MenuItem value={"facutly"}>Faculty</MenuItem>
+          <MenuItem value={"faculty"}>Faculty</MenuItem>
         </CustTextField>
 
         {/* ANCHOR FORM ||======================================================================== */}
@@ -160,7 +313,7 @@ export default function ManageDB() {
           }}
         >
           <button
-            className="blue-button-filled flex items-center gap-2 sm:ml-0 ml-auto"
+            className="blue-button-filled flex items-center gap-2"
           >
             <SearchOutlined fontSize="small" />
             Search
@@ -172,7 +325,7 @@ export default function ManageDB() {
       {responseData.length > 0 && (
         <div className={`bg-white p-4 rounded-sm mt-8 h-fit`}>
           <CustDataGrid
-            columns={datagridCols}
+            columns={table === "timetable" ? timetabledatagridCols : table === "studentInfo" ? studentdatagridCols : table === "faculty" ? facultydatagridCols : subjectsdatagridCols}
             rows={responseData}
             disableRowSelectionOnClick
             checkboxSelection
@@ -186,14 +339,12 @@ export default function ManageDB() {
                   <div className="text-blue-500 lg:text-4xl text-2xl">
                     {tablesNames[table]}
                   </div>
-                  {table === "timetable" && (
-                    <ManageRowDetails
-                      responseData={responseData}
-                      setResponseData={setResponseData}
-                      type="add"
-                      table="timetable"
-                    />
-                  )}
+                  <ManageRowDetails
+                    responseData={responseData}
+                    setResponseData={setResponseData}
+                    type="add"
+                    table={table}
+                  />
                 </div>
               ),
               footer: () => (
@@ -225,14 +376,12 @@ export default function ManageDB() {
 function ManageRowDetails({
   row,
   type,
-  // rollNo,
   responseData,
   setResponseData,
   table,
 }: {
   row?: ManageDBResponseProps;
   type: "add" | "edit";
-  // rollNo: string;
   responseData: ManageDBResponseArr;
   setResponseData: React.Dispatch<React.SetStateAction<ManageDBResponseArr>>;
   table: AvailableDbTables;
@@ -247,8 +396,11 @@ function ManageRowDetails({
       ? { ...row }
       : ({
         facID: "",
+        subCode: "",
         sem: 1,
-      } as unknown as ManageDBResponseProps)
+        sec: "",
+        branch: "",
+      })
   );
   const [subjectAlreadyExists, setSubjectAlreadyExists] = useState(false);
 
@@ -366,60 +518,73 @@ function ManageRowDetails({
         >
           <DialogContent>
             <div className="grid md:grid-cols-3 grid-cols-1 gap-6">
-              <CustTextField
-                label="Subject Code"
-                value={neuroDetails.subCode ?? ""}
-                onChange={({ target: { value } }) => {
-                  setNeuroDetails({
-                    ...neuroDetails,
-                    subCode: value.toUpperCase(),
-                  });
-                }}
-                onBlur={({ target: { value } }) => {
-                  value = value.trim();
-                  const subCodeSplitted = value.split("");
-                  setNeuroDetails((prevVals) => ({
-                    ...prevVals,
-                    acYear: parseInt(subCodeSplitted[4] ?? "1") as
-                      | 1
-                      | 2
-                      | 3
-                      | 4,
-                    sem: parseInt(subCodeSplitted[5] ?? "1") as 1 | 2,
-                  }));
+              {table === "timetable" && (
+                <CustTextField
+                  label="Subject Code"
+                  value={neuroDetails.subCode ?? ""}
+                  onChange={({ target: { value } }) => {
+                    setNeuroDetails({
+                      ...neuroDetails,
+                      subCode: value.toUpperCase(),
+                    });
+                  }}
+                  onBlur={({ target: { value } }) => {
+                    value = value.trim();
+                    const subCodeSplitted = value.split("");
+                    setNeuroDetails((prevVals) => ({
+                      ...prevVals,
+                      acYear: parseInt(subCodeSplitted[4] ?? "1") as
+                        | 1
+                        | 2
+                        | 3
+                        | 4,
+                      sem: parseInt(subCodeSplitted[5] ?? "1") as 1 | 2,
+                    }));
 
-                  if (value.length > 0) {
-                    Axios.get(`api/manage/database/sub-name/${value}`)
-                      .then(({ data }) => {
-                        if (!data.error)
-                          setNeuroDetails((prevVals) => ({
-                            ...prevVals,
-                            subName: data.subName,
-                          }));
-                      })
-                      .catch((e) => {
-                        alert?.showAlert(e.response.data.error, "error");
-                      });
-                  }
+                    if (value.length > 0) {
+                      Axios.get(`api/manage/database/sub-name/${value}`)
+                        .then(({ data }) => {
+                          if (!data.error)
+                            setNeuroDetails((prevVals) => ({
+                              ...prevVals,
+                              subName: data.subName,
+                            }));
+                        })
+                        .catch((e) => {
+                          alert?.showAlert(e.response.data.error, "error");
+                        });
+                    }
 
-                  if (
-                    responseData.filter(
-                      ({ subCode }) =>
-                        subCode.toLowerCase() === value.toLowerCase()
-                    ).length > 0 &&
-                    value !== row?.subCode
-                  ) {
-                    setSubjectAlreadyExists(true);
-                    setOpenRowDetailsDialog(true);
-                    alert?.showAlert("Subject code already exists", "warning");
-                  } else setSubjectAlreadyExists(false);
-                }}
-              />
-
+                    if (
+                      responseData.filter(
+                        ({ subCode }) =>
+                          subCode.toLowerCase() === value.toLowerCase()
+                      ).length > 0 &&
+                      value !== row?.subCode
+                    ) {
+                      setSubjectAlreadyExists(true);
+                      setOpenRowDetailsDialog(true);
+                      alert?.showAlert("Subject code already exists", "warning");
+                    } else setSubjectAlreadyExists(false);
+                  }}
+                />
+              )}
             </div>
             <div className="grid md:grid-cols-2 grid-cols-1 mt-6 items-center gap-6">
               {table === "timetable" && (
                 <>
+                  <CustTextField
+                    label="Faculty ID"
+                    value={neuroDetails?.sec}
+                    onChange={({ }) => {
+
+                      setNeuroDetails({
+                        ...neuroDetails,
+                        facID: ""
+                      });
+                    }}
+                  >
+                  </CustTextField>
                   <CustTextField
                     label="Semester"
                     value={neuroDetails?.sem}
@@ -455,11 +620,9 @@ function ManageRowDetails({
               )}
               {table !== "studentInfo" && (
                 <CustTextField
-                  value={neuroDetails}
-                  label="User"
-                  onChange={({ }) => {
-                    setNeuroDetails({ ...neuroDetails });
-                  }}
+                  value={user?.branch}
+                  label="Branch"
+                  disabled
                 />
               )}
             </div>
