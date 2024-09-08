@@ -87,7 +87,6 @@ export default function Upload() {
             }}
           >
             <MenuItem value={currentYear}>{currentYear}</MenuItem>
-            <MenuItem value={2023}>2023</MenuItem>
             <MenuItem value={2022}>2022</MenuItem>
             <MenuItem value={2021}>2021</MenuItem>
             <MenuItem value={currentYear - 1}>{currentYear - 1} (Lateral Entry)</MenuItem>

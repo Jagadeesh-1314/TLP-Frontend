@@ -39,6 +39,7 @@ export default function Navbar({
     { name: "Control", icon: <ControlCamera/> },
     { name: "Electives", icon: <PostAdd /> },
     { name: "Upload", icon: <FileUploadOutlined /> },
+    { name: "Manage Database", icon: <StorageOutlined /> },
     { name: "Backup and Restore", icon: <BackupOutlined /> },
   ];
 
@@ -47,7 +48,6 @@ export default function Navbar({
 
   const miscLinks = [
     { name: "Download", icon: <FileDownloadOutlined /> },
-    { name: "Manage Database", icon: <StorageOutlined /> },
     { name: "Manage Users", icon: <PeopleAltOutlined /> },
   ];
 

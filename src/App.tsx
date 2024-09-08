@@ -47,7 +47,7 @@ const Sem = lazy(() => import("./Pages/Sem/Sem"));
 // const ManageUsers = lazy(() => import("./Pages/ManageUsers/ManageUsers"));
 // const Backup = lazy(() => import("./Pages/Backup/BackUp"));
 // const ManageDB = lazy(() => import("./Pages/ManageDB/ManageDB"));
-const Test = lazy(() => import("./misc/Test"));
+// const Test = lazy(() => import("./misc/Test"));
 const ThankYou = lazy(() => import("./Pages/ThankYou/ThankYou"));
 const CompletedFeedback = lazy(() => import("./Pages/CompletedFeedback/CompletedFeedback"));
 const ShowNavbar = lazy(() => import('./components/Custom/useShowNavbar'))
@@ -147,10 +147,10 @@ function App() {
                   path: "/manage-database",
                   element: <ManageDB />,
                 },
-                {
-                  path: "/test",
-                  element: <Test />,
-                },
+                // {
+                //   path: "/test",
+                //   element: <Test />,
+                // },
               ]
             }
           ]

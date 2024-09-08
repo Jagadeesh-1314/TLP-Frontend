@@ -114,7 +114,6 @@ export default function ControlForm() {
                 subCode: selectedSubCode,
                 rollNumbers: rollNumbers,
             };
-            console.log(dataObject)
             const { data } = await Axios.post(`api/electivedetails`, dataObject, {
                 headers: {
                     'Content-Type': 'application/json'
@@ -130,9 +129,10 @@ export default function ControlForm() {
                 setselectedFaculty("");
                 window.scrollTo(0, 0);
             } else {
-                alert?.showAlert("NOT DONE", "error");
+                alert?.showAlert("Please Select ALL Required Fields", "error");
             }
         } catch (err) {
+            alert?.showAlert("DATABASE ERROR", "error")
             console.error("Error posting Details:", err);
         } finally {
             loading?.showLoading(false);
