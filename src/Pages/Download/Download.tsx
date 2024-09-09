@@ -39,7 +39,7 @@ export default function Download() {
           <MenuItem value="theoryscore1">Theory Score</MenuItem>
           <MenuItem value="labscore">Lab Score</MenuItem>
           <MenuItem value="faculty">Faculty</MenuItem>
-          
+          <MenuItem value="studentinfo">Student Info</MenuItem>
         </CustTextField>
 
         <div className="flex w-full col-span-2 row-start-2 gap-4">
