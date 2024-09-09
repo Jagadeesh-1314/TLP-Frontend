@@ -479,7 +479,7 @@ function ManageRowDetails({
                     setOpenRowDetailsDialog(false);
                   } else alert?.showAlert(data.error.message, "error");
                 })
-                .catch((e) => {
+                .catch(() => {
                   // console.log(e);
                   alert?.showAlert("There was an error while saving", "error");
                 })
@@ -732,7 +732,7 @@ function DeleteConfirmDialog({
                   );
                   alert?.showAlert("Record deleted", "success");
                 })
-                .catch((e) => {
+                .catch(() => {
                   // console.log(e);
                   alert?.showAlert(
                     "There was an error while downloading.",
@@ -838,7 +838,7 @@ function MultiDeleteDialog({
                     setSelectedRows([]);
                   }
                 })
-                .catch((e) => {
+                .catch(() => {
                   // console.log(e);
                   alert?.showAlert(
                     "There was an error while deleting",

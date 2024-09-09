@@ -182,7 +182,7 @@ function Truncate() {
                     );
                   }
                 })
-                .catch((e) => {
+                .catch(() => {
                   alert?.showAlert("There was an error in the server", "error");
                   // console.log(e);
                 })

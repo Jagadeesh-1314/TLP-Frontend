@@ -276,7 +276,7 @@ function ManageUserDetails({
                     );
                   }
                 })
-                .catch((err) => {
+                .catch(() => {
                   alert?.showAlert(
                     `There was an error while updating ${newUserDetails?.username}`,
                     "error"
@@ -303,7 +303,7 @@ function ManageUserDetails({
                     ]);
                   }
                 })
-                .catch((err) => {
+                .catch(() => {
                   alert?.showAlert(`There was an error while adding`, "error");
                   // console.log(err);
                 })
@@ -504,7 +504,7 @@ function DeleteUser({
                     );
                   }
                 })
-                .catch((err) => {
+                .catch(() => {
                   // console.log(err);
                   alert?.showAlert(
                     "There was an error while deleting  ",
@@ -602,7 +602,7 @@ function MultipleUsersDelete({
                     alert?.showAlert(`Users deleted`, "success");
                   }
                 })
-                .catch((err) => {
+                .catch(() => {
                   // console.log(err);
                   alert?.showAlert(
                     "There was an error while deleting  ",
