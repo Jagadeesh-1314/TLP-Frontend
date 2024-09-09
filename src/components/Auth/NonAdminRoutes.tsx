@@ -4,7 +4,7 @@ import { useAuth } from "./AuthProvider";
 const PrivateRoute = () => {
     const { user } = useAuth()!;
     const lastPage = sessionStorage.getItem('lastPage')
-    if (!user || user.desg === 'admin') {
+    if (user?.desg === 'admin') {
         return (
             <Navigate to={`${lastPage}`} />
         );

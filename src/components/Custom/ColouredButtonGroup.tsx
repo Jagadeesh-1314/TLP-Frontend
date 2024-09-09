@@ -42,7 +42,7 @@ export default function ColorRadioButtons({ labels = ["1", "2", "3", "4", "5"], 
             key={value}
             value={value}
             control={<Radio />}
-            label={`${textLabels[value]} - {'${value.toString()}'}`} 
+            label={`${textLabels[value]} - ['${value.toString()}']`} 
             labelPlacement="end"
           />
         ))}

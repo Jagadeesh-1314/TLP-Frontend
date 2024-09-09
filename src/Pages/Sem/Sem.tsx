@@ -59,9 +59,7 @@ export default function Sem() {
             loading?.showLoading(true);
             Axios.post<Token>(`api/token`)
                 .then(({ data }) => {
-                    setDone(data.token);
-                    console.log(data.token);
-                    
+                    setDone(data.token);                    
                 })
                 .catch((error) => {
                     console.error("Error fetching token:", error);

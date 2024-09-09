@@ -83,12 +83,12 @@ function App() {
               element: <NonAdminRoutes />,
               children: [
                 {
-                  path: "/feedback",
-                  element: <Feedback />,
-                },
-                {
                   path: "/sem",
                   element: <Sem />
+                },
+                {
+                  path: "/feedback",
+                  element: <Feedback />,
                 },
                 {
                   path: "/centralfacilities",
