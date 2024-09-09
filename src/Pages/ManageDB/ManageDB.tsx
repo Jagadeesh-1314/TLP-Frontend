@@ -161,6 +161,9 @@ export default function ManageDB() {
       field: "def",
       headerName: "Subject Type",
       flex: 1,
+      valueGetter(params) {
+        return params.row.def === 'e' ? "Elective": "Core Subject"
+      },
       minWidth: 170,
     },
     {
@@ -477,7 +480,7 @@ function ManageRowDetails({
                   } else alert?.showAlert(data.error.message, "error");
                 })
                 .catch((e) => {
-                  console.log(e);
+                  // console.log(e);
                   alert?.showAlert("There was an error while saving", "error");
                 })
                 .finally(() => loading?.showLoading(false));
@@ -730,7 +733,7 @@ function DeleteConfirmDialog({
                   alert?.showAlert("Record deleted", "success");
                 })
                 .catch((e) => {
-                  console.log(e);
+                  // console.log(e);
                   alert?.showAlert(
                     "There was an error while downloading.",
                     "error"
@@ -836,7 +839,7 @@ function MultiDeleteDialog({
                   }
                 })
                 .catch((e) => {
-                  console.log(e);
+                  // console.log(e);
                   alert?.showAlert(
                     "There was an error while deleting",
                     "error"

@@ -44,7 +44,7 @@ export default function Feedback() {
       Axios.get<{ sub: Subjects[], token: string }>(`api/subjects`)
         .then(({ data }) => {
           setSub(data.sub);
-          console.log(data.sub)
+          // console.log(data.sub)
         })
         .catch((error) => {
           console.error("Error fetching subjects:", error);

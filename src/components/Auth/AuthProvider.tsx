@@ -66,8 +66,6 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(v);
   }
 
-  console.log(user)
-
   const logOut = useMemo(
     () => () => {
       setUser(null);
