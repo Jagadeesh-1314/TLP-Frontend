@@ -83,7 +83,7 @@ export default function LoginForm() {
                   if (!data.goahead)
                     alert?.showAlert(data.error as string, "error");
                   else {
-                    console.log(data);
+                    // console.log(data);
                     sessionStorage.setItem("username", loginCreds.username);
                     sessionStorage.setItem("displayName", data.displayName);
                     sessionStorage.setItem("desg", data.desg);

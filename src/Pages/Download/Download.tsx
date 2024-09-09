@@ -175,7 +175,7 @@ function Truncate() {
                       "success"
                     );
                   } else {
-                    console.log(data);
+                    // console.log(data);
                     alert?.showAlert(
                       "There was an error while processing request",
                       "error"
@@ -184,7 +184,7 @@ function Truncate() {
                 })
                 .catch((e) => {
                   alert?.showAlert("There was an error in the server", "error");
-                  console.log(e);
+                  // console.log(e);
                 })
                 .finally(() => loading?.showLoading(false));
             }}
