@@ -132,7 +132,7 @@ export default function LoginForm() {
                   </InputAdornment>
                 ),
               }}
-              inputProps={{ maxLength: 10 }}
+              inputProps={{ maxLength: 15 }}
               label="Password"
               onChange={({ target: { value } }) =>
                 setLoginCreds((prevVals) => ({ ...prevVals, password: value }))

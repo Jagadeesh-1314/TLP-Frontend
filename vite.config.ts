@@ -17,6 +17,7 @@ export default defineConfig({
       '/api': {
         target: `http://${SERVER_IP}:6969/`,
         changeOrigin: true,
+        xfwd: true,
       },
     },
   },
