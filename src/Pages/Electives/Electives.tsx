@@ -40,6 +40,7 @@ export default function ControlForm() {
     useEffect(() => {
         async function fetchStudents() {
             try {
+                loading?.showLoading(true, "Gathering DATA...");
                 const response = await Axios.get<{ details: Details[] }>('api/details');
                 setStudents(response.data.details);
                 const uniqueSems = [...new Set(response.data.details.map(student => student.sem))];
@@ -47,6 +48,8 @@ export default function ControlForm() {
                 setSems(sortedSems);
             } catch (error) {
                 console.error('Error fetching data:', error);
+            } finally {
+                loading?.showLoading(false);
             }
         }
         fetchStudents();
@@ -55,10 +58,13 @@ export default function ControlForm() {
     useEffect(() => {
         async function fetchSubjects() {
             try {
+                loading?.showLoading(true, "Gathering DATA...");
                 const response = await Axios.get<{ subdetail: ElectiveSubject[] }>('api/electivesubjects');
                 setElectiveSubjects(response.data.subdetail);
             } catch (error) {
                 console.error('Error fetching data:', error);
+            } finally {
+                loading?.showLoading(false);
             }
         }
         fetchSubjects();
@@ -67,10 +73,13 @@ export default function ControlForm() {
     useEffect(() => {
         async function fetchFaculty() {
             try {
+                loading?.showLoading(true, "Gathering DATA...");
                 const response = await Axios.get<{ facdetail: Faculty[] }>('api/getfaculty');
                 setFaculty(response.data.facdetail);
             } catch (error) {
                 console.error('Error fetching data:', error);
+            } finally {
+                loading?.showLoading(false);
             }
         }
         fetchFaculty();

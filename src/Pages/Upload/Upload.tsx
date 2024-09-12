@@ -14,9 +14,7 @@ export default function Upload() {
   const currentYear = dayjs().year();
   const [tableName, setTableName] = useState("timetable");
   const [uploadingFile, setUploadingFile] = useState<File | null>(null);
-  const [subType, setSubType] = useState<string>("theory");
   const [batch, setBatch] = useState<number>(currentYear);
-  const [def, setDef] = useState<string>("r");
   const alert = useContext(AlertContext);
   const folderLocationRef = useRef<HTMLInputElement>();
   const loading = useContext(LoadingContext);
@@ -48,35 +46,6 @@ export default function Upload() {
 
       {/* Folder location */}
       <div className="grid pt-4 lg:grid-cols-6 md:grid-cols-2 grid-cols-2 gap-4 no-print">
-        {/* Subject Type */}
-        {tableName === "subjects" && (
-          <>
-          <CustTextField
-            select
-            label="Type"
-            value={subType}
-            onChange={({ target: { value } }) => {
-              setSubType(value);
-            } }
-          >
-            <MenuItem value="theory">Theory</MenuItem>
-            <MenuItem value="lab">Lab</MenuItem>
-          </CustTextField>
-          <CustTextField
-            select
-            label="Def"
-            value={def}
-            onChange={({ target: { value } }) => {
-              setDef(value);
-            } }
-          >
-              <MenuItem value="r">Regular</MenuItem>
-              <MenuItem value="e">Elective</MenuItem>
-            </CustTextField>
-            </>
-
-        )}
-
         {tableName === "studentinfo" && (
           <CustTextField
             select
@@ -118,9 +87,8 @@ export default function Upload() {
               loading?.showLoading(true, "Uploading file...");
               const formData = new FormData();
               formData.append('file', uploadingFile);
-              formData.append('subtype', subType);
               formData.append('batch', batch.toString());
-              formData.append('def', def);
+             
 
               await Axios.post(`/api/upload/${tableName}`, formData, {
                 headers: {

@@ -42,6 +42,7 @@ export default function CFReport() {
 
     async function generateReport1() {
         try {
+            loading?.showLoading(true, "Generating CFReport - 1...");
             const response = await Axios.get<CFReportResponse>(`api/cfreport1`);
             const data = response.data;
             if (data.done) {
@@ -58,10 +59,13 @@ export default function CFReport() {
         } catch (err) {
             console.error("Error fetching Report 1:", err);
             alert?.showAlert("Error fetching Report 1", "error");
+        } finally {
+            loading?.showLoading(false);
         }
     }
     async function generateReport2() {
         try {
+            loading?.showLoading(true, "Generating CFReport - 2...");
             const response = await Axios.get<CFReportResponse>(`api/cfreport2`);
             const data = response.data;
             if (data.done) {
@@ -78,6 +82,8 @@ export default function CFReport() {
         } catch (err) {
             console.error("Error fetching Report 2:", err);
             alert?.showAlert("Error fetching Report 2", "error");
+        } finally {
+            loading?.showLoading(false);
         }
     }
 
@@ -94,6 +100,7 @@ export default function CFReport() {
         setShowQuestions(false);
         if (selectedBatch !== null) {
             try {
+                loading?.showLoading(true, `Generating CFReport - ${term}...`);
                 const response = await Axios.post<{ cfreport: CFReportItem[] }>(
                     `api/fetchcfreport`,
                     {
@@ -113,6 +120,8 @@ export default function CFReport() {
             } catch (error) {
                 console.error("Error fetching details:", error);
                 setReport([]);
+            } finally {
+                loading?.showLoading(false);
             }
         } else {
             console.error("Batch is not selected");
@@ -166,6 +175,7 @@ export default function CFReport() {
     async function cfreportquestions() {
         setShowQuestions(true);
         try {
+            loading?.showLoading(true, "Generating Questions...");
             const response = await Axios.post<{ cfreportquestions: CFQuestion[] }>(
                 `/api/cfreportquestions`,
                 {
@@ -180,6 +190,8 @@ export default function CFReport() {
         } catch (error) {
             console.error("Error fetching questions:", error);
             alert?.showAlert("Error fetching questions", "error");
+        } finally {
+            loading?.showLoading(false);
         }
     }
 
@@ -189,6 +201,7 @@ export default function CFReport() {
     async function prev1() {
         try {
             setTerm(1);
+            loading?.showLoading(true, `Generating CFReport - ${term}...`);
             const res1 = await Axios.post<CFReportResponse>(`api/fetchcfreport`, { term: 1 });
             const data1 = res1.data;
             if (data1.done) {
@@ -205,6 +218,8 @@ export default function CFReport() {
         } catch (error) {
             console.error("Error fetching details:", error);
             setReport([]);
+        } finally {
+            loading?.showLoading(false);
         }
     }
 
@@ -212,6 +227,7 @@ export default function CFReport() {
     async function prev2() {
         try {
             setTerm(2);
+            loading?.showLoading(true, `Generating CFReport - ${term}...`);
             const response = await Axios.post<CFReportResponse>(`api/fetchcfreport`, { term: 2 });
             const data = response.data;
             if (data.done && data.details.length !== 0) {
@@ -228,6 +244,8 @@ export default function CFReport() {
         } catch (error) {
             console.error("Error fetching details:", error);
             setReport([]);
+        } finally {
+            loading?.showLoading(false);
         }
     }
 
