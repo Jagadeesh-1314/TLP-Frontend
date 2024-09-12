@@ -152,7 +152,7 @@ export default function Upload() {
                 let columnNames: string[] = [];
                 let name: string | null = null;
                 if (tableName === "timetable") {
-                  columnNames = ["facId", "subCode", "sem", "sec", "branch"];
+                  columnNames = ["facId", "subCode", "sem", "sec"];
                   name = "Time-Table";
                 } else if (tableName === "studentinfo") {
                   columnNames = ["rollno", "Name", "sec", "sem"];
