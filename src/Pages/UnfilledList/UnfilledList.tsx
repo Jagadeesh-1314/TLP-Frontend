@@ -25,6 +25,7 @@ export default function ControlForm() {
     useEffect(() => {
         async function fetchStudents() {
             try {
+                loading?.showLoading(true, "Fecthing Data...");
                 const response = await Axios.get<{ unfilledstudents: Student[] }>('api/unfilledstudents');
                 setStudents(response.data.unfilledstudents);
                 const uniqueSems = [...new Set(response.data.unfilledstudents.map(student => student.sem))];
@@ -32,6 +33,8 @@ export default function ControlForm() {
                 setSems(sortedSems);
             } catch (error) {
                 console.error('Error fetching data:', error);
+            } finally {
+                loading?.showLoading(false);
             }
         }
         fetchStudents();
