@@ -213,7 +213,7 @@ export default function Feedback() {
       }
     } catch (err) {
       console.error("Error posting score:", err);
-    } finally{
+    } finally {
       loading?.showLoading(false);
     }
   }

@@ -106,43 +106,45 @@ export default function CentralFacilities() {
     ));
 
     async function handleSubmit(): Promise<void> {
-        const requiredKeys = CentralFacilities.map((_, index) => index.toString());
-        const currentScore = score[tmp] || {};
-        const allFieldsFilled = requiredKeys.every((key) => currentScore[key] !== undefined && currentScore[key] !== null);
-        if (!allFieldsFilled) {
-            const newUnfilledFields: number[] = [];
-            for (let key of requiredKeys) {
-                if (currentScore[key] === undefined || currentScore[key] === null) {
-                    const index = parseInt(key);
-                    newUnfilledFields.push(index);
-                    const element = questionRefs.current[index];
-                    if (element) {
-                        element.scrollIntoView({ behavior: "smooth", block: "center" });
-                        break;
+        try {
+            loading?.showLoading(true, "Submitting scores...");
+            const requiredKeys = CentralFacilities.map((_, index) => index.toString());
+            const currentScore = score[tmp] || {};
+            const allFieldsFilled = requiredKeys.every((key) => currentScore[key] !== undefined && currentScore[key] !== null);
+            if (!allFieldsFilled) {
+                const newUnfilledFields: number[] = [];
+                for (let key of requiredKeys) {
+                    if (currentScore[key] === undefined || currentScore[key] === null) {
+                        const index = parseInt(key);
+                        newUnfilledFields.push(index);
+                        const element = questionRefs.current[index];
+                        if (element) {
+                            element.scrollIntoView({ behavior: "smooth", block: "center" });
+                            break;
+                        }
                     }
                 }
+                setUnfilledFields(newUnfilledFields);
+                alert?.showAlert("Please fill all the required fields.", "warning");
+                return;
+            } else {
+                setUnfilledFields([]);
             }
-            setUnfilledFields(newUnfilledFields);
-            alert?.showAlert("Please fill all the required fields.", "warning");
-            return;
-        } else {
-            setUnfilledFields([]);
-        }
-        // await Feedback.handleNext();
-        // const f =  Feedback()
-        // console.log(f);
-        const totalScore = Object.values(score[tmp]).reduce((a, b) => a + b, 0);
-        const length = CentralFacilities.length;
-        const avgScore = totalScore / length;
-        const dataObject = {
-            stuID: user?.username,
-            branch: user?.branch,
-            batch: user?.batch,
-            score: score[tmp],
-            totalScore: avgScore,
-        };
+            // await Feedback.handleNext();
+            // const f =  Feedback()
+            // console.log(f);
+            const totalScore = Object.values(score[tmp]).reduce((a, b) => a + b, 0);
+            const length = CentralFacilities.length;
+            const avgScore = totalScore / length;
+            const dataObject = {
+                stuID: user?.username,
+                branch: user?.branch,
+                batch: user?.batch,
+                score: score[tmp],
+                totalScore: avgScore,
+            };
 
-        try {
+
             const { data } = await Axios.post(`/api/cfscore`, dataObject, {
                 headers: {
                     'Content-Type': 'application/json'
@@ -163,6 +165,8 @@ export default function CentralFacilities() {
         } catch (error) {
             console.error("Error submitting form:", error);
             alert?.showAlert("Error submitting form", "error");
+        } finally {
+            loading?.showLoading(false);
         }
     }
 
