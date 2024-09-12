@@ -161,7 +161,7 @@ export default function Upload() {
                   columnNames = ["facultyId", "facultyName"];
                   name = "Faculty";
                 } else if (tableName === "subjects") {
-                  columnNames = ["subjectCode", "subjectName"];
+                  columnNames = ["subjectCode", "subjectName", "type", "core(R) / Elective(E))"];
                   name = "Subjects";
                 }
                 const wb = xlsx.utils.book_new();

@@ -7,6 +7,7 @@ import { AlertContext } from "../../components/Context/AlertDetails";
 import { useAuth } from "../../components/Auth/AuthProvider";
 import StepperComponent from "../../components/Custom/StepperComponent";
 import Title from "../../components/Title";
+import { LoadingContext } from "../../components/Context/Loading";
 
 interface Question {
   qtype: string;
@@ -25,6 +26,10 @@ interface Score {
   [key: string]: { [key: string]: number };
 }
 
+interface Token {
+  token: string;
+}
+
 export default function Feedback() {
   const alert = useContext(AlertContext);
   const navigate = useNavigate();
@@ -38,6 +43,38 @@ export default function Feedback() {
   const [sub, setSub] = useState<Subjects[]>([]);
   const [unfilledFields, setUnfilledFields] = useState<number[]>([]);
   const questionRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const [done, setDone] = useState<string>("");
+  const loading = useContext(LoadingContext);
+  const [isButtonDisabled, setIsButtonDisabled] = useState(false);
+
+  useEffect(() => {
+    if (user?.username) {
+      loading?.showLoading(true);
+      Axios.post<Token>(`api/token`)
+        .then(({ data }) => {
+          setDone(data.token);
+        })
+        .catch((error) => {
+          console.error("Error fetching token:", error);
+          alert?.showAlert("Error fetching token", "error");
+        })
+        .finally(() => {
+          loading?.showLoading(false);
+        });
+    }
+  }, [user?.username]);
+
+  useEffect(() => {
+    loading?.showLoading(true, "Loading data...");
+    if (done === 'done') {
+      navigate("/completed");
+    } else if (done === 'facdone') {
+      navigate("/centralfacilities");
+    } else if (sub) {
+      navigate("/feedback");
+    }
+    loading?.showLoading(false);
+  }, [done, navigate])
 
   useEffect(() => {
     if (user) {
@@ -72,6 +109,7 @@ export default function Feedback() {
     // localStorage.setItem("reset", JSON.stringify(reset));
   }, [len, /*reset*/]);
 
+
   const handleCardClick = (index: number) => {
     const secondCard = document.querySelector(`#card-${index + 1}`);
     if (secondCard) {
@@ -104,6 +142,7 @@ export default function Feedback() {
 
   async function handleNext(): Promise<void> {
     try {
+      setIsButtonDisabled(true);
       if (!sub || sub.length === 0) return;
       const currentScore = score[len] || {};
       const requiredKeys = (sub[len].qtype === "theory" ? theory : lab).map((_, index) => index.toString());
@@ -144,17 +183,17 @@ export default function Feedback() {
             batch: user?.batch
           };
           // console.log(dataObject)
-          const { data } = await Axios.post(`api/score`, dataObject, {
+          await Axios.post(`api/score`, dataObject, {
             headers: {
               'Content-Type': 'application/json'
             }
           });
 
-          if (data.done) {
-            alert?.showAlert("DONE", "success");
-          } else {
-            alert?.showAlert("NOT DONE", "error");
-          }
+          // if (data.done) {
+          //   alert?.showAlert("DONE", "success");
+          // } else {
+          //   alert?.showAlert("NOT DONE", "error");
+          // }
         }
       }
 
@@ -235,7 +274,7 @@ export default function Feedback() {
           onClick={handleNext}
         >
           {/* {isLastStep ? "Submit" : "Next"} */}
-          Next
+          {isButtonDisabled ? "Processing..." : "Next"}
         </button>
       </div>
     </div>

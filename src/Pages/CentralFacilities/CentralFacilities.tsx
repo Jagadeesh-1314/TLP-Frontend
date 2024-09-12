@@ -1,10 +1,11 @@
 import Axios from "axios";
-import { useContext, useLayoutEffect, useRef, useState } from "react";
+import { useContext, useEffect, useLayoutEffect, useRef, useState } from "react";
 import Radiobuttons from "../../components/Custom/Radiobuttons";
 import { useAuth } from "../../components/Auth/AuthProvider";
 import { AlertContext } from "../../components/Context/AlertDetails";
 import { useNavigate } from "react-router-dom";
 import Title from "../../components/Title";
+import { LoadingContext } from "../../components/Context/Loading";
 
 interface Question {
     qtype: string;
@@ -13,6 +14,9 @@ interface Question {
 
 interface Score {
     [key: string]: { [key: string]: number };
+}
+interface Token {
+    token: string;
 }
 
 export default function CentralFacilities() {
@@ -25,7 +29,8 @@ export default function CentralFacilities() {
     const [score, setScore] = useState<Score>(() => JSON.parse(localStorage.getItem("score") || "{}"));
     const [len] = useState<number>(() => Number(localStorage.getItem("len")) || 0);
     const [unfilledFields, setUnfilledFields] = useState<number[]>([]);
-
+    const [done, setDone] = useState<string>("");
+    const loading = useContext(LoadingContext);
 
     useLayoutEffect(() => {
         const storedPage = localStorage.getItem("currentPage");
@@ -34,6 +39,32 @@ export default function CentralFacilities() {
         }
     }, []);
 
+    useEffect(() => {
+        if (user?.username) {
+            loading?.showLoading(true);
+            Axios.post<Token>(`api/token`)
+                .then(({ data }) => {
+                    setDone(data.token);
+                })
+                .catch((error) => {
+                    console.error("Error fetching token:", error);
+                    alert?.showAlert("Error fetching token", "error");
+                })
+                .finally(() => {
+                    loading?.showLoading(false);
+                });
+        }
+    }, [user?.username]);
+
+    useEffect(() => {
+        loading?.showLoading(true, "Loading data...");
+        if (done === 'done') {
+            navigate("/completed");
+        } else if (done === 'facdone') {
+            navigate("/centralfacilities");
+        }
+        loading?.showLoading(false);
+    }, [done, navigate])
 
     const handleCardClick = (index: number) => {
         const secondCard = document.querySelector(`#card-${index + 1}`);

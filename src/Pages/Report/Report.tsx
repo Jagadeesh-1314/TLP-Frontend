@@ -24,6 +24,11 @@ interface ReportResponse {
     done: boolean;
 }
 
+interface CountdoneStundents {
+    done: boolean;
+    donestds: number;
+    donetotstds: number;
+}
 
 export default function Report() {
     const alert = useContext(AlertContext);
@@ -40,6 +45,9 @@ export default function Report() {
     const [showReport, setShowReport] = useState<boolean>(false);
     const [filterLowPercentile, setFilterLowPercentile] = useState<boolean>(false);
     const [filterClicked, setFilterClicked] = useState<boolean>(false);
+    const [donestudents, setDoneStudents] = useState<number>(0);
+    const [donetotstudents, setDoneTotStudents] = useState<number>(0);
+
 
     async function generateReport1() {
         try {
@@ -124,10 +132,18 @@ export default function Report() {
                 .catch(error => {
                     console.log(error);
                 });
+            Axios.get<CountdoneStundents>(`api/donestudents?batch=${selectedBatch}&sem=${selectedSem}&sec=${sec}&term=${term}`)
+                .then(({ data }) => {
+                    console.log(data.donestds);
+                    setDoneStudents(data.donestds);
+                    setDoneTotStudents(data.donetotstds);
+                });
         } else {
             console.error("Batch or Semester is not selected");
         }
     }
+
+
 
     const handleDownload = async () => {
         loading?.showLoading(true, "Downloading file...");
@@ -308,6 +324,29 @@ export default function Report() {
                     )}
                     {showReport && (
                         <>
+                            <div
+                                className="students-status"
+                                style={{
+                                    backgroundColor: "#FAFAD2",
+                                    padding: "10px",
+                                    borderRadius: "8px",
+                                    textAlign: "center",
+                                    fontSize: "18px",
+                                    color: "#333",
+                                    width: "50%",
+                                    maxWidth: "400px",
+                                    margin: "0 auto",
+                                }}
+                            >
+                                {donestudents !== undefined && donetotstudents !== undefined ? (
+                                    <p>
+                                        <strong>Completed Students: </strong> <span style={{  marginLeft: "5px", color: "#2E8B57", fontWeight: "bold" }} > {donestudents} </span> / {donetotstudents}
+                                    </p>
+                                ) : (
+                                    <p>Loading data...</p>
+                                )}
+                            </div>
+
                             {report.length > 0 ? (
                                 <>
                                     <div className="report-container">
@@ -335,9 +374,7 @@ export default function Report() {
                                         </div>
                                     ) : (
                                         <>
-                                            {/* <div className="chart-wrapper"> */}
                                             <Bar data={data} options={options} />
-                                            {/* </div> */}
                                             <div className="download-button-container no-print">
                                                 <button className="download-button" onClick={handleDownload}>
                                                     Download Report
@@ -345,7 +382,6 @@ export default function Report() {
                                             </div>
                                         </>
                                     )}
-
                                 </>
                             ) : (
                                 <div className="no-report-message">
