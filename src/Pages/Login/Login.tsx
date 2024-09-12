@@ -99,6 +99,7 @@ export default function LoginForm() {
                     }
                   }
                 })
+                .catch((_error) => alert?.showAlert("Please Try after 5 mins", "warning"))
                 .finally(() => loading?.showLoading(false));
             }}
           >
