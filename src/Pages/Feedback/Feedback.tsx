@@ -138,16 +138,16 @@ export default function Feedback() {
     />
   ));
 
-  const isLastStep = sub && len === sub.length - 1;
+  // const isLastStep = sub && len === sub.length - 1;
 
   async function handleNext(): Promise<void> {
+    
     try {
-      setIsButtonDisabled(true);
       if (!sub || sub.length === 0) return;
       const currentScore = score[len] || {};
       const requiredKeys = (sub[len].qtype === "theory" ? theory : lab).map((_, index) => index.toString());
       const allFieldsFilled = requiredKeys.every((key) => currentScore[key] !== undefined && currentScore[key] !== null);
-
+      
       if (!allFieldsFilled) {
         const newUnfilledFields: number[] = [];
         for (let key of requiredKeys) {
@@ -167,8 +167,10 @@ export default function Feedback() {
       } else {
         setUnfilledFields([]);
       }
-
-      if (isLastStep) {
+      
+      if (Object.keys(score).length === sub.length) {
+        setIsButtonDisabled(true);
+        loading?.showLoading(true, "Submitting scores...");
         for (let i in score) {
           const totalScore = Object.values(score[i]).reduce((a, b) => a + b, 0);
           const length = sub[parseInt(i)].qtype === "theory" ? theory.length : lab.length;
@@ -211,6 +213,8 @@ export default function Feedback() {
       }
     } catch (err) {
       console.error("Error posting score:", err);
+    } finally{
+      loading?.showLoading(false);
     }
   }
 
@@ -272,6 +276,7 @@ export default function Feedback() {
         <button
           className="blue-button-filled col-span-1 flex items-center gap-2 mt-4"
           onClick={handleNext}
+          disabled={isButtonDisabled}
         >
           {/* {isLastStep ? "Submit" : "Next"} */}
           {isButtonDisabled ? "Processing..." : "Next"}
