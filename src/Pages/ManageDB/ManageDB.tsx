@@ -203,6 +203,12 @@ export default function ManageDB() {
       minWidth: 170,
     },
     {
+      field: "facname",
+      headerName: "Faculty Name",
+      flex: 1,
+      minWidth: 170,
+    },
+    {
       field: "subCode",
       headerName: "Subject Code",
       flex: 1,
@@ -332,7 +338,6 @@ export default function ManageDB() {
             rows={responseData}
             disableRowSelectionOnClick
             checkboxSelection
-
             sx={{ height: 600 }}
             rowSelectionModel={selectedRows}
             onRowSelectionModelChange={(ids) => setSelectedRows(ids)}
@@ -444,7 +449,7 @@ function ManageRowDetails({
           <span className="text-3xl font-semibold text-blue-500">
             {type === "add"
               ? `Add new record `
-              : `Edit ${row?.subCode} - ${row?.sec}`}
+              : `Edit ${row?.sem} - ${row?.sec}`}
           </span>
         </DialogTitle>
         <form

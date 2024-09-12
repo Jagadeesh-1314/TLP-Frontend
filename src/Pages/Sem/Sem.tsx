@@ -24,6 +24,7 @@ export default function Sem() {
     const [subs, setSubs] = useState<boolean>(false);
     const { user } = useAuth()!;
     const alert = useContext(AlertContext);
+    const loading = useContext(LoadingContext);
 
     const semesters = [];
     for (let i = 1; i <= 4; i++) {
@@ -31,7 +32,6 @@ export default function Sem() {
             semesters.push(`${i}-${j}`);
         }
     }
-    const loading = useContext(LoadingContext);
 
     useEffect(() => {
         if (user?.username) {
