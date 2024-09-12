@@ -50,6 +50,7 @@ export default function Report() {
 
 
     async function generateReport1() {
+        loading?.showLoading(true, "Generating Report - 1...");
         try {
             const response = await Axios.get<ReportResponse>(`api/report1`);
             const data = response.data;
@@ -72,10 +73,13 @@ export default function Report() {
         } catch (err) {
             console.error("Error fetching report:", err);
             alert?.showAlert("Error fetching report", "error");
+        } finally {
+            loading?.showLoading(false);
         }
     }
 
     async function generateReport2() {
+        loading?.showLoading(true, "Generating Report - 2...");
         try {
             const response = await Axios.get<ReportResponse>(`api/report2`);
             const data = response.data;
@@ -98,6 +102,8 @@ export default function Report() {
         } catch (err) {
             console.error("Error fetching report:", err);
             alert?.showAlert("Error fetching report", "error");
+        } finally {
+            loading?.showLoading(false);
         }
     }
 
@@ -118,31 +124,30 @@ export default function Report() {
         setShowReport(false);
     }
 
-    function handleSecClick(sec: string) {
-        setSelectedSec(sec);
-        setFilterLowPercentile(false);
-        setFilterClicked(false);
-        if (selectedBatch !== null && selectedSem !== null) {
-            Axios.get<{ report: Report[] }>(`api/fetchreport${term}?batch=${selectedBatch}&sem=${selectedSem}&sec=${sec}`)
-                .then(({ data }) => {
-                    const sortedReport = data.report.sort((a, b) => a.sec.localeCompare(b.sec));
-                    setReport(sortedReport);
-                    setShowReport(true);
-                })
-                .catch(error => {
-                    console.log(error);
-                });
-            Axios.get<CountdoneStundents>(`api/donestudents?batch=${selectedBatch}&sem=${selectedSem}&sec=${sec}&term=${term}`)
-                .then(({ data }) => {
-                    console.log(data.donestds);
-                    setDoneStudents(data.donestds);
-                    setDoneTotStudents(data.donetotstds);
-                });
-        } else {
-            console.error("Batch or Semester is not selected");
+    async function handleSecClick(sec: string) {
+        loading?.showLoading(true, "Fecthing Data...");
+        try {
+            setSelectedSec(sec);
+            setFilterLowPercentile(false);
+            setFilterClicked(false);
+
+            if (selectedBatch !== null && selectedSem !== null) {
+                const reportResponse = await Axios.get<{ report: Report[] }>(`api/fetchreport${term}?batch=${selectedBatch}&sem=${selectedSem}&sec=${sec}`);
+                const sortedReport = reportResponse.data.report.sort((a, b) => a.sec.localeCompare(b.sec));
+                setReport(sortedReport);
+                setShowReport(true);
+                const doneStudentsResponse = await Axios.get<CountdoneStundents>(`api/donestudents?batch=${selectedBatch}&sem=${selectedSem}&sec=${sec}&term=${term}`);
+                setDoneStudents(doneStudentsResponse.data.donestds);
+                setDoneTotStudents(doneStudentsResponse.data.donetotstds);
+            } else {
+                console.error("Batch or Semester is not selected");
+            }
+        } catch (error) {
+            console.error("An error occurred:", error);
+        } finally {
+            loading?.showLoading(false);
         }
     }
-
 
 
     const handleDownload = async () => {
@@ -340,7 +345,7 @@ export default function Report() {
                             >
                                 {donestudents !== undefined && donetotstudents !== undefined ? (
                                     <p>
-                                        <strong>Completed Students: </strong> <span style={{  marginLeft: "5px", color: "#2E8B57", fontWeight: "bold" }} > {donestudents} </span> / {donetotstudents}
+                                        <strong>Completed Students: </strong> <span style={{ marginLeft: "5px", color: "#2E8B57", fontWeight: "bold" }} > {donestudents} </span> / {donetotstudents}
                                     </p>
                                 ) : (
                                     <p>Loading data...</p>
