@@ -47,8 +47,8 @@ export default function CentralFacilities() {
                     setDone(data.token);
                 })
                 .catch((error) => {
-                    console.error("Error fetching token:", error);
                     alert?.showAlert("Error fetching token", "error");
+                    console.error("Error fetching token:", error);
                 })
                 .finally(() => {
                     loading?.showLoading(false);
@@ -65,6 +65,10 @@ export default function CentralFacilities() {
         }
         loading?.showLoading(false);
     }, [done, navigate])
+
+    useLayoutEffect(() => {
+        localStorage.setItem("score", JSON.stringify(score));
+    }, [score]);
 
     const handleCardClick = (index: number) => {
         const secondCard = document.querySelector(`#card-${index + 1}`);
@@ -130,38 +134,22 @@ export default function CentralFacilities() {
             } else {
                 setUnfilledFields([]);
             }
-            // await Feedback.handleNext();
-            // const f =  Feedback()
-            // console.log(f);
-            const totalScore = Object.values(score[tmp]).reduce((a, b) => a + b, 0);
-            const length = CentralFacilities.length;
-            const avgScore = totalScore / length;
-            const dataObject = {
-                stuID: user?.username,
-                branch: user?.branch,
-                batch: user?.batch,
-                score: score[tmp],
-                totalScore: avgScore,
-            };
-
-
-            const { data } = await Axios.post(`/api/cfscore`, dataObject, {
+            await Axios.post(`api/cfscore`, { scores: score }, {
                 headers: {
                     'Content-Type': 'application/json'
                 }
-            });
-            if (data.done) {
-                alert?.showAlert("DONE", "success");
-                const { data } = await Axios.post(`api/updatetokendone`);
-                if (data.done) {
-                    alert?.showAlert("Form Submitted", "success");
-                    navigate("/thank-you");
-                    sessionStorage.removeItem("currentPage");
-                    localStorage.clear();
-                }
-            } else {
-                alert?.showAlert("NOT DONE", "error");
-            }
+            })
+                .then(({ data }) => {
+                    if (data.done) {
+                        alert?.showAlert("Feedback Submitted Successfully", "success");
+                        navigate("/thank-you");
+                        localStorage.removeItem("score");
+                    }
+                })
+                .catch(error => {
+                    alert?.showAlert(`${error.response.data.error}`, "error");
+                    console.error('Error response:', error.response?.data);
+                });
         } catch (error) {
             console.error("Error submitting form:", error);
             alert?.showAlert("Error submitting form", "error");

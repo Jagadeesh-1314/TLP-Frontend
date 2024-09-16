@@ -8,7 +8,6 @@ import {
   useState,
 } from "react";
 
-
 type AuthContextType = {
   token: string;
   user: {
@@ -45,14 +44,13 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [token, setToken] = useState(localStorage.getItem("token") || "");
 
   useEffect(() => {
-    if (sessionStorage.getItem('username')) {
+    if (localStorage.getItem('token')) {
       setUser({username: sessionStorage.getItem('username')!,displayName:sessionStorage.getItem("displayName")!, desg:sessionStorage.getItem('desg')!, branch: sessionStorage.getItem('branch')!, batch: Number(sessionStorage.getItem('batch'))!, sem: Number(sessionStorage.getItem('sem'))! })
       Axios.defaults.headers.common["Authorization"] = "Bearer " + token;
-      localStorage.setItem("token", token);
-      
-      
+      localStorage.setItem("token", token);  
     } else {
-      
+      sessionStorage.clear();
+      localStorage.clear();
     }
   }, []);
   const setUserInAuth = (v:{
@@ -70,7 +68,6 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     () => () => {
       setUser(null);
       setToken("");
-      
     },
     []
   );

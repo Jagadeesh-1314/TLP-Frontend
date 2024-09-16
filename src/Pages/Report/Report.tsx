@@ -12,6 +12,7 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, ChartTitle, Tooltip, Le
 interface Report {
     facName: string;
     subcode: string;
+    facID: string;
     subname: string;
     sec: string;
     sem: number;
@@ -50,7 +51,7 @@ export default function Report() {
 
 
     async function generateReport1() {
-        loading?.showLoading(true, "Generating Report - 1...");
+        loading?.showLoading(true, "Generating Report 1...");
         try {
             const response = await Axios.get<ReportResponse>(`api/report1`);
             const data = response.data;
@@ -79,7 +80,7 @@ export default function Report() {
     }
 
     async function generateReport2() {
-        loading?.showLoading(true, "Generating Report - 2...");
+        loading?.showLoading(true, "Generating Report 2...");
         try {
             const response = await Axios.get<ReportResponse>(`api/report2`);
             const data = response.data;
@@ -362,8 +363,8 @@ export default function Report() {
                                                 (!filterLowPercentile || item.percentile <= 70)
                                             )
                                             .map((item, index) => (
-                                                <div key={index} className={`report-item ${item.percentile <= 70 ? 'low-percentile-item' : ''}`}>
-                                                    <p><strong>Faculty Name:</strong> {item.facName}</p>
+                                                <div key={item.facID} className={`report-item ${item.percentile <= 70 ? 'low-percentile-item' : ''}`}>
+                                                    <p><strong>Faculty Name:</strong> {item.facID}</p>
                                                     <p><strong>Subject Code:</strong> {item.subcode}</p>
                                                     <p><strong>Subject Name:</strong> {item.subname}</p>
                                                     <p><strong>Section:</strong> {item.sec}</p>

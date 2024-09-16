@@ -76,7 +76,7 @@ export default function LoginForm() {
 
               Axios.post(`api/login`, {
                 withCredentials: true,
-                username: desg === 'admin' ? loginCreds.username : loginCreds.username.toUpperCase(),
+                username: desg === 'admin' ? loginCreds.username.trim() : loginCreds.username.toUpperCase().trim(),
                 password: loginCreds.password,
               })
                 .then(({ data }) => {
@@ -90,6 +90,7 @@ export default function LoginForm() {
                     sessionStorage.setItem("branch", data.branch);
                     sessionStorage.setItem("batch", data.batch);
                     sessionStorage.setItem("sem", data.sem);
+                    localStorage.setItem("token", data.token);
                     setUser({username: loginCreds.username, displayName:data.displayName, desg: data.desg, branch: data.branch, batch: data.batch, sem: data.sem })
                     document.cookie = `Token=${data.token}`;
                     if(data.desg === 'admin') {

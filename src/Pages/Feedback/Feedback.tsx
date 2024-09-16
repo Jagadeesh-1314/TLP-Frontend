@@ -1,13 +1,15 @@
 import { useContext, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Radiobuttons from "../../components/Custom/Radiobuttons";
-import { Card } from "@mui/material";
+import { Box, Card } from "@mui/material";
 import Axios from "axios";
 import { AlertContext } from "../../components/Context/AlertDetails";
 import { useAuth } from "../../components/Auth/AuthProvider";
 import StepperComponent from "../../components/Custom/StepperComponent";
 import Title from "../../components/Title";
 import { LoadingContext } from "../../components/Context/Loading";
+import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrowLeft';
+import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArrowRight';
 
 interface Question {
   qtype: string;
@@ -101,14 +103,16 @@ export default function Feedback() {
   }, []);
 
   useLayoutEffect(() => {
+    if (len > Object(score).length || Object.keys(score).length === 0 ) {
+      setLen(0);
+    }
     localStorage.setItem("score", JSON.stringify(score));
   }, [score]);
 
   useLayoutEffect(() => {
     localStorage.setItem("len", len.toString());
     // localStorage.setItem("reset", JSON.stringify(reset));
-  }, [len, /*reset*/]);
-
+  }, [len/*reset*/]);
 
   const handleCardClick = (index: number) => {
     const secondCard = document.querySelector(`#card-${index + 1}`);
@@ -138,16 +142,14 @@ export default function Feedback() {
     />
   ));
 
-  // const isLastStep = sub && len === sub.length - 1;
 
   async function handleNext(): Promise<void> {
-    
     try {
       if (!sub || sub.length === 0) return;
       const currentScore = score[len] || {};
       const requiredKeys = (sub[len].qtype === "theory" ? theory : lab).map((_, index) => index.toString());
       const allFieldsFilled = requiredKeys.every((key) => currentScore[key] !== undefined && currentScore[key] !== null);
-      
+
       if (!allFieldsFilled) {
         const newUnfilledFields: number[] = [];
         for (let key of requiredKeys) {
@@ -167,49 +169,38 @@ export default function Feedback() {
       } else {
         setUnfilledFields([]);
       }
-      
+
       if (Object.keys(score).length === sub.length) {
         setIsButtonDisabled(true);
         loading?.showLoading(true, "Submitting scores...");
-        for (let i in score) {
-          const totalScore = Object.values(score[i]).reduce((a, b) => a + b, 0);
-          const length = sub[parseInt(i)].qtype === "theory" ? theory.length : lab.length;
-          const avgScore = totalScore / length;
-
-          const dataObject = {
-            facID: sub[parseInt(i)].facID,
-            subCode: sub[parseInt(i)].subCode,
-            qtype: sub[parseInt(i)].qtype,
-            score: score[i],
-            totalScore: avgScore,
-            batch: user?.batch
+        const scoresData = sub.map((subject: any, index: number) => {
+          return {
+            subCode: subject.subCode,
+            score: score[index],
           };
-          // console.log(dataObject)
-          await Axios.post(`api/score`, dataObject, {
-            headers: {
-              'Content-Type': 'application/json'
+        });
+        await Axios.post(`api/score`, { scores: scoresData }, {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        })
+          .then(({ data }) => {
+            if (data.done) {
+              alert?.showAlert("Feedback Submitted Successfully", "success");
+              navigate("/centralfacilities");
             }
+          })
+          .catch(error => {
+            alert?.showAlert(`${error.response.data}`, "error");
+            console.error('Error response:', error.response?.data);
           });
-
-          // if (data.done) {
-          //   alert?.showAlert("DONE", "success");
-          // } else {
-          //   alert?.showAlert("NOT DONE", "error");
-          // }
-        }
+      } else if (len === sub.length - 1 && Object(score).length !== len) {
+        alert?.showAlert("You have Missied some Fields", "error");
       }
 
       if (len < sub.length - 1) {
         setLen(len + 1);
         window.scrollTo(0, 0);
-      } else {
-        const { data } = await Axios.post(`api/updatetokenfacdone`);
-        if (data.done) {
-          alert?.showAlert("Form Submitted", "success");
-        }
-        localStorage.setItem("currentPage", "CentralFacilities");
-        navigate("/centralfacilities");
-        sessionStorage.removeItem("currentPage");
       }
     } catch (err) {
       console.error("Error posting score:", err);
@@ -217,6 +208,14 @@ export default function Feedback() {
       loading?.showLoading(false);
     }
   }
+
+  const handlePrevious = () => {
+    if (len > 0) {
+      setLen(len - 1);
+      window.scrollTo(0, 0);
+    }
+  };
+
 
   return (
     <div className="bg-blue-100 py-7 px-3 md:px-6 rounded-lg">
@@ -273,14 +272,34 @@ export default function Feedback() {
           )}
           {cards}
         </form>
-        <button
-          className="blue-button-filled col-span-1 flex items-center gap-2 mt-4"
-          onClick={handleNext}
-          disabled={isButtonDisabled}
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            width: '95%',
+            margin: '10px',
+            '@media (min-width: 600px)': {
+              width: '62%',
+            },
+          }}
         >
-          {/* {isLastStep ? "Submit" : "Next"} */}
-          {isButtonDisabled ? "Processing..." : "Next"}
-        </button>
+          <button
+            className="blue-button-filled col-span-1 flex items-center gap-2"
+            onClick={handlePrevious}
+            disabled={len === 0}
+          >
+            <KeyboardDoubleArrowLeftIcon /> Previous
+          </button>
+
+          <button
+            className="blue-button-filled col-span-1 flex items-center gap-2"
+            onClick={handleNext}
+            disabled={isButtonDisabled}
+          >
+            {isButtonDisabled ? "Processing..." : (len === sub.length - 1 ? "Submit" : "Next")} <KeyboardDoubleArrowRightIcon />
+          </button>
+        </Box>
+
       </div>
     </div>
   );
