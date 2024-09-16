@@ -42,7 +42,7 @@ export default function CFReport() {
 
     async function generateReport1() {
         try {
-            loading?.showLoading(true, "Generating CFReport - 1...");
+            loading?.showLoading(true, "Generating CFReport 1...");
             const response = await Axios.get<CFReportResponse>(`api/cfreport1`);
             const data = response.data;
             if (data.done) {
@@ -65,7 +65,7 @@ export default function CFReport() {
     }
     async function generateReport2() {
         try {
-            loading?.showLoading(true, "Generating CFReport - 2...");
+            loading?.showLoading(true, "Generating CFReport 2...");
             const response = await Axios.get<CFReportResponse>(`api/cfreport2`);
             const data = response.data;
             if (data.done) {

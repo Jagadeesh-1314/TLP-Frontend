@@ -53,11 +53,7 @@ const CompletedFeedback = lazy(() => import("./Pages/CompletedFeedback/Completed
 const ShowNavbar = lazy(() => import('./components/Custom/useShowNavbar'))
 
 function App() {
-  // const nav = ;
-  // const [sub, setSub] = useState<Subjects[] | null>([]);
   const router = createBrowserRouter([
-
-
     {
       path: "/login",
       element: <LoginForm />
