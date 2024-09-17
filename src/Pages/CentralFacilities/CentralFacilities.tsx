@@ -62,7 +62,7 @@ export default function CentralFacilities() {
             navigate("/completed");
         } else if (done === 'facdone') {
             navigate("/centralfacilities");
-        } else {
+        } else if (done === 'undone') {
             navigate("/feedback");
         }
         loading?.showLoading(false);
@@ -93,7 +93,6 @@ export default function CentralFacilities() {
             });
     }, []);
 
-    const tmp = len + 1;
 
     const cards = CentralFacilities.map((obj, index) => (
         <Radiobuttons
@@ -102,7 +101,7 @@ export default function CentralFacilities() {
             itemKey={index}
             ref={(el) => (questionRefs.current[index] = el)}
             score={score}
-            len={tmp}
+            len={len}
             setScore={setScore}
             onClick={() => handleCardClick(index)}
             question={obj.question}
@@ -115,7 +114,7 @@ export default function CentralFacilities() {
         try {
             loading?.showLoading(true, "Submitting scores...");
             const requiredKeys = CentralFacilities.map((_, index) => index.toString());
-            const currentScore = score[tmp] || {};
+            const currentScore = score[len] || {};
             const allFieldsFilled = requiredKeys.every((key) => currentScore[key] !== undefined && currentScore[key] !== null);
             if (!allFieldsFilled) {
                 const newUnfilledFields: number[] = [];
@@ -146,6 +145,7 @@ export default function CentralFacilities() {
                         alert?.showAlert("Feedback Submitted Successfully", "success");
                         navigate("/thank-you");
                         localStorage.removeItem("score");
+                        localStorage.removeItem("len")
                     }
                 })
                 .catch(error => {

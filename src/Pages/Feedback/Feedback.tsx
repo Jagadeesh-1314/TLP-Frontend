@@ -187,6 +187,8 @@ export default function Feedback() {
           .then(({ data }) => {
             if (data.done) {
               alert?.showAlert("Feedback Submitted Successfully", "success");
+              localStorage.removeItem("score");
+              localStorage.removeItem("len");
               navigate("/centralfacilities");
             }
           })
