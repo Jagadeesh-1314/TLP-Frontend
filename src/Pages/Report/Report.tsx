@@ -1,12 +1,13 @@
 import Axios from "axios";
 import { AlertContext } from "../../components/Context/AlertDetails";
-import { useContext, useState } from "react";
+import { useContext, useLayoutEffect, useState } from "react";
 import "./Report.css";
 import { FilterList } from "@mui/icons-material";
 import { LoadingContext } from "../../components/Context/Loading";
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title as ChartTitle, Tooltip, Legend } from "chart.js";
 import { Bar } from 'react-chartjs-2';
 import Title from "../../components/Title";
+import { useLocation } from "react-router-dom";
 ChartJS.register(CategoryScale, LinearScale, BarElement, ChartTitle, Tooltip, Legend);
 
 interface Report {
@@ -31,10 +32,21 @@ interface CountdoneStundents {
     donetotstds: number;
 }
 
+interface ReportQuestion {
+    question: string;
+    branch: string;
+    sem: number;
+    count: number;
+    total: number;
+    adjusted_total: number;
+}
+
 export default function Report() {
     const alert = useContext(AlertContext);
     const loading = useContext(LoadingContext);
-    const [report, setReport] = useState<Report[]>([]);
+    const location = useLocation();
+
+    const [report, setReport] = useState<Report[]>(location.state?.report || []);
     const [sems, setSems] = useState<number[]>([]);
     const [secs, setSecs] = useState<string[]>([]);
     const [batches, setBatches] = useState<number[]>([]);
@@ -48,6 +60,14 @@ export default function Report() {
     const [filterClicked, setFilterClicked] = useState<boolean>(false);
     const [donestudents, setDoneStudents] = useState<number>(0);
     const [donetotstudents, setDoneTotStudents] = useState<number>(0);
+    const [selectedItem, setSelectedItem] = useState<Report | null>(null);
+    const [questions, setQuestions] = useState<ReportQuestion[]>([]);
+    const [showQuestions, setShowQuestions] = useState<boolean>(false);
+
+    useLayoutEffect(() => {
+        const savedScrollPosition = location.state?.scrollPosition || 0;
+        window.scrollTo(0, savedScrollPosition);
+    }, [location.state?.scrollPosition]);
 
 
     async function generateReport1() {
@@ -258,7 +278,99 @@ export default function Report() {
         },
     };
 
+    const queData = {
+        labels: questions.map(r => r.question),
+        datasets: [
+            {
+                label: 'Percentile',
+                data: questions.map(r => r.adjusted_total),
+                backgroundColor: (context: { dataset: { data: { [x: string]: any; }; }; dataIndex: string | number; }) => {
+                    const value = context.dataset.data[context.dataIndex];
+                    return value >= 70 ? '#3CB371' : 'red';
+                },
+                barThickness: 35,
+            },
+        ],
+    };
 
+
+
+    const handleShowQuestionsClick = async (item: Report) => {
+        setSelectedItem(item);
+        setShowReport(false);
+        setShow(false);
+        setShowQuestions(true);
+
+        try {
+            loading?.showLoading(true, "Generating Questions...");
+
+            const response = await Axios.post<{ reportquestions: ReportQuestion[] }>(
+                `/api/reportquestions`,
+                {
+                    term: term,
+                    sem: item.sem,
+                    sec: item.sec,
+                    facID: item.facID,
+                    subcode: item.subcode,
+                    batch: item.batch
+                }
+            );
+            const data = response.data;
+            setQuestions(data.reportquestions || []);
+        } catch (error) {
+            console.error("Error fetching questions:", error);
+            alert?.showAlert("Error fetching questions", "error");
+        } finally {
+            loading?.showLoading(false);
+        }
+    };
+
+    const handleReportDownload = async () => {
+        loading?.showLoading(true, "Downloading file...");
+        try {
+            const response = await Axios.get(
+                `/api/download/downloadreportquestion`,
+                {
+                    params: {
+                        term: term,
+                        sem: selectedItem?.sem,
+                        sec: selectedItem?.sec,
+                        facID: selectedItem?.facID,
+                        subcode: selectedItem?.subcode,
+                        batch: selectedItem?.batch
+                    },
+                    responseType: "blob",
+                }
+            );
+            if (response.data) {
+                const url = window.URL.createObjectURL(new Blob([response.data]));
+                const link = document.createElement("a");
+                link.href = url;
+
+                const contentDisposition = response.headers["content-disposition"];
+                let fileName = "downloaded_file.docx";
+                if (contentDisposition) {
+                    const fileNameMatch = contentDisposition.match(/filename="(.+)"/);
+                    if (fileNameMatch && fileNameMatch.length > 1) {
+                        fileName = fileNameMatch[1];
+                    }
+                }
+
+                link.setAttribute("download", fileName);
+                document.body.appendChild(link);
+                link.click();
+                window.URL.revokeObjectURL(url);
+
+                alert?.showAlert("File downloaded successfully", "success");
+            } else {
+                alert?.showAlert("No data found", "warning");
+            }
+        } catch (error) {
+            alert?.showAlert("Error while downloading file", "error");
+        } finally {
+            loading?.showLoading(false);
+        }
+    };
 
     return (
         <>
@@ -363,14 +475,20 @@ export default function Report() {
                                                 (!filterLowPercentile || item.percentile <= 70)
                                             )
                                             .map((item, index) => (
-                                                <div key={item.facID} className={`report-item ${item.percentile <= 70 ? 'low-percentile-item' : ''}`}>
-                                                    <p><strong>Faculty Name:</strong> {item.facID}</p>
+                                                <div key={index} className={`report-item ${item.percentile <= 70 ? 'low-percentile-item' : ''}`}>
+                                                    <p><strong>Faculty Name:</strong> {item.facName}</p>
                                                     <p><strong>Subject Code:</strong> {item.subcode}</p>
                                                     <p><strong>Subject Name:</strong> {item.subname}</p>
                                                     <p><strong>Section:</strong> {item.sec}</p>
                                                     <p><strong>Semester:</strong> {item.sem}</p>
                                                     <p><strong>Batch:</strong> {item.batch}</p>
                                                     <p><strong>Percentile:</strong> {item.percentile}</p>
+                                                    <button
+                                                        className="Show-Questions-button"
+                                                        onClick={() => handleShowQuestionsClick(item)}
+                                                    >
+                                                        Show Questions
+                                                    </button>
                                                 </div>
                                             ))}
                                     </div>
@@ -394,6 +512,71 @@ export default function Report() {
                                     <p>No report available for the selected criteria.</p>
                                 </div>
                             )}
+
+                        </>
+                    )}
+                    {/* {selectedItem && (
+                        <>
+                            <p><strong>Faculty Name:</strong> {selectedItem.facID}</p>
+                            <p><strong>Subject Code:</strong> {selectedItem.subcode}</p>
+                            <p><strong>Subject Name:</strong> {selectedItem.subname}</p>
+                            <p><strong>Section:</strong> {selectedItem.sec}</p>
+                            <p><strong>Semester:</strong> {selectedItem.sem}</p>
+                            <p><strong>Batch:</strong> {selectedItem.batch}</p>
+                            <p><strong>Percentile:</strong> {selectedItem.percentile}</p>
+                        </>
+                    )} */}
+                    {showQuestions && (
+                        <>
+                            {selectedItem && (
+                                <>
+                                    <div className="report-container1">
+                                        <div className={`report-item ${selectedItem.percentile <= 70 ? 'low-percentile-item' : ''}`}>
+                                            <p><strong>Faculty Name:</strong> {selectedItem.facName}</p>
+                                            <p><strong>Subject Code:</strong> {selectedItem.subcode}</p>
+                                            <p><strong>Subject Name:</strong> {selectedItem.subname}</p>
+                                            <p><strong>Section:</strong> {selectedItem.sec}</p>
+                                            <p><strong>Semester:</strong> {selectedItem.sem}</p>
+                                            <p><strong>Batch:</strong> {selectedItem.batch}</p>
+                                            <p><strong>Percentile:</strong> {selectedItem.percentile}</p>
+                                        </div>
+                                    </div>
+                                </>
+                            )}
+                            <div className="questions-table-container">
+                                <div className="close-button-container">
+                                    <button
+                                        className="close-button"
+                                        onClick={() => { setShowQuestions(false); setShowReport(true) }}
+                                    >
+                                        Close
+                                    </button>
+                                </div>
+                                <table className="questions-table">
+                                    <thead>
+                                        <tr>
+                                            <th>S.NO</th>
+                                            <th>Question</th>
+                                            <th>Percentile</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {questions.map((item, index) => (
+                                            <tr key={index}>
+                                                <td>{index + 1}</td>
+                                                <td>{item.question}</td>
+                                                <td>{item.adjusted_total}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <Bar data={queData} options={options} />
+                            <div className="download-button-container no-print">
+                                <button className="download-button" onClick={handleReportDownload}>
+                                    Download Report Questionare
+                                </button>
+                            </div>
                         </>
                     )}
                 </>

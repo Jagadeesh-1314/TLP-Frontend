@@ -170,7 +170,7 @@ export default function Feedback() {
         setUnfilledFields([]);
       }
 
-      if (Object.keys(score).length === sub.length) {
+      if (Object.keys(score).length === sub.length && len === sub.length - 1) {
         setIsButtonDisabled(true);
         loading?.showLoading(true, "Submitting scores...");
         const scoresData = sub.map((subject: any, index: number) => {

@@ -186,7 +186,6 @@ export default function CFReport() {
             );
             const data = response.data;
             setQuestions(data.cfreportquestions || []);
-            setShowQuestions(true);
         } catch (error) {
             console.error("Error fetching questions:", error);
             alert?.showAlert("Error fetching questions", "error");
