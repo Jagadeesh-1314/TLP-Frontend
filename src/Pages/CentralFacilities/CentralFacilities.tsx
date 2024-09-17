@@ -62,6 +62,8 @@ export default function CentralFacilities() {
             navigate("/completed");
         } else if (done === 'facdone') {
             navigate("/centralfacilities");
+        } else {
+            navigate("/feedback");
         }
         loading?.showLoading(false);
     }, [done, navigate])

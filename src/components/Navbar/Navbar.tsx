@@ -36,17 +36,17 @@ export default function Navbar({
     { name: "Unfilled List", icon: <FormatListBulleted />},
     { name: "Report", icon: <PlagiarismOutlined /> },
     { name: "CFReport", icon: <PlagiarismOutlined /> },
-    { name: "Control", icon: <ControlCamera/> },
     { name: "Electives", icon: <PostAdd /> },
     { name: "Upload", icon: <FileUploadOutlined /> },
     { name: "Manage Database", icon: <StorageOutlined /> },
     { name: "Backup and Restore", icon: <BackupOutlined /> },
   ];
-
+  
   const nonAdminNavLinks: any[] = [
   ];
-
+  
   const miscLinks = [
+    { name: "Control", icon: <ControlCamera/> },
     { name: "Download", icon: <FileDownloadOutlined /> },
     { name: "Manage Users", icon: <PeopleAltOutlined /> },
   ];
