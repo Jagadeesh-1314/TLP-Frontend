@@ -8,6 +8,7 @@ import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title as Char
 import { Bar } from 'react-chartjs-2';
 import Title from "../../components/Title";
 import { useLocation } from "react-router-dom";
+import { Dialog, DialogTitle, DialogContent, FormControlLabel, DialogActions, Button, Radio, RadioGroup } from "@mui/material";
 ChartJS.register(CategoryScale, LinearScale, BarElement, ChartTitle, Tooltip, Legend);
 
 interface Report {
@@ -63,6 +64,16 @@ export default function Report() {
     const [selectedItem, setSelectedItem] = useState<Report | null>(null);
     const [questions, setQuestions] = useState<ReportQuestion[]>([]);
     const [showQuestions, setShowQuestions] = useState<boolean>(false);
+    const [dialogOpen, setDialogOpen] = useState<boolean>(false);
+    const [rsec, setRsec] = useState<string>(selectedSec);
+
+    const handleOpenDialog = () => {
+        setDialogOpen(true);
+    };
+
+    const handleCloseDialog = () => {
+        setDialogOpen(false);
+    };
 
     useLayoutEffect(() => {
         const savedScrollPosition = location.state?.scrollPosition || 0;
@@ -149,6 +160,7 @@ export default function Report() {
         loading?.showLoading(true, "Fecthing Data...");
         try {
             setSelectedSec(sec);
+            setRsec(sec)
             setFilterLowPercentile(false);
             setFilterClicked(false);
 
@@ -179,7 +191,7 @@ export default function Report() {
                 `/api/download/downloadreport`, {
                 params: {
                     sem: selectedSem,
-                    sec: selectedSec,
+                    sec: rsec,
                     batch: selectedBatch,
                     count: term,
                 },
@@ -248,26 +260,54 @@ export default function Report() {
             {
                 label: 'Percentile',
                 data: report.map(r => r.percentile),
-                backgroundColor: (context: { dataset: { data: { [x: string]: any; }; }; dataIndex: string | number; }) => {
-                    const value = context.dataset.data[context.dataIndex];
-                    return value >= 70 ? '#3CB371' : 'red';
-                },
-                barThickness: 35,
+                backgroundColor: report.map(r => 
+                    r.percentile > 70 ? 'rgba(2, 97, 250, 0.2)' : 'rgba(255, 99, 132, 0.2)'
+                ),
+                borderColor: report.map(r => 
+                    r.percentile > 70 ? 'rgba(2, 97, 250, 1)' : 'rgba(255, 99, 132, 1)'
+                ),
+                borderWidth: 0.5,
+                barThickness: 80,
             },
         ],
     };
 
+    // const options = {
+    //     indexAxis: 'y' as const,
+    //     scales: {
+    //         x: {
+    //             ticks: {
+    //                 stepSize: 20,
+    //             },
+    //             min: 0,
+    //             max: 100,
+    //         },
+    //         y: {
+    //             ticks: {
+    //                 font: {
+    //                     weight: 'bold' as const,
+    //                     size: 15,
+    //                 },
+    //             },
+    //         },
+    //     },
+    // };
+
+
     const options = {
-        indexAxis: 'y' as const,
+        indexAxis: 'x' as const,
         scales: {
-            x: {
+            y: {
                 ticks: {
                     stepSize: 20,
+                    font: {
+                        size: 15,
+                    },
                 },
                 min: 0,
                 max: 100,
             },
-            y: {
+            x: {
                 ticks: {
                     font: {
                         weight: 'bold' as const,
@@ -276,10 +316,18 @@ export default function Report() {
                 },
             },
         },
+        layout: {
+            padding: {
+                left: 200,
+                right: 200,
+                top: 100,
+                bottom: 10,
+            },
+        },
     };
 
     const queData = {
-        labels: questions.map(r => r.question),
+        labels: questions.map((_r, index) => `Que - ${index + 1}`),
         datasets: [
             {
                 label: 'Percentile',
@@ -288,10 +336,10 @@ export default function Report() {
                     const value = context.dataset.data[context.dataIndex];
                     return value >= 70 ? '#3CB371' : 'red';
                 },
-                barThickness: 35,
+                barThickness: 65,
             },
         ],
-    };
+    };  
 
 
 
@@ -500,10 +548,49 @@ export default function Report() {
                                         <>
                                             <Bar data={data} options={options} />
                                             <div className="download-button-container no-print">
-                                                <button className="download-button" onClick={handleDownload}>
+                                                <button className="download-button" onClick={handleOpenDialog}>
                                                     Download Report
                                                 </button>
                                             </div>
+                                            <Dialog
+                                                open={dialogOpen}
+                                                onClose={handleCloseDialog}
+                                                PaperProps={{
+                                                    style: {
+                                                        width: '600px',
+                                                        maxWidth: '600px',
+                                                    }
+                                                }}
+                                                aria-labelledby="dialog-title"
+                                                aria-describedby="dialog-description"
+                                                role="dialog"
+                                            >
+                                                <DialogTitle id="dialog-title">Select To Download File</DialogTitle>
+                                                <DialogContent id="dialog-description">
+                                                    <RadioGroup
+                                                        value={rsec} 
+                                                        onChange={(e) => setRsec(e.target.value)} 
+                                                    >
+                                                        <FormControlLabel
+                                                            value={""}
+                                                            control={<Radio />}
+                                                            label="All Sections"
+                                                        />
+                                                        <FormControlLabel
+                                                            value={selectedSec} 
+                                                            control={<Radio />}
+                                                            label="Selected Section"
+                                                        />
+                                                    </RadioGroup>
+                                                </DialogContent>
+                                                <DialogActions>
+                                                    <Button onClick={handleCloseDialog} color="error">Cancel</Button>
+                                                    <Button onClick={handleDownload} color="primary">
+                                                        Download Report
+                                                    </Button>
+                                                </DialogActions>
+                                            </Dialog>
+
                                         </>
                                     )}
                                 </>
@@ -515,17 +602,6 @@ export default function Report() {
 
                         </>
                     )}
-                    {/* {selectedItem && (
-                        <>
-                            <p><strong>Faculty Name:</strong> {selectedItem.facID}</p>
-                            <p><strong>Subject Code:</strong> {selectedItem.subcode}</p>
-                            <p><strong>Subject Name:</strong> {selectedItem.subname}</p>
-                            <p><strong>Section:</strong> {selectedItem.sec}</p>
-                            <p><strong>Semester:</strong> {selectedItem.sem}</p>
-                            <p><strong>Batch:</strong> {selectedItem.batch}</p>
-                            <p><strong>Percentile:</strong> {selectedItem.percentile}</p>
-                        </>
-                    )} */}
                     {showQuestions && (
                         <>
                             {selectedItem && (

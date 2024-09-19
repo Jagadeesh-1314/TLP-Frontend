@@ -59,7 +59,7 @@ export default function CentralFacilities() {
     useEffect(() => {
         loading?.showLoading(true, "Loading data...");
         if (done === 'done') {
-            navigate("/completed");
+            navigate("/thank-you");
         } else if (done === 'facdone') {
             navigate("/centralfacilities");
         } else if (done === 'undone') {
