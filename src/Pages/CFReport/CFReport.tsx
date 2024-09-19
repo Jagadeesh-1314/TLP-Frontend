@@ -250,7 +250,7 @@ export default function CFReport() {
 
 
     const data = {
-        labels: questions.map(q => q.question),
+        labels: questions.map((_r, index) => `Que - ${index + 1}`),
         datasets: [
             {
                 label: 'Percentile',
@@ -265,16 +265,9 @@ export default function CFReport() {
     };
 
     const options = {
-        indexAxis: 'y' as const,
+        indexAxis: 'x' as const,
         scales: {
             x: {
-                ticks: {
-                    stepSize: 20,
-                },
-                min: 0,
-                max: 100,
-            },
-            y: {
                 ticks: {
                     font: {
                         weight: 'bold' as const,
@@ -282,8 +275,60 @@ export default function CFReport() {
                     },
                 },
             },
+            y: {
+                ticks: {
+                    stepSize: 25,
+                    font: {
+                        weight: 'bold' as const,
+                        size: 15,
+                    },
+                },
+                min: 0,
+                max: 100,
+            },
+        },
+        layout: {
+            padding: {
+                left: 100,
+                right: 100,
+                top: 10,
+                bottom: 10,
+            },
         },
     };
+
+
+    // const options = {
+    //     indexAxis: 'y' as const,
+    //     scales: {
+    //         x: {
+    //             ticks: {
+    //                 stepSize: 25, 
+    //                 font: {
+    //                     size: 15,
+    //                 },
+    //             },
+    //             min: 0,
+    //             max: 100,
+    //         },
+    //         y: {
+    //             ticks: {
+    //                 font: {
+    //                     weight: 'bold' as const,
+    //                     size: 15, 
+    //                 },
+    //             },
+    //         },
+    //     },
+    //     layout: {
+    //         padding: {
+    //             left: 100,
+    //             right: 100,
+    //             top: 10,
+    //             bottom: 10, 
+    //         },
+    //     },
+    // };
 
 
     return (
