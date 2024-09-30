@@ -9,6 +9,7 @@ import { Bar } from 'react-chartjs-2';
 import Title from "../../components/Title";
 import { useLocation } from "react-router-dom";
 import { Dialog, DialogTitle, DialogContent, FormControlLabel, DialogActions, Button, Radio, RadioGroup } from "@mui/material";
+import { useAuth } from "../../components/Auth/AuthProvider";
 ChartJS.register(CategoryScale, LinearScale, BarElement, ChartTitle, Tooltip, Legend);
 
 interface Report {
@@ -23,7 +24,7 @@ interface Report {
 }
 
 interface ReportResponse {
-    details: { sem: number, batch: number, sec: string }[];
+    details: { sem: number, batch: number, sec: string, branch: string }[];
     done: boolean;
 }
 
@@ -46,14 +47,17 @@ export default function Report() {
     const alert = useContext(AlertContext);
     const loading = useContext(LoadingContext);
     const location = useLocation();
+    const { user } = useAuth()!;
 
     const [report, setReport] = useState<Report[]>(location.state?.report || []);
     const [sems, setSems] = useState<number[]>([]);
     const [secs, setSecs] = useState<string[]>([]);
     const [batches, setBatches] = useState<number[]>([]);
+    const [branches, setBranches] = useState<string[]>([]);
     const [selectedBatch, setSelectedBatch] = useState<number | null>(null);
     const [selectedSem, setSelectedSem] = useState<number | null>(null);
     const [selectedSec, setSelectedSec] = useState<string>("");
+    const [selectedBranch, setSelectedBranch] = useState<string>("");
     const [show, setShow] = useState<boolean>(true);
     const [term, setTerm] = useState<number>(0);
     const [showReport, setShowReport] = useState<boolean>(false);
@@ -81,63 +85,59 @@ export default function Report() {
     }, [location.state?.scrollPosition]);
 
 
-    async function generateReport1() {
-        loading?.showLoading(true, "Generating Report 1...");
+    async function generateReport(reportType: 'report1' | 'report2', term: number, successMessage: string) {
+        loading?.showLoading(true, `Generating ${successMessage}...`);
         try {
-            const response = await Axios.get<ReportResponse>(`api/report1`);
+            const response = await Axios.get<ReportResponse>(`api/${reportType}?fbranch=${selectedBranch}&term=${term}`);
             const data = response.data;
+
             if (data.done) {
-                setTerm(1);
-                const uniqueBatches = [...new Set(data.details.map(item => item.batch))];
-                const sortedBatches = uniqueBatches.sort((a, b) => a - b);
-                setBatches(sortedBatches);
-                const uniqueSems = [...new Set(data.details.map(item => item.sem))];
-                const sortedSems = uniqueSems.sort((a, b) => a - b);
-                setSems(sortedSems);
-                const uniqueSecs = [...new Set(data.details.map(item => item.sec))];
-                const sortedSecs = uniqueSecs.sort((a, b) => a.localeCompare(b));
-                setSecs(sortedSecs);
+                setTerm(term);
+
+                const uniqueBranches = data?.details?.some(item => item.branch)
+                    ? [...new Set(data.details.map(item => item.branch))].sort((a, b) => a.localeCompare(b))
+                    : [];
+                setBranches(uniqueBranches);
+
+                const uniqueBatches = [...new Set(data.details.map(item => item.batch))].sort((a, b) => a - b);
+                setBatches(uniqueBatches);
+
+                const uniqueSems = [...new Set(data.details.map(item => item.sem))].sort((a, b) => a - b);
+                setSems(uniqueSems);
+
+                const uniqueSecs = [...new Set(data.details.map(item => item.sec))].sort((a, b) => a.localeCompare(b));
+                setSecs(uniqueSecs);
+
                 setShow(false);
-                alert?.showAlert("Report-1 generated successfully", "success");
+                alert?.showAlert(`${successMessage} generated successfully`, "success");
             } else {
-                alert?.showAlert("Report-1 is empty", "warning");
+                alert?.showAlert(`${successMessage} is empty`, "warning");
             }
         } catch (err) {
-            console.error("Error fetching report:", err);
-            alert?.showAlert("Error fetching report", "error");
+            console.error(`Error fetching ${successMessage}:`, err);
+            alert?.showAlert(`Error fetching ${successMessage}`, "error");
         } finally {
             loading?.showLoading(false);
         }
     }
 
-    async function generateReport2() {
-        loading?.showLoading(true, "Generating Report 2...");
-        try {
-            const response = await Axios.get<ReportResponse>(`api/report2`);
-            const data = response.data;
-            if (data.done) {
-                setTerm(2);
-                const uniqueBatches = [...new Set(data.details.map(item => item.batch))];
-                const sortedBatches = uniqueBatches.sort((a, b) => a - b);
-                setBatches(sortedBatches);
-                const uniqueSems = [...new Set(data.details.map(item => item.sem))];
-                const sortedSems = uniqueSems.sort((a, b) => a - b);
-                setSems(sortedSems);
-                const uniqueSecs = [...new Set(data.details.map(item => item.sec))];
-                const sortedSecs = uniqueSecs.sort((a, b) => a.localeCompare(b));
-                setSecs(sortedSecs);
-                setShow(false);
-                alert?.showAlert("Report-2 generated successfully", "success");
-            } else {
-                alert?.showAlert("Report-2 is empty", "warning");
-            }
-        } catch (err) {
-            console.error("Error fetching report:", err);
-            alert?.showAlert("Error fetching report", "error");
-        } finally {
-            loading?.showLoading(false);
+    async function generateReport1() {
+        if (branches.length !== 0 && selectedBranch === '') {
+            alert?.showAlert('Please select a branch', "warning");
+            return;
         }
+        await generateReport('report1', 1, "Report 1");
     }
+
+    async function generateReport2() {
+        if (branches.length !== 0 && selectedBranch === '') {
+            alert?.showAlert('Please select a branch', "warning");
+            return;
+        }
+        await generateReport('report2', 2, "Report 2");
+    }
+
+
 
     function handleBatchClick(batch: number) {
         setSelectedBatch(batch);
@@ -156,6 +156,15 @@ export default function Report() {
         setShowReport(false);
     }
 
+
+    function handleBranchClick(branch: string) {
+        setSelectedBranch(branch ? branch : "");
+        setSelectedSec("");
+        setFilterLowPercentile(false);
+        setFilterClicked(false);
+        setShowReport(false);
+    }
+
     async function handleSecClick(sec: string) {
         loading?.showLoading(true, "Fecthing Data...");
         try {
@@ -165,11 +174,20 @@ export default function Report() {
             setFilterClicked(false);
 
             if (selectedBatch !== null && selectedSem !== null) {
-                const reportResponse = await Axios.get<{ report: Report[] }>(`api/fetchreport${term}?batch=${selectedBatch}&sem=${selectedSem}&sec=${sec}`);
+                const reportResponse = await Axios.post<{ report: Report[] }>(
+                    `api/fetchreport${term}`,
+                    {
+                      batch: selectedBatch,
+                      sem: selectedSem,
+                      sec: sec,
+                      fbranch: selectedBranch,
+                      term: term,
+                    }
+                  );                  
                 const sortedReport = reportResponse.data.report.sort((a, b) => a.sec.localeCompare(b.sec));
                 setReport(sortedReport);
                 setShowReport(true);
-                const doneStudentsResponse = await Axios.get<CountdoneStundents>(`api/donestudents?batch=${selectedBatch}&sem=${selectedSem}&sec=${sec}&term=${term}`);
+                const doneStudentsResponse = await Axios.get<CountdoneStundents>(`api/donestudents?batch=${selectedBatch}&sem=${selectedSem}&sec=${sec}&term=${term}&branch=${selectedBranch}`);
                 setDoneStudents(doneStudentsResponse.data.donestds);
                 setDoneTotStudents(doneStudentsResponse.data.donetotstds);
             } else {
@@ -183,6 +201,15 @@ export default function Report() {
     }
 
 
+    if (user?.branch === 'FME' || user?.branch === '') {
+        useLayoutEffect(() => {
+            Axios.get(`/api/manage/branchdetails`)
+                .then(({ data }) => {
+                    setBranches(data.branchDetails);
+                })
+        }, [])
+    }
+
     const handleDownload = async () => {
         loading?.showLoading(true, "Downloading file...");
 
@@ -194,6 +221,7 @@ export default function Report() {
                     sec: rsec,
                     batch: selectedBatch,
                     count: term,
+                    fbranch: selectedBranch,
                 },
                 responseType: "blob"
             }
@@ -260,10 +288,10 @@ export default function Report() {
             {
                 label: 'Percentile',
                 data: report.map(r => r.percentile),
-                backgroundColor: report.map(r => 
+                backgroundColor: report.map(r =>
                     r.percentile > 70 ? 'rgba(2, 97, 250, 0.2)' : 'rgba(255, 99, 132, 0.2)'
                 ),
-                borderColor: report.map(r => 
+                borderColor: report.map(r =>
                     r.percentile > 70 ? 'rgba(2, 97, 250, 1)' : 'rgba(255, 99, 132, 1)'
                 ),
                 borderWidth: 0.5,
@@ -339,7 +367,7 @@ export default function Report() {
                 barThickness: 65,
             },
         ],
-    };  
+    };
 
 
 
@@ -360,7 +388,8 @@ export default function Report() {
                     sec: item.sec,
                     facID: item.facID,
                     subcode: item.subcode,
-                    batch: item.batch
+                    batch: item.batch,
+                    fbranch: selectedBranch
                 }
             );
             const data = response.data;
@@ -385,7 +414,8 @@ export default function Report() {
                         sec: selectedItem?.sec,
                         facID: selectedItem?.facID,
                         subcode: selectedItem?.subcode,
-                        batch: selectedItem?.batch
+                        batch: selectedItem?.batch,
+                        fbranch: selectedBranch,
                     },
                     responseType: "blob",
                 }
@@ -424,24 +454,42 @@ export default function Report() {
         <>
             <Title title="Report" />
             {show ? (
-                <div className="center-button">
-                    <button
-                        type="button"
-                        className="green-button-filled col-span-1 flex items-center gap-2"
-                        onClick={generateReport1}
-                    >
-                        Generate Report 1
-                    </button>
-                    <button
-                        type="button"
-                        className="green-button-filled col-span-1 flex items-center gap-2"
-                        onClick={generateReport2}
-                    >
-                        Generate Report 2
-                    </button>
-                </div>
+                <>
+                    <div className="filter-buttons no-print">                    {branches.map((branch, index) => (
+                        <button
+                            key={index}
+                            className={`filter-button ${selectedBranch === branch ? 'selected' : ''}`}
+                            onClick={() => handleBranchClick(branch)}
+                        >
+                            {branch}
+                        </button>
+                    ))}
+                    </div>
+                    <div className="center-button">
+                        <button
+                            type="button"
+                            className="green-button-filled col-span-1 flex items-center gap-2"
+                            onClick={generateReport1}
+                        >
+                            Generate Report 1
+                        </button>
+                        <button
+                            type="button"
+                            className="green-button-filled col-span-1 flex items-center gap-2"
+                            onClick={generateReport2}
+                        >
+                            Generate Report 2
+                        </button>
+                    </div>
+                </>
             ) : (
                 <>
+                    {selectedBranch !== '' && (
+                        <div style={{ padding: '10px', border: '1px solid #ccc', borderRadius: '8px', backgroundColor: '#f9f9f9', textAlign: 'center', maxWidth: '300px', margin: '10px auto' }}>
+                            Selected Branch : 
+                            <b style={{ color: '#FF7F50', fontSize: '18px' }}>  {selectedBranch}</b> <br />
+                        </div>
+                    )}
                     <div className="filter-buttons no-print">
                         {batches.map((batch, index) => (
                             <button
@@ -453,17 +501,20 @@ export default function Report() {
                             </button>
                         ))}
                     </div>
-                    {selectedBatch !== null && (
+
+                    {(selectedBranch !== null && selectedBatch !== null) && (
                         <div className="filter-buttons no-print">
-                            {sems.map((sem, index) => (
-                                <button
-                                    key={index}
-                                    className={`filter-button ${selectedSem === sem ? 'selected' : ''}`}
-                                    onClick={() => handleSemClick(sem)}
-                                >
-                                    Semester {sem}
-                                </button>
-                            ))}
+                            {sems
+                                .filter(sem => user?.branch === 'FME' ? [1, 2].includes(sem) : true)
+                                .map((sem, index) => (
+                                    <button
+                                        key={index}
+                                        className={`filter-button ${selectedSem === sem ? 'selected' : ''}`}
+                                        onClick={() => handleSemClick(sem)}
+                                    >
+                                        Semester {sem}
+                                    </button>
+                                ))}
                         </div>
                     )}
                     {selectedSem !== null && (
@@ -568,8 +619,8 @@ export default function Report() {
                                                 <DialogTitle id="dialog-title">Select To Download File</DialogTitle>
                                                 <DialogContent id="dialog-description">
                                                     <RadioGroup
-                                                        value={rsec} 
-                                                        onChange={(e) => setRsec(e.target.value)} 
+                                                        value={rsec}
+                                                        onChange={(e) => setRsec(e.target.value)}
                                                     >
                                                         <FormControlLabel
                                                             value={""}
@@ -577,7 +628,7 @@ export default function Report() {
                                                             label="All Sections"
                                                         />
                                                         <FormControlLabel
-                                                            value={selectedSec} 
+                                                            value={selectedSec}
                                                             control={<Radio />}
                                                             label="Selected Section"
                                                         />

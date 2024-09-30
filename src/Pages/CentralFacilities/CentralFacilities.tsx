@@ -6,6 +6,8 @@ import { AlertContext } from "../../components/Context/AlertDetails";
 import { useNavigate } from "react-router-dom";
 import Title from "../../components/Title";
 import { LoadingContext } from "../../components/Context/Loading";
+import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrowLeft';
+import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArrowRight';
 
 interface Question {
     qtype: string;
@@ -30,6 +32,7 @@ export default function CentralFacilities() {
     const [len] = useState<number>(() => Number(localStorage.getItem("len")) || 0);
     const [unfilledFields, setUnfilledFields] = useState<number[]>([]);
     const [done, setDone] = useState<string>("");
+    const [isButtonDisabled, setIsButtonDisabled] = useState(false);
     const loading = useContext(LoadingContext);
 
     useLayoutEffect(() => {
@@ -112,7 +115,7 @@ export default function CentralFacilities() {
 
     async function handleSubmit(): Promise<void> {
         try {
-            loading?.showLoading(true, "Submitting scores...");
+
             const requiredKeys = CentralFacilities.map((_, index) => index.toString());
             const currentScore = score[len] || {};
             const allFieldsFilled = requiredKeys.every((key) => currentScore[key] !== undefined && currentScore[key] !== null);
@@ -135,6 +138,8 @@ export default function CentralFacilities() {
             } else {
                 setUnfilledFields([]);
             }
+            loading?.showLoading(true, "Submitting scores...");
+            setIsButtonDisabled(true);
             await Axios.post(`api/cfscore`, { scores: score }, {
                 headers: {
                     'Content-Type': 'application/json'
@@ -170,7 +175,7 @@ export default function CentralFacilities() {
                     className="blue-button-filled col-span-1 flex items-center gap-2 mt-4"
                     onClick={handleSubmit}
                 >
-                    Submit
+                    <KeyboardDoubleArrowLeftIcon /> {isButtonDisabled ? "Processing..." : `Submit`} <KeyboardDoubleArrowRightIcon />
                 </button>
             </div>
         </div>

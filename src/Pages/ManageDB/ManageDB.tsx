@@ -5,7 +5,7 @@ import {
   DialogActions,
 } from "@mui/material";
 import { CustTextField } from "../../components/Custom/CustTextField";
-import { useContext, useState } from "react";
+import { useContext, useLayoutEffect, useState } from "react";
 import {
   Add,
   DeleteOutlined,
@@ -39,7 +39,9 @@ export default function ManageDB() {
   const [table, setTable] = useState<AvailableDbTables>("timetable");
   const [responseData, setResponseData] = useState<ManageDBResponseArr>([]);
   const [selectedRows, setSelectedRows] = useState<GridRowSelectionModel>([]);
-
+  const [branch, setBranch] = useState<string>("");
+  const [branches, setBranches] = useState<string[]>([]);
+  const { user } = useAuth()!;
 
   const studentdatagridCols: GridColDef[] = [
     { field: "id", headerName: "S No.", minWidth: 80, editable: false },
@@ -158,11 +160,17 @@ export default function ManageDB() {
       minWidth: 170,
     },
     {
-      field: "def",
+      field: "qtype",
       headerName: "Subject Type",
       flex: 1,
+      minWidth: 170,
+    },
+    {
+      field: "def",
+      headerName: "Core Subject / Elective  ",
+      flex: 1,
       valueGetter(params) {
-        return params.row.def === 'e' ? "Elective": "Core Subject"
+        return params.row.def === 'e' ? "Elective" : "Core Subject"
       },
       minWidth: 170,
     },
@@ -211,6 +219,12 @@ export default function ManageDB() {
     {
       field: "subCode",
       headerName: "Subject Code",
+      flex: 1,
+      minWidth: 170,
+    },
+    {
+      field: "subName",
+      headerName: "Subject Name",
       flex: 1,
       minWidth: 170,
     },
@@ -267,6 +281,13 @@ export default function ManageDB() {
     timetable: "TimeTable",
   };
 
+  useLayoutEffect(() => {
+    Axios.get(`/api/manage/branchdetails`)
+      .then(({ data }) => {
+        setBranches(data.branchDetails);
+      })
+  }, [])
+
   // ANCHOR JSX  ||========================================================================
   return (
     <>
@@ -287,15 +308,36 @@ export default function ManageDB() {
           <MenuItem value={"subjects"}>Subjects</MenuItem>
           <MenuItem value={"faculty"}>Faculty</MenuItem>
         </CustTextField>
+        {((table === 'timetable' || table === 'studentInfo') && 
+        (user?.branch === 'FME' || user?.branch === '')) && (
+          <CustTextField
+            select
+            label="Branch"
+            value={branch}
+            onChange={({ target: { value } }) => {
+              setBranch(value);
+              setResponseData([]);
+              setSelectedRows([]);
+            }}
+          >
+            {branches.map((branchItem: string) => (
+              <MenuItem key={branchItem} value={branchItem}>
+                {branchItem}
+              </MenuItem>
+            ))}
+          </CustTextField>
+        )}
+      </div>
 
-        {/* ANCHOR FORM ||======================================================================== */}
+      {/* ANCHOR FORM ||======================================================================== */}
+      <div className="grid sm:grid-cols-3 grid-cols-1 gap-4 no-print items-center">
         <form
           className="row-start-2 grid sm:grid-cols-3 grid-cols-1 items-center gap-x-4 gap-y-2 sm:col-span-3 w-full"
           onSubmit={(e) => {
             e.preventDefault();
             loading?.showLoading(true);
             Axios.get(
-              `api/manage/table?tableName=${table}`
+              `api/manage/table?tableName=${table}&fbranch=${branch}`
             )
               .then(
                 ({
@@ -604,14 +646,14 @@ function ManageRowDetails({
                     }}
                     select
                   >
-                    <MenuItem value="1">1 - 1</MenuItem>
-                    <MenuItem value="2">1 - 2</MenuItem>
-                    <MenuItem value="3">2 - 1</MenuItem>
-                    <MenuItem value="4">2 - 2</MenuItem>
-                    <MenuItem value="5">3 - 1</MenuItem>
-                    <MenuItem value="6">3 - 2</MenuItem>
-                    <MenuItem value="7">4 - 1</MenuItem>
-                    <MenuItem value="8">4 - 2</MenuItem>
+                    <MenuItem value="1">1</MenuItem>
+                    <MenuItem value="2">2</MenuItem>
+                    <MenuItem value="3">3</MenuItem>
+                    <MenuItem value="4">4</MenuItem>
+                    <MenuItem value="5">5</MenuItem>
+                    <MenuItem value="6">6</MenuItem>
+                    <MenuItem value="7">7</MenuItem>
+                    <MenuItem value="8">8</MenuItem>
                   </CustTextField>
                   <CustTextField
                     label="Section"

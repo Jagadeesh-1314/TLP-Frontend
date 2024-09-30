@@ -1,10 +1,11 @@
 import Axios from "axios";
 import { AlertContext } from "../../components/Context/AlertDetails";
 import { LoadingContext } from "../../components/Context/Loading";
-import { useContext, useState } from "react";
+import { useContext, useLayoutEffect, useState } from "react";
 import "./CFReport.css";
 import { Bar } from "react-chartjs-2";
 import Title from "../../components/Title";
+import { useAuth } from "../../components/Auth/AuthProvider";
 
 interface CFReportResponse {
     details: { batch: number; branch: string, sem: number }[];
@@ -29,9 +30,13 @@ interface CFReportItem {
 export default function CFReport() {
     const alert = useContext(AlertContext);
     const loading = useContext(LoadingContext);
+    const { user } = useAuth()!;
+
     const [batches, setBatches] = useState<number[]>([]);
     const [sems, setSems] = useState<number[]>([]);
+    const [branches, setBranches] = useState<string[]>([]);
     const [selectedBatch, setSelectedBatch] = useState<number | null>(null);
+    const [selectedBranch, setSelectedBranch] = useState<string>("");
     const [selectedSem, setSelectedSem] = useState<number>(0);
     const [show, setShow] = useState<boolean>(true);
     const [term, setTerm] = useState<number>(0);
@@ -40,52 +45,47 @@ export default function CFReport() {
     const [questions, setQuestions] = useState<CFQuestion[]>([]);
     const [showQuestions, setShowQuestions] = useState<boolean>(false);
 
+    async function generateReport(term: number, successMessage: string) {
+        try {
+            loading?.showLoading(true, `Generating CFReport ${term}...`);
+            const response = await Axios.get<CFReportResponse>(`api/cfreport${term}?fbranch=${selectedBranch}`);
+            const data = response.data;
+
+            if (data.done) {
+                setTerm(term);
+                const uniqueBatches = [...new Set(data.details.map(item => item.batch))];
+                setBatches(uniqueBatches);
+                const uniqueSems = [...new Set(data.details.map(item => item.sem))];
+                setSems(uniqueSems);
+                setShow(false);
+                alert?.showAlert(successMessage, "success");
+            } else {
+                alert?.showAlert(`CF - Report-${term} is empty`, "warning");
+            }
+        } catch (err) {
+            console.error(`Error fetching Report ${term}:`, err);
+            alert?.showAlert(`Error fetching Report ${term}`, "error");
+        } finally {
+            loading?.showLoading(false);
+        }
+    }
+
     async function generateReport1() {
-        try {
-            loading?.showLoading(true, "Generating CFReport 1...");
-            const response = await Axios.get<CFReportResponse>(`api/cfreport1`);
-            const data = response.data;
-            if (data.done) {
-                setTerm(1);
-                const uniqueBatches = [...new Set(data.details.map(item => item.batch))];
-                setBatches(uniqueBatches);
-                const uniqueSems = [...new Set(data.details.map(item => item.sem))];
-                setSems(uniqueSems);
-                setShow(false);
-                alert?.showAlert("CF - Report-1 generated successfully", "success");
-            } else {
-                alert?.showAlert("CF - Report-1 is empty", "warning");
-            }
-        } catch (err) {
-            console.error("Error fetching Report 1:", err);
-            alert?.showAlert("Error fetching Report 1", "error");
-        } finally {
-            loading?.showLoading(false);
+        if (branches.length !== 0 && selectedBranch === '') {
+            alert?.showAlert('Please select a branch', "warning");
+            return;
         }
+        await generateReport(1, "CF - Report-1 generated successfully");
     }
+
     async function generateReport2() {
-        try {
-            loading?.showLoading(true, "Generating CFReport 2...");
-            const response = await Axios.get<CFReportResponse>(`api/cfreport2`);
-            const data = response.data;
-            if (data.done) {
-                setTerm(2);
-                const uniqueBatches = [...new Set(data.details.map(item => item.batch))];
-                setBatches(uniqueBatches);
-                const uniqueSems = [...new Set(data.details.map(item => item.sem))];
-                setSems(uniqueSems);
-                setShow(false);
-                alert?.showAlert("CF - Report-2 generated successfully", "success");
-            } else {
-                alert?.showAlert("CF - Report-2 is empty", "warning");
-            }
-        } catch (err) {
-            console.error("Error fetching Report 2:", err);
-            alert?.showAlert("Error fetching Report 2", "error");
-        } finally {
-            loading?.showLoading(false);
+        if (branches.length !== 0 && selectedBranch === '') {
+            alert?.showAlert('Please select a branch', "warning");
+            return;
         }
+        await generateReport(2, "CF - Report-2 generated successfully");
     }
+
 
     function handleBatchClick(batch: number) {
         setSelectedBatch(batch);
@@ -106,6 +106,7 @@ export default function CFReport() {
                     {
                         term: term,
                         batch: selectedBatch,
+                        fbranch: selectedBranch,
                         sem: sem,
                     }
                 );
@@ -128,6 +129,11 @@ export default function CFReport() {
         }
     }
 
+    function handleBranchClick(branch: string) {
+        setSelectedBranch(branch ? branch : "");
+        setShowReport(false);
+    }
+
     const handleDownload = async () => {
         loading?.showLoading(true, "Downloading file...");
         try {
@@ -138,6 +144,7 @@ export default function CFReport() {
                         sem: selectedSem,
                         batch: selectedBatch,
                         count: term,
+                        fbranch: selectedBranch
                     },
                     responseType: "blob",
                 }
@@ -181,7 +188,8 @@ export default function CFReport() {
                 {
                     batch: selectedBatch,
                     term: term,
-                    sem: selectedSem
+                    sem: selectedSem,
+                    fbranch: selectedBranch
                 }
             );
             const data = response.data;
@@ -331,11 +339,31 @@ export default function CFReport() {
     // };
 
 
+    if (user?.branch === 'FME' || user?.branch === '') {
+        useLayoutEffect(() => {
+            Axios.get(`/api/manage/branchdetails`)
+                .then(({ data }) => {
+                    setBranches(data.branchDetails);
+                })
+        }, [])
+    }
+
+
     return (
         <>
             <Title title="Central Facilities Report" />
             {show ? (
                 <>
+                    <div className="filter-buttons no-print">                    {branches.map((branch, index) => (
+                        <button
+                            key={index}
+                            className={`filter-button ${selectedBranch === branch ? 'selected' : ''}`}
+                            onClick={() => handleBranchClick(branch)}
+                        >
+                            {branch}
+                        </button>
+                    ))}
+                    </div>
                     <div className="center-button">
                         <button
                             type="button"
@@ -372,6 +400,12 @@ export default function CFReport() {
                 </>
             ) : (
                 <>
+                    {selectedBranch !== '' && (
+                        <div style={{ padding: '10px', border: '1px solid #ccc', borderRadius: '8px', backgroundColor: '#f9f9f9', textAlign: 'center', maxWidth: '300px', margin: '10px auto' }}>
+                            Selected Branch :
+                            <b style={{ color: '#FF7F50', fontSize: '18px' }}>  {selectedBranch}</b> <br />
+                        </div>
+                    )}
                     <div className="filter-buttons">
                         {batches.map((batch, index) => (
                             <button
@@ -385,7 +419,9 @@ export default function CFReport() {
                     </div>
                     {selectedBatch !== null && (
                         <div className="filter-buttons">
-                            {sems.map((sem, index) => (
+                            {sems
+                            .filter(sem => user?.branch === 'FME' ? [1, 2].includes(sem) : true)
+                            .map((sem, index) => (
                                 <button
                                     key={index}
                                     className={`filter-button ${selectedSem === sem ? 'selected' : ''}`}

@@ -224,21 +224,6 @@ export default function Feedback() {
       <Title title="Feedback Form" />
       <div className="flex flex-col items-center">
         <div className="flex justify-center" style={{ width: '85vw', overflowY: 'auto' }}>
-          {/* <Box sx={{
-            width: '100%',
-            maxWidth: { xs: '95vw', sm: '85vw' },
-            margin: '0 auto',
-            padding: { xs: 1, sm: 3, md: 5 },
-            boxSizing: 'border-box'
-          }}>
-            <Stepper activeStep={len} alternativeLabel sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem', md: '1rem' } }}>
-              {sub && sub.map((subject) => (
-                <Step key={subject.subCode}>
-                  <StepLabel>{subject.subname}</StepLabel>
-                </Step>
-              ))}
-            </Stepper>
-          </Box> */}
           <StepperComponent sub={sub} len={len} />
         </div>
       </div>

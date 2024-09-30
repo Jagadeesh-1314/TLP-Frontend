@@ -1,4 +1,4 @@
-/* General body styling */
+General body styling
 body {
     margin: 0;
     font-family: 'Arial', sans-serif;
@@ -198,5 +198,27 @@ body {
     }
     60% {
         transform: translateY(-5px);
+    }
+}
+
+
+/* Styling for the names list */
+.names-list {
+    padding: 0; /* Remove default padding */
+    text-align: center; /* Center align the names */
+    margin-top: 20px; /* Add some space above the list */
+}
+
+.names-list li {
+    font-size: 1rem; /* Set font size */
+    color: #333; /* Set text color */
+    margin-bottom: 5px; /* Add space between each name */
+    font-weight: bold; /* Make the names bold */
+}
+
+/* Additional responsive design for names */
+@media (max-width: 480px) {
+    .names-list li {
+        font-size: 0.85rem; /* Adjust font size for smaller screens */
     }
 }

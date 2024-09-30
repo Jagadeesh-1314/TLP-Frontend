@@ -1,63 +1,40 @@
 import { useNavigate } from "react-router-dom";
 import "./ThankYou.css";
-import { useContext, useEffect, useState } from "react";
-import { LoadingContext } from "../../components/Context/Loading";
-import { useAuth } from "../../components/Auth/AuthProvider";
-import Axios from "axios";
-import { AlertContext } from "../../components/Context/AlertDetails";
 
-interface Token {
-    token: string;
-}
 
 
 export default function ThankYou() {
     const navigate = useNavigate();
-    const loading = useContext(LoadingContext);
-    const { user } = useAuth()!;
-    const [done, setDone] = useState<string>("");
-    const alert = useContext(AlertContext);
 
-    useEffect(() => {
-        if (user?.username) {
-            loading?.showLoading(true);
-            Axios.post<Token>(`api/token`)
-                .then(({ data }) => {
-                    setDone(data.token);
-                })
-                .catch((error) => {
-                    console.error("Error fetching token:", error);
-                    alert?.showAlert("Error fetching token", "error");
-                })
-                .finally(() => {
-                    loading?.showLoading(false);
-                });
-        }
-    }, [user?.username]);
-
-    useEffect(() => {
-        loading?.showLoading(true, "Loading data...");
-        if (done === 'done') {
-            navigate("/completed");
-        } else if (done === 'facdone') {
-            navigate("/centralfacilities");
-        } else {
-            navigate("/feedback");
-        }
-        loading?.showLoading(false);
-    }, [done, navigate])
     return (
-        <div className="content">
-            <div className="wrapper-1">
-                <div className="wrapper-2">
-                    <h1>🎉 Thank you! ✅</h1>
-                    <p className="message">Your submission has been recorded successfully.</p>
-
-                    <button className="go-home" onClick={() => navigate("/sem")}>
-                        Go Home
-                    </button>
+        <>
+            <div className="bg-blue-200 py-7 px-3 md:px-6 rounded-lg h-[100vh] flex items-center justify-center">
+            {/* <div className="content"> */}
+                <div className="wrapper-1 mb-20 mt-10">
+                    <div className="wrapper-2 ">
+                        <h1>🎉 Thank you! ✅</h1>
+                        <p className="message">Your submission has been recorded successfully.</p>
+                        <button
+                            className="go-home"
+                            onClick={() => navigate("/sem")}
+                            aria-label="Go to Home Page"
+                        >
+                            GO Home
+                        </button>
+                    </div>
+                    {/* </div> */}
                 </div>
+                {/* <div className="wrapper-1 mb-10">
+                    <p>Co-Developers :</p>
+                    <ul className="names-list">
+                        <li>B. Vignesh</li>
+                        <li>R. Harinath Reddy</li>
+                        <li>Y. Rahul</li>
+                        <li>P. Sai Shiva Kumar</li>
+                        <li>Y. Santhosh Anand</li>
+                    </ul>
+                </div> */}
             </div>
-        </div>
+        </>
     );
 }
