@@ -308,25 +308,25 @@ export default function ManageDB() {
           <MenuItem value={"subjects"}>Subjects</MenuItem>
           <MenuItem value={"faculty"}>Faculty</MenuItem>
         </CustTextField>
-        {((table === 'timetable' || table === 'studentInfo') && 
-        (user?.branch === 'FME' || user?.branch === '')) && (
-          <CustTextField
-            select
-            label="Branch"
-            value={branch}
-            onChange={({ target: { value } }) => {
-              setBranch(value);
-              setResponseData([]);
-              setSelectedRows([]);
-            }}
-          >
-            {branches.map((branchItem: string) => (
-              <MenuItem key={branchItem} value={branchItem}>
-                {branchItem}
-              </MenuItem>
-            ))}
-          </CustTextField>
-        )}
+        {((table === 'timetable' || table === 'studentInfo') &&
+          (user?.branch === 'FME' || user?.branch === '')) && (
+            <CustTextField
+              select
+              label="Branch"
+              value={branch}
+              onChange={({ target: { value } }) => {
+                setBranch(value);
+                setResponseData([]);
+                setSelectedRows([]);
+              }}
+            >
+              {branches.map((branchItem: string) => (
+                <MenuItem key={branchItem} value={branchItem}>
+                  {branchItem}
+                </MenuItem>
+              ))}
+            </CustTextField>
+          )}
       </div>
 
       {/* ANCHOR FORM ||======================================================================== */}
@@ -335,32 +335,36 @@ export default function ManageDB() {
           className="row-start-2 grid sm:grid-cols-3 grid-cols-1 items-center gap-x-4 gap-y-2 sm:col-span-3 w-full"
           onSubmit={(e) => {
             e.preventDefault();
-            loading?.showLoading(true);
-            Axios.get(
-              `api/manage/table?tableName=${table}&fbranch=${branch}`
-            )
-              .then(
-                ({
-                  data: { tableData },
-                }: {
-                  data: { tableData: ManageDBResponseArr };
-                }) => {
-                  if (tableData.length === 0) {
-                    setResponseData([]);
-                    alert?.showAlert("No data found", "warning");
-                  } else
-                    setResponseData(
-                      tableData.map((element, indx) => ({
-                        ...element,
-                        id: indx + 1,
-                      }))
-                    );
-                }
+            if (branches.length !== 0 && branch === '') {
+              alert?.showAlert('Please select a branch', "warning");
+            } else {
+              loading?.showLoading(true);
+              Axios.get(
+                `api/manage/table?tableName=${table}&fbranch=${branch}`
               )
-              .catch(() =>
-                alert?.showAlert("Couldn't connect to the server", "error")
-              )
-              .finally(() => loading?.showLoading(false));
+                .then(
+                  ({
+                    data: { tableData },
+                  }: {
+                    data: { tableData: ManageDBResponseArr };
+                  }) => {
+                    if (tableData.length === 0) {
+                      setResponseData([]);
+                      alert?.showAlert("No data found", "warning");
+                    } else
+                      setResponseData(
+                        tableData.map((element, indx) => ({
+                          ...element,
+                          id: indx + 1,
+                        }))
+                      );
+                  }
+                )
+                .catch(() =>
+                  alert?.showAlert("Couldn't connect to the server", "error")
+                )
+                .finally(() => loading?.showLoading(false));
+            }
           }}
         >
           <button

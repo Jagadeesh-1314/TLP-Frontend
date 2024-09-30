@@ -193,7 +193,7 @@ export default function Feedback() {
             }
           })
           .catch(error => {
-            alert?.showAlert(`${error.response.data}`, "error");
+            alert?.showAlert(`${error.response?.data}`, "error");
             console.error('Error response:', error.response?.data);
           });
       } else if (len === sub.length - 1 && Object(score).length !== len) {
