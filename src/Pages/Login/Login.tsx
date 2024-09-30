@@ -1,5 +1,5 @@
 0// LoginForm.tsx
-import { useState, useContext, useEffect } from "react";
+import { useState, useContext } from "react";
 import {
   TextField,
   InputAdornment,
@@ -27,7 +27,7 @@ interface LoginCredentialsProps {
 export default function LoginForm() {
   const alert = useContext(AlertContext);
   const loading = useContext(LoadingContext);
-  const {setUser} = useAuth()!;
+  const { setUser } = useAuth()!;
 
   const [showPass, setShowPass] = useState(false);
   const [loginCreds, setLoginCreds] = useState<LoginCredentialsProps>({
@@ -45,13 +45,7 @@ export default function LoginForm() {
   //   navigate('/sem')
   // }
 
-  const [desg, setDesg] = useState<string>("");
-  useEffect(() => {
-    Axios.get(`api/desg?username=${loginCreds.username}`)
-      .then(({ data }) => {
-        setDesg(data.desg)
-      })
-  }, [loginCreds.username]);
+  // const [desg, setDesg] = useState<string>("");
 
   return (
     <div className="h-screen flex justify-center items-center bg-cover" style={{ backgroundImage: `url(${Logo})` }}>
@@ -76,7 +70,7 @@ export default function LoginForm() {
 
               Axios.post(`api/login`, {
                 withCredentials: true,
-                username: desg === 'admin' ? loginCreds.username.trim() : loginCreds.username.toUpperCase().trim(),
+                username: loginCreds.username.trim(),
                 password: loginCreds.password,
               })
                 .then(({ data }) => {
@@ -91,9 +85,9 @@ export default function LoginForm() {
                     sessionStorage.setItem("batch", data.batch);
                     sessionStorage.setItem("sem", data.sem);
                     localStorage.setItem("token", data.token);
-                    setUser({username: loginCreds.username, displayName:data.displayName, desg: data.desg, branch: data.branch, batch: data.batch, sem: data.sem })
+                    setUser({ username: loginCreds.username, displayName: data.displayName, desg: data.desg, branch: data.branch, batch: data.batch, sem: data.sem })
                     document.cookie = `Token=${data.token}`;
-                    if(data.desg === 'admin') {
+                    if (data.desg === 'admin') {
                       navigate('/report');
                     } else {
                       navigate("/sem");

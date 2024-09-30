@@ -48,6 +48,9 @@ export default function Sem() {
                 })
                 .catch((error) => {
                     console.error("Error fetching subjects:", error);
+                    localStorage.clear();
+                    sessionStorage.clear();
+                    navigate("/login");
                     alert?.showAlert("Error fetching subjects", "error");
                 })
                 .finally(() => loading?.showLoading(false));

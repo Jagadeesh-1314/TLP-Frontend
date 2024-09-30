@@ -30,10 +30,10 @@ export default function Navbar({
 }) {
   const { pathname } = useLocation();
   const pageLocation = pathname.split("/").filter((path) => path !== "")[0];
-  const [openSideMenu, setOpenSideMenu] = useState(()=>{return false;});
+  const [openSideMenu, setOpenSideMenu] = useState(() => { return false; });
   const navigate = useNavigate();
   const adminNavLinks = [
-    { name: "Unfilled List", icon: <FormatListBulleted />},
+    { name: "Unfilled List", icon: <FormatListBulleted /> },
     { name: "Report", icon: <PlagiarismOutlined /> },
     { name: "CFReport", icon: <PlagiarismOutlined /> },
     { name: "Electives", icon: <PostAdd /> },
@@ -41,13 +41,14 @@ export default function Navbar({
     { name: "Manage Database", icon: <StorageOutlined /> },
     { name: "Backup and Restore", icon: <BackupOutlined /> },
   ];
-  
+
   const nonAdminNavLinks: any[] = [
+
   ];
-  
+
   const miscLinks = [
-    { name: "Control", icon: <ControlCamera/> },
     { name: "Download", icon: <FileDownloadOutlined /> },
+    { name: "Control", icon: <ControlCamera /> },
     { name: "Manage Users", icon: <PeopleAltOutlined /> },
   ];
 
@@ -62,11 +63,10 @@ export default function Navbar({
         .join(" ")
       : "GCET TLP FEEDBACK";
   }, [pathname]);
-  const {logOut} = useAuth()!;
+  const { logOut } = useAuth()!;
 
   return (
     <>
-    {}
       <nav
         className="sticky flex items-center justify-between top-0 w-full text-white px-5 py-3 z-50 no-print"
         style={{
@@ -102,25 +102,26 @@ export default function Navbar({
               const activePage = name.toLowerCase().split(" ").join("-");
 
               return (
-                <Link
-                  key={indx}
-                  to={activePage}
-                  className={`nav-link relative ${activePage === pageLocation ? "active" : ""
-                    } lg:flex hidden items-center gap-2 rounded-t-sm px-3 py-2 hover:bg-zinc-800 duration-300`}
-                >
-                  {icon}
-                  {name}
-                </Link>
+                <>
+                  <Link
+                    key={indx}
+                    to={activePage}
+                    className={`nav-link relative ${activePage === pageLocation ? "active" : ""} lg:flex hidden items-center gap-2 rounded-t-sm px-3 py-2 hover:bg-zinc-800 duration-300`}
+                  >
+                    {icon}
+                    {name}
+                  </Link>
+                </>
               );
             })}
         </div>
-        <Logout desg = {desg} logOut={()=>{logOut();navigate("/login");}} />
+        <Logout desg={desg} logOut={() => { logOut(); navigate("/login"); }} />
       </nav>
       <SideMenu
         user={user}
         desg={desg}
         openSideMenu={openSideMenu}
-        setOpenSideMenu={(a)=>{setOpenSideMenu(a)}}
+        setOpenSideMenu={(a) => { setOpenSideMenu(a) }}
         adminNavLinks={adminNavLinks}
         nonAdminNavLinks={nonAdminNavLinks}
         miscLinks={miscLinks}
@@ -152,7 +153,7 @@ function SideMenu({
   const handleLinkClick = () => {
     setOpenSideMenu(false);
   };
-  const miscAccess:boolean = (desg === "admin" && user === 'admin');
+  const miscAccess: boolean = (desg === "admin" && user === 'admin');
   return (
     <Drawer
       anchor="left"
@@ -178,7 +179,7 @@ function SideMenu({
             return (
               <Link
                 key={indx}
-                to={'/'+activePage}
+                to={'/' + activePage}
                 className={`flex items-center gap-2 rounded-sm p-4 hover:bg-zinc-300 duration-300 ${activePage === pageLocation ? "text-blue-500" : ""
                   }`}
                 onClick={handleLinkClick}
@@ -206,7 +207,7 @@ function SideMenu({
           })}
         {(miscAccess) && (
           <>
-          
+
             <Typography variant="h6" p={2} fontWeight={"bold"}>
               Miscellaneous
             </Typography><Divider />
@@ -303,7 +304,7 @@ function Logout({
           horizontal: 'right',
         }}
       >
-        <Typography sx={{ p: 2 }}>Logout as {displayName}?</Typography>
+        <Typography sx={{ p: 2 }}>Logout as {displayName !== 'FME' ? displayName : 'Freshmen Department'}</Typography>
         <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '0.5rem' }}>
           <button onClick={handleClose} className="blue-button-sm">Cancel</button>
           <button onClick={handleLogout} className="red-button-sm">Logout</button>

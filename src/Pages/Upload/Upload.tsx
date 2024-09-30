@@ -45,7 +45,7 @@ export default function Upload() {
       </div>
 
       {/* Folder location */}
-      <div className="grid pt-4 lg:grid-cols-6 md:grid-cols-2 grid-cols-2 gap-4 no-print">
+      <div className="grid pt-4 lg:grid-cols-6 md:grid-cols-2 grid-cols-2 gap-x-4 gap-y-5 no-print">
         {tableName === "studentinfo" && (
           <CustTextField
             select
@@ -56,12 +56,12 @@ export default function Upload() {
             }}
           >
             <MenuItem value={currentYear}>{currentYear}</MenuItem>
-            <MenuItem value={2022}>2022</MenuItem>
-            <MenuItem value={2021}>2021</MenuItem>
             <MenuItem value={currentYear - 1}>{currentYear - 1} (Lateral Entry)</MenuItem>
           </CustTextField>
         )}
+      </div>
 
+      <div className="grid lg:grid-cols-6 md:grid-cols-2 grid-cols-2 gap-x-4 gap-y-5 no-print">
         <div className="col-span-4 row-start-2 flex gap-3 items-center">
           <input
             type="file"
@@ -88,7 +88,7 @@ export default function Upload() {
               const formData = new FormData();
               formData.append('file', uploadingFile);
               formData.append('batch', batch.toString());
-             
+
 
               await Axios.post(`/api/upload/${tableName}`, formData, {
                 headers: {
@@ -119,18 +119,34 @@ export default function Upload() {
                 loading?.showLoading(true, "Downloading file...");
                 let columnNames: string[] = [];
                 let name: string | null = null;
-                if (tableName === "timetable") {
-                  columnNames = ["facId", "subCode", "sem", "sec"];
-                  name = "Time-Table";
-                } else if (tableName === "studentinfo") {
-                  columnNames = ["rollno", "Name", "sec", "sem"];
-                  name = `${user?.branch} StudentsInfo ${currentYear}`;
-                } else if (tableName === "faculty") {
-                  columnNames = ["facultyId", "facultyName"];
-                  name = "Faculty";
-                } else if (tableName === "subjects") {
-                  columnNames = ["subjectCode", "subjectName", "type", "core(R) / Elective(E))"];
-                  name = "Subjects";
+                if (user?.branch === 'FME') {
+                  if (tableName === "timetable") {
+                    columnNames = ["facId", "subCode", "sem", "sec", "branch"];
+                    name = "Time-Table";
+                  } else if (tableName === "studentinfo") {
+                    columnNames = ["rollno", "Name", "sec", "sem", "branch"];
+                    name = `${user?.branch} StudentsInfo ${currentYear}`;
+                  } else if (tableName === "faculty") {
+                    columnNames = ["facultyId", "facultyName"];
+                    name = "Faculty";
+                  } else if (tableName === "subjects") {
+                    columnNames = ["subjectCode", "subjectName", "type(lab, theory)", "core(r) / Elective(e))"];
+                    name = "Subjects";
+                  }
+                } else {
+                  if (tableName === "timetable") {
+                    columnNames = ["facId", "subCode", "sem", "sec"];
+                    name = "Time-Table";
+                  } else if (tableName === "studentinfo") {
+                    columnNames = ["rollno", "Name", "sec", "sem"];
+                    name = `${user?.branch} StudentsInfo ${currentYear}`;
+                  } else if (tableName === "faculty") {
+                    columnNames = ["facultyId", "facultyName"];
+                    name = "Faculty";
+                  } else if (tableName === "subjects") {
+                    columnNames = ["subjectCode", "subjectName", "type(lab, theory)", "core(r) / Elective(e))"];
+                    name = "Subjects";
+                  }
                 }
                 const wb = xlsx.utils.book_new();
                 const ws = xlsx.utils.aoa_to_sheet([columnNames]);

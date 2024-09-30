@@ -1,9 +1,10 @@
-import { useState, useEffect, useContext } from 'react';
+import { useState, useContext, useLayoutEffect, useEffect } from 'react';
 import Axios from 'axios';
 import './UnfilledList.css';
 import { LoadingContext } from '../../components/Context/Loading';
 import { AlertContext } from '../../components/Context/AlertDetails';
 import Title from '../../components/Title';
+import { useAuth } from '../../components/Auth/AuthProvider';
 
 interface Student {
     rollno: number;
@@ -19,6 +20,9 @@ export default function ControlForm() {
     const [selectedSem, setSelectedSem] = useState<number | null>(null);
     const [selectedSec, setSelectedSec] = useState<string>("");
     const [showRollNumbers, setShowRollNumbers] = useState<boolean>(false);
+    const [selectedBranch, setSelectedBranch] = useState<string>("");
+    const [branches, setBranches] = useState<string[]>([]);
+    const { user } = useAuth()!;
     const loading = useContext(LoadingContext);
     const alert = useContext(AlertContext);
 
@@ -26,7 +30,7 @@ export default function ControlForm() {
         async function fetchStudents() {
             try {
                 loading?.showLoading(true, "Fecthing Data...");
-                const response = await Axios.get<{ unfilledstudents: Student[] }>('api/unfilledstudents');
+                const response = await Axios.get<{ unfilledstudents: Student[] }>(`api/unfilledstudents?fbranch=${selectedBranch}`);
                 setStudents(response.data.unfilledstudents);
                 const uniqueSems = [...new Set(response.data.unfilledstudents.map(student => student.sem))];
                 const sortedSems = uniqueSems.sort((a, b) => a - b);
@@ -39,6 +43,34 @@ export default function ControlForm() {
         }
         fetchStudents();
     }, []);
+    
+    if (user?.branch === 'FME' || user?.branch === '') {
+        useLayoutEffect(() => {
+            Axios.get(`/api/manage/branchdetails`)
+                .then(({ data }) => {
+                    setBranches(data.branchDetails);
+                })
+        }, [])
+    }
+
+    const handleBranchClick = async (branch: string) => {
+        setSelectedBranch(branch);
+        setSelectedSec("");
+        setShowRollNumbers(false);
+
+        try {
+            loading?.showLoading(true, "Fecthing Data...");
+            const response = await Axios.get<{ unfilledstudents: Student[] }>(`api/unfilledstudents?fbranch=${branch}`);
+            setStudents(response.data.unfilledstudents);
+            const uniqueSems = [...new Set(response.data.unfilledstudents.map(student => student.sem))];
+            const sortedSems = uniqueSems.sort((a, b) => a - b);
+            setSems(sortedSems);
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        } finally {
+            loading?.showLoading(false);
+        }
+    }
 
     const handleSemClick = (sem: number) => {
         setSelectedSem(sem);
@@ -60,7 +92,7 @@ export default function ControlForm() {
 
         try {
             const response = await Axios.post(
-                `/api/download/unfilledlist?sem=${selectedSem}&sec=${selectedSec}`,
+                `/api/download/unfilledlist?sem=${selectedSem}&sec=${selectedSec}&fbranch=${selectedBranch}`,
                 null,
                 { responseType: "blob" }
             );
@@ -105,7 +137,22 @@ export default function ControlForm() {
             <div className="control-form">
                 <div className="filter-container">
                     <div className="filter-buttons">
-                        {sems.map((sem, index) => (
+                        {user?.branch === 'FME' && (
+                            branches.map((branch: string, index: number) => (
+                                <button
+                                    key={index}
+                                    onClick={() => handleBranchClick(branch)}
+                                    className={`filter-button ${selectedBranch === branch ? 'selected' : ''}`}
+                                >
+                                    {branch}
+                                </button>
+                            ))
+                        )}
+                    </div>
+                    <div className="filter-buttons">
+                        {sems
+                        .filter(sem => user?.branch === 'FME' ? [1, 2].includes(sem) : true)
+                        .map((sem, index) => (
                             <button
                                 key={index}
                                 onClick={() => handleSemClick(sem)}
