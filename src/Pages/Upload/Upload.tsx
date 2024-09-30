@@ -121,7 +121,7 @@ export default function Upload() {
                 let name: string | null = null;
                 if (user?.branch === 'FME') {
                   if (tableName === "timetable") {
-                    columnNames = ["facId", "subCode", "sem", "sec", "branch"];
+                    columnNames = ["facId", "subCode", "sec", "sem", "branch"];
                     name = "Time-Table";
                   } else if (tableName === "studentinfo") {
                     columnNames = ["rollno", "Name", "sec", "sem", "branch"];
