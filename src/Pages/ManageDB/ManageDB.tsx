@@ -280,13 +280,15 @@ export default function ManageDB() {
     faculty: "Faculty",
     timetable: "TimeTable",
   };
-
-  useLayoutEffect(() => {
-    Axios.get(`/api/manage/branchdetails`)
-      .then(({ data }) => {
-        setBranches(data.branchDetails);
-      })
-  }, [])
+  
+  if (user?.branch === 'FME' || user?.branch === '') {
+    useLayoutEffect(() => {
+      Axios.get(`/api/manage/branchdetails`)
+        .then(({ data }) => {
+          setBranches(data.branchDetails);
+        })
+    }, [])
+  }
 
   // ANCHOR JSX  ||========================================================================
   return (

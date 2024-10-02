@@ -10,6 +10,7 @@ import Title from "../../components/Title";
 import { useLocation } from "react-router-dom";
 import { Dialog, DialogTitle, DialogContent, FormControlLabel, DialogActions, Button, Radio, RadioGroup } from "@mui/material";
 import { useAuth } from "../../components/Auth/AuthProvider";
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 ChartJS.register(CategoryScale, LinearScale, BarElement, ChartTitle, Tooltip, Legend);
 
 interface Report {
@@ -177,13 +178,13 @@ export default function Report() {
                 const reportResponse = await Axios.post<{ report: Report[] }>(
                     `api/fetchreport${term}`,
                     {
-                      batch: selectedBatch,
-                      sem: selectedSem,
-                      sec: sec,
-                      fbranch: selectedBranch,
-                      term: term,
+                        batch: selectedBatch,
+                        sem: selectedSem,
+                        sec: sec,
+                        fbranch: selectedBranch,
+                        term: term,
                     }
-                  );                  
+                );
                 const sortedReport = reportResponse.data.report.sort((a, b) => a.sec.localeCompare(b.sec));
                 setReport(sortedReport);
                 setShowReport(true);
@@ -207,7 +208,7 @@ export default function Report() {
                 .then(({ data }) => {
                     setBranches(data.branchDetails);
                 })
-        }, [])
+        }, [alert])
     }
 
     const handleDownload = async () => {
@@ -450,20 +451,22 @@ export default function Report() {
         }
     };
 
+
     return (
         <>
             <Title title="Report" />
             {show ? (
                 <>
-                    <div className="filter-buttons no-print">                    {branches.map((branch, index) => (
-                        <button
-                            key={index}
-                            className={`filter-button ${selectedBranch === branch ? 'selected' : ''}`}
-                            onClick={() => handleBranchClick(branch)}
-                        >
-                            {branch}
-                        </button>
-                    ))}
+                    <div className="filter-buttons no-print">
+                        {branches.map((branch, index) => (
+                            <button
+                                key={index}
+                                className={`filter-button ${selectedBranch === branch ? 'selected' : ''}`}
+                                onClick={() => handleBranchClick(branch)}
+                            >
+                                {branch}
+                            </button>
+                        ))}
                     </div>
                     <div className="center-button">
                         <button
@@ -484,12 +487,29 @@ export default function Report() {
                 </>
             ) : (
                 <>
-                    {selectedBranch !== '' && (
-                        <div style={{ padding: '10px', border: '1px solid #ccc', borderRadius: '8px', backgroundColor: '#f9f9f9', textAlign: 'center', maxWidth: '300px', margin: '10px auto' }}>
-                            Selected Branch : 
-                            <b style={{ color: '#FF7F50', fontSize: '18px' }}>  {selectedBranch}</b> <br />
-                        </div>
-                    )}
+                    <div className="flex items-center justify-between mt-6 mb-6">
+                        {selectedBranch !== '' && (
+                            <button
+                                onClick={() => setShow(true)}
+                                className="bg-pink-700 text-white rounded-md px-2 py-1 text-sm shadow-lg transition duration-300 ease-in-out hover:bg-orange-500 hover:text-black flex items-center"
+                                onMouseOver={(e) => {
+                                    const target = e.currentTarget as HTMLButtonElement;
+                                    target.title = 'Click to go Back';
+                                }}
+                            >
+                                <ArrowBackIcon fontSize="small" className="mr-1" />
+                                Back
+                            </button>
+                        )}
+
+                        {selectedBranch !== '' && (
+                            <div className="absolute left-1/2 transform -translate-x-1/2 text-center bg-gray-100 border border-gray-300 rounded-md px-4 py-2">
+                                <b style={{ color: '#FF7F50', fontSize: '18px', marginRight: '5px' }}> {selectedBranch}</b>
+                                Report
+                            </div>
+                        )}
+                    </div>
+
                     <div className="filter-buttons no-print">
                         {batches.map((batch, index) => (
                             <button
