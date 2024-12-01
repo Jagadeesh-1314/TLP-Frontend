@@ -5,6 +5,8 @@ import { AlertContext } from '../../components/Context/AlertDetails';
 import Title from '../../components/Title';
 import { Autocomplete, TextField } from '@mui/material';
 import "./Electives.css"
+import { motion } from 'framer-motion';
+import { useAuth } from '../../components/Auth/AuthProvider';
 
 interface Details {
     sec: string;
@@ -23,6 +25,10 @@ interface Faculty {
 }
 
 export default function ControlForm() {
+    const loading = useContext(LoadingContext);
+    const alert = useContext(AlertContext);
+    const { user } = useAuth()!;
+
     const [students, setStudents] = useState<Details[]>([]);
     const [sems, setSems] = useState<number[]>([]);
     const [secs, setSecs] = useState<string[]>([]);
@@ -34,8 +40,6 @@ export default function ControlForm() {
     const [selectedFaculty, setselectedFaculty] = useState<string>("");
     const [showRollNumbers, setShowRollNumbers] = useState<boolean>(false);
     const [selectedSubCode, setSelectedSubCode] = useState<string>("");
-    const loading = useContext(LoadingContext);
-    const alert = useContext(AlertContext);
 
     useEffect(() => {
         async function fetchStudents() {
@@ -149,94 +153,154 @@ export default function ControlForm() {
 
     }
 
+    const containerVariants = {
+        hidden: { opacity: 0, y: 20 },
+        visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
+    };
+
+    const itemVariants = {
+        hidden: { opacity: 0, x: -20 },
+        visible: { opacity: 1, x: 0 }
+    };
+
     return (
         <>
-            <Title title="Electives Control" />
-            <div className="selection">
-                <Autocomplete
-                    options={electiveSubjects}
-                    getOptionLabel={(option) => `${option.subCode} - ${option.subName}`}
-                    renderInput={(params) => (
-                        <TextField
-                            {...params}
-                            label="Select Subject"
-                            variant="outlined"
-                            placeholder="Type to search..."
+            <motion.div
+                initial="hidden"
+                animate="visible"
+                variants={containerVariants}
+                className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 p-6"
+            >
+                <div className="max-w-7xl mx-auto space-y-4">
+                    {/* Header */}
+                    <motion.div
+                        className="text-center mb-8"
+                        variants={itemVariants}
+                    >
+                        <Title title="Electives Control" />
+                    </motion.div>
+                    <div className="selection">
+                        <Autocomplete
+                            options={electiveSubjects}
+                            getOptionLabel={(option) => `${option.subCode} - ${option.subName}`}
+                            renderInput={(params) => (
+                                <TextField
+                                    {...params}
+                                    label="Select Subject"
+                                    variant="outlined"
+                                    placeholder="Type to search..."
+                                />
+                            )}
+                            onChange={(_event, value) => {
+                                setSelectedSubCode(value?.subCode ? value.subCode : '')
+                                console.log(value);
+                            }}
                         />
-                    )}
-                    onChange={(_event, value) => {
-                        setSelectedSubCode(value?.subCode ? value.subCode : '')
-                        console.log(value);
-                    }}
-                />
-            </div>
-            <div className="selection">
-                <Autocomplete
-                    options={faculty}
-                    getOptionLabel={(option) => `${option.facID} - ${option.facName}`}
-                    renderInput={(params) => (
-                        <TextField
-                            {...params}
-                            label="Select Faculty"
-                            variant="outlined"
-                            placeholder="Type to search..."
-                        />
-                    )}
-                    onChange={(_event, value) => {
-                        setselectedFaculty(value?.facID ? value.facID : '')
-                        console.log(value);
-                    }}
-                />
-            </div>
-            <div className="control-form">
-                <div className="filter-container">
-                    <div className="filter-buttons">
-                        {sems.map((sem, index) => (
-                            <button
-                                key={index}
-                                onClick={() => handleSemClick(sem)}
-                                className={`filter-button ${selectedSem === sem ? 'selected' : ''}`}
-                            >
-                                Semester {sem}
-                            </button>
-                        ))}
                     </div>
-                    {selectedSem !== null && (
-                        <div className="filter-buttons">
+                    <div className="selection">
+                        <Autocomplete
+                            options={faculty}
+                            getOptionLabel={(option) => `${option.facID} - ${option.facName}`}
+                            renderInput={(params) => (
+                                <TextField
+                                    {...params}
+                                    label="Select Faculty"
+                                    variant="outlined"
+                                    placeholder="Type to search..."
+                                />
+                            )}
+                            onChange={(_event, value) => {
+                                setselectedFaculty(value?.facID ? value.facID : '')
+                                console.log(value);
+                            }}
+                        />
+                    </div>
+
+                    {/* semesters */}
+                    <motion.div
+                        key="semesters"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        className="filter-container mt-4 mb-4"
+                    >
+                        <div className="flex flex-wrap justify-center gap-4">
+                            {sems
+                                .filter(sem => user?.branch === 'FME' ? [1, 2].includes(sem) : true)
+                                .map((sem, index) => (
+                                    <motion.div
+                                        key={index}
+                                        initial={{ opacity: 0, scale: 0.9 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        transition={{ delay: index * 0.1 }}
+                                    >
+                                        <button
+                                            onClick={() => handleSemClick(sem)}
+                                            className={`filter-button ${selectedSem === sem ? 'selected' : ''}`}
+                                        >
+                                            Semester {sem}
+                                        </button>
+                                    </motion.div>
+                                ))}
+                        </div>
+                    </motion.div>
+
+                    {/* sections */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="filter-container mb-4"
+                    >
+                        <div className="flex flex-wrap justify-center gap-4">
                             {secs.map((sec, index) => (
-                                <button
+                                <motion.div
                                     key={index}
-                                    onClick={() => handleSecClick(sec)}
-                                    className={`filter-button ${selectedSec === sec ? 'selected' : ''}`}
+                                    initial={{ opacity: 0, scale: 0.9 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    transition={{ delay: index * 0.1 }}
                                 >
-                                    Section {sec}
-                                </button>
+                                    <button
+                                        onClick={() => handleSecClick(sec)}
+                                        className={`filter-button ${selectedSec === sec ? 'selected' : ''}`}
+                                    >
+                                        Section {sec}
+                                    </button>
+                                </motion.div>
                             ))}
                         </div>
-                    )}
-                </div>
-                {showRollNumbers && (
-                    <div className="rollno-container">
-                        {filteredStudents.map((student, index) => (
-                            <button
-                                key={index}
-                                onClick={() => handleRollNumber(student.rollno)}
-                                className={`rollno-button ${rollNumbers.includes(student.rollno) ? 'selected' : ''}`}
-                            >
-                                {student.rollno}
-                            </button>
-                        ))}
-                    </div>
-                )}
+                    </motion.div>
 
-                {showRollNumbers && (
-                    <div className="download-button-container no-print">
-                        <button className="download-button" onClick={handleSubmit}>
-                            Submit
-                        </button>
+                    <div className="control-form">
+                        {showRollNumbers && (
+                            <div className="rollno-container transition-transform transform duration-300 ease-in-out">
+                                {filteredStudents.map((student, index) => (
+                                    <button
+                                        key={index}
+                                        onClick={() => handleRollNumber(student.rollno)}
+                                        className={`rollno-button ${rollNumbers.includes(student.rollno) ? 'selected' : ''} transition-transform transform hover:scale-110 duration-200 ease-in-out`}
+                                    >
+                                        {student.rollno}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+
+
+                        {showRollNumbers && (
+                            <div className='center mt-3'>
+                                <motion.button
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    className="flex items-center text-lg gap-2 px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300"
+                                    onClick={handleSubmit}
+                                >
+                                    Submit
+                                </motion.button>
+                            </div>
+                        )}
                     </div>
-                )}
-            </div>
+                </div>
+            </motion.div>
         </>
     );
 }

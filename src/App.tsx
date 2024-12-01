@@ -1,4 +1,4 @@
-import { Suspense, createContext, lazy } from "react";
+import { Suspense, lazy } from "react";
 import {
   RouterProvider,
   createBrowserRouter,
@@ -13,14 +13,6 @@ import AuthProvider from "./components/Auth/AuthProvider";
 import PrivateRoute from "./components/Auth/PrivateRouter";
 import PageLayout from "./components/Custom/PageLayout";
 
-interface Subjects {
-  subCode: string;
-  subname: string;
-  qtype: string;
-  facID: number;
-  facName: string;
-}
-
 // import showNavbar from "./components/Custom/useShowNavbar";
 import Download from "./Pages/Download/Download";
 import Upload from "./Pages/Upload/Upload";
@@ -34,7 +26,10 @@ import CFReport from "./Pages/CFReport/CFReport";
 import Electives from "./Pages/Electives/Electives";
 import AdminRoutes from "./components/Auth/AdminRoutes";
 import NonAdminRoutes from "./components/Auth/NonAdminRoutes";
-export const Bus = createContext<{ sub: Subjects[] | null, setSub: React.Dispatch<React.SetStateAction<Subjects[] | null>> } | null>(null);
+import Questions from "./Pages/Questions/Questions";
+import Countdown from "./components/Countdown/Countdown";
+import AboutUs from "./Pages/AboutUs/AboutUs";
+// export const Bus = createContext<{ sub: Subjects[] | null, setSub: React.Dispatch<React.SetStateAction<Subjects[] | null>> } | null>(null);
 
 const LoginForm = lazy(() => import("./Pages/Login/Login"));
 const Feedback = lazy(() => import("./Pages/Feedback/Feedback"));
@@ -50,13 +45,22 @@ const Sem = lazy(() => import("./Pages/Sem/Sem"));
 // const Test = lazy(() => import("./misc/Test"));
 const ThankYou = lazy(() => import("./Pages/ThankYou/ThankYou"));
 const CompletedFeedback = lazy(() => import("./Pages/CompletedFeedback/CompletedFeedback"));
-const ShowNavbar = lazy(() => import('./components/Custom/useShowNavbar'))
+const ShowNavbar = lazy(() => import('./components/Custom/useShowNavbar'));
+const SetPassword = lazy(() => import("./Pages/SetPassword/SetPassword"));
 
 function App() {
   const router = createBrowserRouter([
     {
       path: "/login",
       element: <LoginForm />
+    },
+    {
+      path: "/timer",
+      element: <Countdown />
+    },
+    {
+      path: "/aboutus",
+      element: <AboutUs />
     },
     {
       path: "/",
@@ -70,7 +74,11 @@ function App() {
       children: [
         {
           path: '/',
-          element: <Navigate to='/login' />
+          element: <Navigate to='/login' />,
+        },
+        {
+          path: "/change-password",
+          element: <SetPassword />,
         },
         {
           element: <PrivateRoute />,
@@ -142,6 +150,10 @@ function App() {
                 {
                   path: "/manage-database",
                   element: <ManageDB />,
+                },
+                {
+                  path: "/questions",
+                  element: <Questions />,
                 },
                 // {
                 //   path: "/test",

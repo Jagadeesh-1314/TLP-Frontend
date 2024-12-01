@@ -1,28 +1,35 @@
 import { useContext, useLayoutEffect, useState } from "react";
 import Axios from "axios";
 import { AlertContext } from "../../components/Context/AlertDetails";
-import {
-    Dialog, DialogTitle, DialogContent, DialogActions, Select, MenuItem, FormControl, InputLabel,
-    Button
-} from "@mui/material";
-import "./ControlForm.css";
-import Title from "../../components/Title";
+// import "./ControlForm.css";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { motion, AnimatePresence } from "framer-motion";
+import { Settings2, ChevronDown, ChevronUp, ArrowUpCircle, X, Calendar } from "lucide-react";
+import { LoadingContext } from "../../components/Context/Loading";
 
 export default function ControlForm() {
     const alert = useContext(AlertContext);
+    const loading = useContext(LoadingContext);
     const [fTerm, setFTerm] = useState<number | null>(null);
     const [selectedSem, setSelectedSem] = useState<number | null>(null);
     const [openDialog, setOpenDialog] = useState(false);
     const [semesters, setSemesters] = useState<number[]>([]);
-    const [animationClass, setAnimationClass] = useState("");
+    const [promoteAll, setPromoteAll] = useState(false);
+    const [branches, setBranches] = useState<string[]>([]);
+    const [selectedBranches, setSelectedBranches] = useState<string[]>([]);
+
+    const [startDate, setStartDate] = useState<Date | null>(null);
+    const [endDate, setEndDate] = useState<Date | null>(null);
+
+    const [dateOpen, setDateOpen] = useState<boolean>(false);
+    // const [animationClass, setAnimationClass] = useState("");
 
     const fetchTerm = async () => {
         try {
             const { data } = await Axios.get<{ done: boolean, term: number }>(`api/fetchterm`);
             if (data.done) {
-                setAnimationClass("fade-out");
                 setFTerm(data.term);
-                setTimeout(() => setAnimationClass("fade-in"), 50);
             }
         } catch (error) {
             console.error("Error fetching term:", error);
@@ -32,6 +39,14 @@ export default function ControlForm() {
 
     useLayoutEffect(() => {
         fetchTerm();
+    }, []);
+
+    useLayoutEffect(() => {
+        Axios.get(`/api/manage/branchdetails`)
+            .then(({ data }) => {
+                setBranches(data.branchDetails);
+                setSelectedBranches(data.branchDetails);
+            });
     }, []);
 
     const incrementcount = async () => {
@@ -65,15 +80,22 @@ export default function ControlForm() {
     };
 
     const promote = async () => {
-        if (selectedSem === null) {
+        if (!promoteAll && selectedSem === null) {
             alert?.showAlert("Please select a semester", "warning");
             return;
         }
         try {
-            const { data } = await Axios.post<{ done: boolean }>(`api/promote`, { sem: selectedSem });
+            const { data } = await Axios.post<{ done: boolean }>(`api/promote`, {
+                sem: promoteAll ? "all" : selectedSem
+            });
             if (data.done) {
                 setSelectedSem(null);
-                alert?.showAlert(`Students in Semester ${selectedSem} Promoted`, "success");
+                alert?.showAlert(
+                    promoteAll
+                        ? "All students promoted"
+                        : `Students in Semester ${selectedSem} Promoted`,
+                    "success"
+                );
             } else {
                 alert?.showAlert("Promotion not allowed: records exist in the next semester.", "error");
             }
@@ -89,6 +111,7 @@ export default function ControlForm() {
         try {
             const { data } = await Axios.post<{ done: boolean, semesters: number[] }>(`api/promote`);
             if (data.done) {
+                console.log(data)
                 const sortedSemesters = data.semesters.sort((a, b) => a - b);
                 setSemesters(sortedSemesters);
                 setOpenDialog(true);
@@ -104,65 +127,367 @@ export default function ControlForm() {
     const handleCloseDialog = () => {
         setOpenDialog(false);
         setSelectedSem(null);
+        setPromoteAll(false);
+        setSelectedBranches(branches);
     };
 
-    return (
-        <>
-            <Title title="Control Term and Promote" />
-            <div className="center-button">
-                <button className="button" onClick={incrementcount}>
-                    SET TERM - 2
-                </button>
-                <button className="button" onClick={decrementcount}>
-                    SET TERM - 1
-                </button>
-                <button className="button" onClick={handleOpenDialog} disabled={fTerm === 1}>
-                    Promote Students
-                </button>
-            </div>
-            <div className={`fterm-container ${animationClass}`}>
-                {fTerm !== null ? `Current Term: ${fTerm}` : "Loading current term..."}
-            </div>
+    const dateSubmit = async () => {
+        if (!startDate || !endDate) {
+            alert?.showAlert("Please select both start and end dates.", "warning");
+            return;
+        }
 
-            {/* Dialog for selecting semester */}
-            <Dialog
-                open={openDialog}
-                onClose={handleCloseDialog}
-                PaperProps={{
-                    style: {
-                        width: '600px',
-                        maxWidth: '600px',
-                    }
-                }}
-                aria-labelledby="dialog-title"
-                aria-describedby="dialog-description"
-                role="dialog"
-            >
-                <DialogTitle id="dialog-title">Select YEAR to Promote</DialogTitle>
-                <DialogContent id="dialog-description">
-                    <FormControl fullWidth sx={{ mt: 1 }}>
-                        <InputLabel id="semester-select-label">Semester</InputLabel>
-                        <Select
-                            labelId="semester-select-label"
-                            value={selectedSem?.toString() ?? ""}
-                            onChange={(e) => setSelectedSem(Number(e.target.value))}
-                            label="Semester"
+        // Helper function to format dates as dd/mm/yyyy for display
+        const formatDate = (date: Date): string => {
+            const day = String(date.getDate()).padStart(2, "0");
+            const month = String(date.getMonth() + 1).padStart(2, "0");
+            const year = date.getFullYear();
+            return `${day}/${month}/${year}`;
+        };
+
+        // Validate that startDate is earlier than endDate
+        if (startDate >= endDate) {
+            alert?.showAlert("Start date must be earlier than the end date.", "error");
+            return;
+        }
+
+        // Format dates for API submission (yyyy-mm-dd)
+        const formatDateForAPI = (date: Date): string => {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, "0");
+            const day = String(date.getDate()).padStart(2, "0");
+            return `${year}-${month}-${day}`;
+        };
+
+        const startDateString = formatDateForAPI(startDate);
+        const endDateString = formatDateForAPI(endDate);
+
+        try {
+            loading?.showLoading(true, "Scheduling emails...");
+
+            const response = await Axios.post("api/schedule-emails", {
+                startDate: startDateString,
+                endDate: endDateString,
+            });
+
+            if (response.data.success) {
+                alert?.showAlert(
+                    `Emails scheduled successfully from ${formatDate(startDate)} to ${formatDate(endDate)}.`,
+                    "success"
+                );
+                setStartDate(null);
+                setEndDate(null);
+            } else {
+                alert?.showAlert("Failed to schedule emails.", "error");
+            }
+        } catch (error) {
+            console.error("Error scheduling emails:", error);
+            alert?.showAlert("Error scheduling emails. Please try again later.", "error");
+        } finally {
+            loading?.showLoading(false);
+            setDateOpen(false);
+        }
+    };
+
+
+    return (
+        <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-white to-purple-100">
+            <div className="container mx-auto px-4 py-12">
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="max-w-4xl mx-auto"
+                >
+                    <div className="text-center mb-12">
+                        <motion.div
+                            className="inline-block p-2 rounded-full bg-indigo-100 mb-4"
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.95 }}
                         >
-                            {semesters.map(sem => (
-                                <MenuItem key={sem} value={sem}>
-                                    {`Semester ${Math.ceil(sem / 2)} - ${sem % 2 === 0 ? 2 : 1}`}
-                                </MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleCloseDialog} color="error">Cancel</Button>
-                    <Button onClick={promote} color="primary" disabled={selectedSem === null}>
-                        Promote
-                    </Button>
-                </DialogActions>
-            </Dialog>
-        </>
+                            <Settings2 className="w-8 h-8 text-indigo-600" />
+                        </motion.div>
+                        <h1 className="text-4xl font-bold text-gray-800 mb-4">Academic Term Control</h1>
+                        <p className="text-gray-600">Manage terms and student promotions efficiently</p>
+                    </div>
+
+                    <motion.div
+                        className="bg-white rounded-2xl shadow-xl p-8 mb-8"
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                    >
+                        <div className="flex items-center justify-center space-x-6">
+                            <motion.button
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                className={`px-6 py-3 rounded-lg font-semibold transition-colors ${fTerm === 1
+                                    ? 'bg-indigo-600 text-white'
+                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                    }`}
+                                onClick={() => decrementcount()}
+                            >
+                                <div className="flex items-center space-x-2">
+                                    <ChevronDown className="w-5 h-5" />
+                                    <span>Term 1</span>
+                                </div>
+                            </motion.button>
+
+                            <motion.button
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                className={`px-6 py-3 rounded-lg font-semibold transition-colors ${fTerm === 2
+                                    ? 'bg-indigo-600 text-white'
+                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                    }`}
+                                onClick={() => incrementcount()}
+                            >
+                                <div className="flex items-center space-x-2">
+                                    <ChevronUp className="w-5 h-5" />
+                                    <span>Term 2</span>
+                                </div>
+                            </motion.button>
+
+                            <motion.button
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                className={`px-6 py-3 rounded-lg font-semibold transition-colors ${dateOpen
+                                    ? 'bg-indigo-600 text-white'
+                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                    }`}
+                                onClick={() => setDateOpen(true)}
+                            >
+                                <div className="flex items-center space-x-2">
+                                    <Calendar />
+                                    <span>Set Date</span>
+                                </div>
+                            </motion.button>
+                        </div>
+
+                        <div className="mt-8 text-center">
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                className="text-2xl font-semibold text-gray-700"
+                            >
+                                Current Term: {fTerm}
+                            </motion.div>
+                        </div>
+                    </motion.div>
+
+                    <motion.div
+                        className="text-center"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                    >
+                        <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-4 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-shadow flex items-center justify-center space-x-2 mx-auto"
+                            onClick={() => handleOpenDialog()}
+                            disabled={fTerm === 1}
+                        >
+                            <ArrowUpCircle className="w-5 h-5" />
+                            <span>Promote Students</span>
+                        </motion.button>
+                    </motion.div>
+                </motion.div>
+
+                <AnimatePresence>
+                    {openDialog && (
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+                        >
+                            <motion.div
+                                initial={{ scale: 0.95, opacity: 0 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                exit={{ scale: 0.95, opacity: 0 }}
+                                className="bg-white rounded-2xl p-8 max-w-2xl w-full"
+                            >
+                                <div className="flex justify-between items-center mb-6">
+                                    <h2 className="text-2xl font-bold text-gray-800">Promote Students</h2>
+                                    <button
+                                        onClick={() => handleCloseDialog()}
+                                        className="text-gray-500 hover:text-gray-700"
+                                    >
+                                        <X className="w-6 h-6" />
+                                    </button>
+                                </div>
+
+                                <div className="space-y-6">
+                                    <div className="space-y-4">
+                                        <label className="flex items-center space-x-3">
+                                            <input
+                                                type="radio"
+                                                checked={promoteAll}
+                                                onChange={() => setPromoteAll(true)}
+                                                className="w-4 h-4 text-indigo-600"
+                                            />
+                                            <span className="text-gray-700">Promote All Semesters</span>
+                                        </label>
+                                        <label className="flex items-center space-x-3">
+                                            <input
+                                                type="radio"
+                                                checked={!promoteAll}
+                                                onChange={() => setPromoteAll(false)}
+                                                className="w-4 h-4 text-indigo-600"
+                                            />
+                                            <span className="text-gray-700">Choose Specific Semester</span>
+                                        </label>
+                                    </div>
+
+                                    {!promoteAll && (
+                                        <div className="space-y-2">
+                                            <label className="block text-sm font-medium text-gray-700">
+                                                Select Semester
+                                            </label>
+                                            <select
+                                                value={selectedSem || ''}
+                                                onChange={(e) => setSelectedSem(Number(e.target.value))}
+                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                            >
+                                                <option value="">Choose semester</option>
+                                                {semesters.map((sem) => (
+                                                    <option key={sem} value={sem}>
+                                                        Semester {sem}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                    )}
+
+                                    <div className="space-y-2">
+                                        <label className="block text-sm font-medium text-gray-700">
+                                            Select Branches
+                                        </label>
+                                        <div className="grid grid-cols-2 gap-2">
+                                            {branches.map((branch) => (
+                                                <label
+                                                    key={branch}
+                                                    className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-50"
+                                                >
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={selectedBranches.includes(branch)}
+                                                        onChange={(e) => {
+                                                            if (e.target.checked) {
+                                                                setSelectedBranches([...selectedBranches, branch]);
+                                                            } else {
+                                                                setSelectedBranches(
+                                                                    selectedBranches.filter((id) => id !== branch)
+                                                                );
+                                                            }
+                                                        }}
+                                                        className="w-4 h-4 text-indigo-600 rounded"
+                                                    />
+                                                    <span className="text-sm text-gray-700">{branch}</span>
+                                                </label>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    <div className="flex justify-end space-x-3 mt-8">
+                                        <motion.button
+                                            whileHover={{ scale: 1.02 }}
+                                            whileTap={{ scale: 0.98 }}
+                                            className="px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-100"
+                                            onClick={() => handleCloseDialog()}
+                                        >
+                                            Cancel
+                                        </motion.button>
+                                        <motion.button
+                                            whileHover={{ scale: 1.02 }}
+                                            whileTap={{ scale: 0.98 }}
+                                            className="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700"
+                                            onClick={promote}
+                                            disabled={!promoteAll && !selectedSem}
+                                        >
+                                            Promote
+                                        </motion.button>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        </motion.div>
+                    )}
+
+                    {dateOpen && (
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+                        >
+                            <motion.div
+                                initial={{ scale: 0.95, opacity: 0 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                exit={{ scale: 0.95, opacity: 0 }}
+                                className="bg-white rounded-2xl p-8 max-w-2xl w-full"
+                            >
+                                <div className="flex justify-between items-center mb-6">
+                                    <h2 className="text-2xl font-bold text-gray-800">Set Date for Accouncement</h2>
+                                    <button
+                                        onClick={() => setDateOpen(false)}
+                                        className="text-gray-500 hover:text-gray-700"
+                                    >
+                                        <X className="w-6 h-6" />
+                                    </button>
+                                </div>
+
+                                <div className="space-y-6">
+
+                                    <div className="flex space-x-4">
+                                        {/* Start Date */}
+                                        <div className="flex-1">
+                                            <label className="block text-gray-700 font-medium mb-2">Start Date</label>
+                                            <DatePicker
+                                                selected={startDate}
+                                                onChange={(date) => setStartDate(date)}
+                                                className="w-full px-4 py-2 border rounded-lg"
+                                                placeholderText="Select Start Date"
+                                                dateFormat="dd/MM/yyyy"
+                                            />
+                                        </div>
+
+                                        {/* End Date */}
+                                        <div className="flex-1">
+                                            <label className="block text-gray-700 font-medium mb-2">End Date</label>
+                                            <DatePicker
+                                                selected={endDate}
+                                                onChange={(date) => setEndDate(date)}
+                                                className="w-full px-4 py-2 border rounded-lg"
+                                                placeholderText="Select End Date"
+                                                dateFormat="dd/MM/yyyy"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="flex justify-end space-x-3 mt-8">
+                                        <motion.button
+                                            whileHover={{ scale: 1.02 }}
+                                            whileTap={{ scale: 0.98 }}
+                                            className="px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-100"
+                                            onClick={() => setDateOpen(false)}
+                                        >
+                                            Cancel
+                                        </motion.button>
+                                        <motion.button
+                                            whileHover={{ scale: 1.02 }}
+                                            whileTap={{ scale: 0.98 }}
+                                            className="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700"
+                                            onClick={dateSubmit}
+                                            disabled={!startDate || !endDate}
+                                        >
+                                            Set Date
+                                        </motion.button>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+            </div>
+        </div>
     );
 }

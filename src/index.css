@@ -39,6 +39,7 @@ code {
   .no-print {
     display: none !important;
   }
+
   body {
     background-color: white;
   }
@@ -60,6 +61,7 @@ code {
 .red-button-sm {
   @apply text-red-500 hover:bg-red-50 rounded-sm duration-300 px-3 py-2;
 }
+
 /* FILLED ||======================================================================== */
 .red-button-filled-lg {
   @apply text-xl text-red-50 bg-red-500 hover:bg-red-600 rounded-md duration-300 px-4 py-2;
@@ -72,6 +74,7 @@ code {
 .red-button-filled-sm {
   @apply text-red-50 bg-red-500 hover:bg-red-600 rounded-md duration-300 px-3 py-2;
 }
+
 /* OUTLINE ||======================================================================== */
 .red-button-outline-lg {
   @apply text-xl text-red-500 hover:text-white hover:bg-red-500 border border-red-500 rounded-md duration-300 px-4 py-2;
@@ -97,6 +100,7 @@ code {
 .blue-button-sm {
   @apply text-blue-500 hover:bg-blue-50 rounded-sm duration-300 px-3 py-2;
 }
+
 /* FILLED ||======================================================================== */
 .blue-button-filled-lg {
   @apply text-xl text-blue-50 bg-blue-500 hover:bg-blue-600 rounded-md duration-300 px-4 py-2;
@@ -109,6 +113,7 @@ code {
 .blue-button-filled-sm {
   @apply text-blue-50 bg-blue-500 hover:bg-blue-600 rounded-md duration-300 px-3 py-2;
 }
+
 /* OUTLINE ||======================================================================== */
 .blue-button-outline-lg {
   @apply text-xl text-blue-500 hover:text-white hover:bg-blue-500 border border-blue-500 rounded-md duration-300 px-4 py-2;
@@ -134,6 +139,7 @@ code {
 .green-button-sm {
   @apply text-green-600 hover:bg-green-50 rounded-sm duration-300 px-3 py-2;
 }
+
 /* FILLED ||======================================================================== */
 .green-button-filled-lg {
   @apply text-xl text-green-50 bg-green-600 hover:bg-green-600 rounded-md duration-300 px-4 py-2;
@@ -146,6 +152,7 @@ code {
 .green-button-filled-sm {
   @apply text-green-50 bg-green-600 hover:bg-green-600 rounded-md duration-300 px-3 py-2;
 }
+
 /* OUTLINE ||======================================================================== */
 .green-button-outline-lg {
   @apply text-xl text-green-500 hover:bg-green-600 hover:text-white border border-green-600 rounded-md duration-300 px-4 py-2;
@@ -160,7 +167,7 @@ code {
 }
 
 .page-title {
-  @apply md:text-5xl text-4xl font-semibold text-blue-500;
+  @apply text-4xl font-semibold text-blue-500 text-center md:text-5xl;
 }
 
 .nav-link::after {
@@ -216,6 +223,7 @@ code {
 .MuiDataGrid-virtualScroller::-webkit-scrollbar-thumb {
   @apply bg-neutral-400 rounded-sm;
 }
+
 .MuiDataGrid-virtualScroller::-webkit-scrollbar-thumb:hover {
   @apply bg-neutral-500 rounded-sm;
 }
@@ -231,6 +239,7 @@ code {
 .MuiMultiSectionDigitalClockSection-root::-webkit-scrollbar-thumb {
   @apply bg-neutral-400 rounded-sm;
 }
+
 .MuiMultiSectionDigitalClockSection-root::-webkit-scrollbar-thumb:hover {
   @apply bg-neutral-500 rounded-sm;
 }
@@ -238,6 +247,7 @@ code {
 .MuiDataGrid-root .MuiDataGrid-cell:focus-within {
   outline: none !important;
 }
+
 .MuiDataGrid-withBorderColor {
   outline: none !important;
 }
@@ -252,4 +262,234 @@ code {
   align-items: center;
   justify-content: center;
   flex-direction: column;
+}
+
+
+
+.animate-field {
+  transition: transform 0.2s ease-in-out;
+}
+
+.animate-field:focus-within {
+  transform: scale(1.02);
+}
+
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 0;
+  }
+
+  20% {
+    opacity: 1;
+  }
+
+  80% {
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateY(-100vh) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+.animate-float {
+  animation: float 10s linear infinite;
+}
+
+@keyframes scale-up {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+
+  50% {
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+.scale-up {
+  animation: scale-up 2s ease-out forwards;
+}
+
+
+.checkmark-container {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto;
+}
+
+.checkmark {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  display: block;
+  stroke-width: 3;
+  stroke: #4BB543;
+  stroke-miterlimit: 10;
+  box-shadow: inset 0px 0px 0px #4BB543;
+  animation: fill-checkmark .4s ease-in-out .4s forwards, scale-checkmark .3s ease-in-out .9s both;
+}
+
+.checkmark-circle {
+  stroke-dasharray: 166;
+  stroke-dashoffset: 166;
+  stroke-width: 2;
+  stroke-miterlimit: 10;
+  stroke: #4BB543;
+  fill: none;
+  animation: stroke-checkmark .6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+}
+
+.checkmark-check {
+  transform-origin: 50% 50%;
+  stroke-dasharray: 48;
+  stroke-dashoffset: 48;
+  animation: stroke-checkmark .3s cubic-bezier(0.65, 0, 0.45, 1) .8s forwards;
+}
+
+@keyframes stroke-checkmark {
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes scale-checkmark {
+
+  0%,
+  100% {
+    transform: none;
+  }
+
+  50% {
+    transform: scale3d(1.1, 1.1, 1);
+  }
+}
+
+@keyframes fill-checkmark {
+  80% {
+    box-shadow: inset 0px 0px 0px 30px #4BB543;
+  }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+.animate-shake {
+  animation: shake 0.5s ease-in-out;
+}
+
+
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes gradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.animate-gradient {
+  background-size: 200% 200%;
+  animation: gradient 15s ease infinite;
+}
+
+.glass-morphism {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+.animate-ring {
+  position: relative;
+}
+
+.animate-ring::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: inherit;
+  background: theme('colors.red.500');
+  animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  opacity: 0.5;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+.animate-slideDown {
+  animation: slideDown 0.2s ease-out forwards;
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
 }

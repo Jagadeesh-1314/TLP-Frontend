@@ -1,40 +1,11 @@
-import { useNavigate } from "react-router-dom";
-import "./ThankYou.css";
-
-
+import DonePage from '../../components/Animations/AnimationTemplate';
 
 export default function ThankYou() {
-    const navigate = useNavigate();
-
-    return (
-        <>
-            <div className="bg-blue-200 py-7 px-3 md:px-6 rounded-lg h-[100vh] flex items-center justify-center">
-            {/* <div className="content"> */}
-                <div className="wrapper-1 mb-20 mt-10">
-                    <div className="wrapper-2 ">
-                        <h1>🎉 Thank you! ✅</h1>
-                        <p className="message">Your submission has been recorded successfully.</p>
-                        <button
-                            className="go-home"
-                            onClick={() => navigate("/sem")}
-                            aria-label="Go to Home Page"
-                        >
-                            GO Home
-                        </button>
-                    </div>
-                    {/* </div> */}
-                </div>
-                {/* <div className="wrapper-1 mb-10">
-                    <p>Co-Developers :</p>
-                    <ul className="names-list">
-                        <li>B. Vignesh</li>
-                        <li>R. Harinath Reddy</li>
-                        <li>Y. Rahul</li>
-                        <li>P. Sai Shiva Kumar</li>
-                        <li>Y. Santhosh Anand</li>
-                    </ul>
-                </div> */}
-            </div>
-        </>
-    );
+  return (
+    <DonePage
+      title="Thank you!"
+      message="Your submission has been recorded successfully."
+      redirectPath="/sem"
+    />
+  );
 }

@@ -26,3 +26,6 @@ src/loginInfo.ts
 start-server.txt
 .env
 package-lock.json
+
+key.pem
+cert.pem

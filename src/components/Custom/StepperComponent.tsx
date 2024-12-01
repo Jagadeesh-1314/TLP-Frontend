@@ -1,109 +1,84 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from 'react';
+import { motion } from 'framer-motion';
+import { BookOpen, Computer } from 'lucide-react';
+import { StepperComponentProps } from '../../Types/responseTypes';
 
-const stepperStyles = {
-  container: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    width: "100%",
-    maxWidth: "95vw",
-    margin: "0 auto",
-    padding: "10px",
-    boxSizing: "border-box",
-  } as React.CSSProperties,
-  stepper: {
-    display: "flex",
-    justifyContent: "space-between",
-    listStyleType: "none",
-    padding: "0",
-    margin: "20px 0",
-    width: "100%",
-    maxWidth: "80vw",
-    fontSize: "0.75rem",
-  } as React.CSSProperties,
-  step: (isActive: boolean, isCompleted: boolean) =>
-    ({
-      flex: "1",
-      textAlign: "center" as const,
-      padding: "10px",
-      borderBottom: `2px solid ${isActive ? "blue" : "lightgray"}`,
-      color: isActive ? "blue" : isCompleted ? "green" : "gray",
-      position: "relative" as const,
-      transition: "all 0.3s ease-in-out",
-      listStyle: "none",
-    } as React.CSSProperties),
-  stepLabel: {
-    position: "relative" as const,
-    zIndex: 1,
-    padding: "10px 0",
-  } as React.CSSProperties,
-  tickMark: {
-    position: "absolute" as const,
-    top: "-10px",
-    left: "50%",
-    transform: "translateX(-50%)",
-    fontSize: "1.25rem",
-    color: "green",
-    zIndex: 0,
-  } as React.CSSProperties,
-  activeDot: {
-    position: "absolute" as const,
-    top: "-15px",
-    left: "50%",
-    transform: "translateX(-50%)",
-    width: "10px",
-    height: "10px",
-    borderRadius: "50%",
-    backgroundColor: "blue",
-    zIndex: 0,
-    animation: "blink 1s infinite",
-  } as React.CSSProperties,
-};
+export default function StepperComponent({ sub, len }: StepperComponentProps) {
+  const subjectRefs = useRef<(HTMLDivElement | null)[]>([]);
 
-const styleSheet = document.styleSheets[0];
-const keyframes = `
-@keyframes blink {
-  0% { opacity: 1; }
-  50% { opacity: 0; }
-  100% { opacity: 1; }
-}
-`;
-styleSheet.insertRule(keyframes, styleSheet.cssRules.length);
-
-interface StepperComponentProps {
-  sub: { subCode: string; subname: string }[];
-  len: number;
-}
-
-const StepperComponent: React.FC<StepperComponentProps> = ({ sub, len }) => {
   useEffect(() => {
-    const activeStepElement = document.querySelector(`li[data-step="${len}"]`);
-    if (activeStepElement) {
-      activeStepElement.scrollIntoView({ behavior: "smooth", block: "center" });
+    if (subjectRefs.current[len]) {
+      subjectRefs.current[len].scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+        inline: 'center'
+      });
     }
   }, [len]);
 
+  if (!sub || sub.length === 0) return null;
+
   return (
-    <div style={stepperStyles.container}>
-      <ul style={stepperStyles.stepper}>
-        {sub.map((subject, index) => {
-          const isActive = len === index;
-          const isCompleted = len > index;
-          return (
-            <li
-              key={subject.subCode}
-              style={stepperStyles.step(isActive, isCompleted)}
-              data-step={index}
+    <div className="w-full max-w-4xl mx-auto overflow-x-auto">
+      <div className="flex items-center min-w-max px-4">
+        {sub.map((subject, index) => (
+          <React.Fragment key={index}>
+            <div
+              ref={(el) => (subjectRefs.current[index] = el)}
+              className="flex flex-col items-center"
             >
-              {isCompleted && <div style={stepperStyles.tickMark}>✔</div>}
-              {isActive && <div style={stepperStyles.activeDot} />}
-              <div style={stepperStyles.stepLabel}>{subject.subname}</div>
-            </li>
-          );
-        })}
-      </ul>
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ delay: index * 0.1 }}
+                className={`relative ${index === len ? 'scale-110' : ''}`}
+              >
+                <div
+                  className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${
+                    index === len
+                      ? 'bg-gradient-to-r from-blue-600 to-purple-600 shadow-lg'
+                      : index < len
+                      ? 'bg-green-500'
+                      : 'bg-gray-200'
+                  }`}
+                >
+                  {subject.qtype === 'theory' ? (
+                    <BookOpen className={`w-6 h-6 ${index <= len ? 'text-white' : 'text-gray-500'}`} />
+                  ) : (
+                    <Computer className={`w-6 h-6 ${index <= len ? 'text-white' : 'text-gray-500'}`} />
+                  )}
+                </div>
+                <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2">
+                  {index < len && (
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      className="w-4 h-4 bg-green-500 rounded-full border-2 border-white"
+                    />
+                  )}
+                </div>
+              </motion.div>
+              <div className="mt-2 text-center">
+                <p className={`text-sm font-medium ${
+                  index === len ? 'text-blue-600' : index < len ? 'text-green-500' : 'text-gray-500'
+                }`}>
+                  {subject.subCode}
+                </p>
+                <p className="text-xs text-gray-500 max-w-[100px] truncate">
+                  {subject.subname}
+                </p>
+              </div>
+            </div>
+            {index < sub.length - 1 && (
+              <div
+                className={`flex-1 h-1 mx-4 rounded transition-all duration-500 min-w-[2rem] ${
+                  index < len ? 'bg-green-500' : 'bg-gray-200'
+                }`}
+              />
+            )}
+          </React.Fragment>
+        ))}
+      </div>
     </div>
   );
-};
-
-export default StepperComponent;
+}

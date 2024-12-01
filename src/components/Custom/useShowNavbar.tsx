@@ -3,7 +3,7 @@ import Navbar from "../Navbar/Navbar";
 
 const showNavbar = () => {
   const location = useLocation();
-  const excludedPaths = ["/thank-you", "/completed"];
+  const excludedPaths = ["/thank-you", "/completed", "/change-password"];
   return !excludedPaths.includes(location.pathname) ?  <Navbar
   user={sessionStorage.getItem("username") as string}
   desg={sessionStorage.getItem("desg") as string}

@@ -20,6 +20,10 @@ import {
   Typography,
 } from "@mui/material";
 import { useAuth } from "../Auth/AuthProvider";
+import PasswordIcon from '@mui/icons-material/Password';
+import QuestionMarkIcon from '@mui/icons-material/QuestionMark';
+
+
 
 export default function Navbar({
   user,
@@ -33,6 +37,7 @@ export default function Navbar({
   const [openSideMenu, setOpenSideMenu] = useState(() => { return false; });
   const navigate = useNavigate();
   const adminNavLinks = [
+    { name: "Questions", icon: <QuestionMarkIcon /> },
     { name: "Unfilled List", icon: <FormatListBulleted /> },
     { name: "Report", icon: <PlagiarismOutlined /> },
     { name: "CFReport", icon: <PlagiarismOutlined /> },
@@ -43,6 +48,7 @@ export default function Navbar({
   ];
 
   const nonAdminNavLinks: any[] = [
+    { name: "Change-Password", icon: <PasswordIcon /> },
 
   ];
 
@@ -77,8 +83,7 @@ export default function Navbar({
         <div className="flex justify-start items-center gap-4">
           <button
             onClick={() => setOpenSideMenu(true)}
-            className={`rounded-full ${user === "admin" ? "inline-block" : "lg:hidden inline-block"
-              }`}
+            className={`rounded-full ${user === "admin" ? "inline-block" : "lg:hidden inline-block"}`}
           >
             <Menu fontSize="medium" />
           </button>
@@ -102,20 +107,18 @@ export default function Navbar({
               const activePage = name.toLowerCase().split(" ").join("-");
 
               return (
-                <>
-                  <Link
-                    key={indx}
-                    to={activePage}
-                    className={`nav-link relative ${activePage === pageLocation ? "active" : ""} lg:flex hidden items-center gap-2 rounded-t-sm px-3 py-2 hover:bg-zinc-800 duration-300`}
-                  >
-                    {icon}
-                    {name}
-                  </Link>
-                </>
+                <Link
+                  key={indx}
+                  to={activePage}
+                  className={`nav-link relative ${activePage === pageLocation ? "active" : ""} lg:flex md:hidden sm:hidden hidden items-center gap-2 rounded-t-sm px-3 py-2 hover:bg-zinc-800 duration-300`}
+                >
+                  {icon}
+                  {name}
+                </Link>
               );
             })}
         </div>
-        <Logout desg={desg} logOut={() => { logOut(); navigate("/login"); }} />
+        <Logout logOut={() => { logOut(); navigate("/login"); }} />
       </nav>
       <SideMenu
         user={user}
@@ -238,8 +241,6 @@ function SideMenu({
 function Logout({
   logOut,
 }: {
-  // user: string;
-  desg: string;
   logOut: any;
 }) {
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
@@ -250,6 +251,7 @@ function Logout({
   const handleLogout = () => {
     sessionStorage.clear();
     localStorage.clear();
+    document.title = "GCET TLP FEEDBACK";
     logOut(false);
   };
 
@@ -262,7 +264,6 @@ function Logout({
     setAnchorEl(event.currentTarget);
     setOpen(true);
   };
-
 
 
   return (
