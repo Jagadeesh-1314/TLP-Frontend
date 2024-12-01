@@ -77,11 +77,6 @@ export default function Upload() {
             <MenuItem value="faculty">Faculty</MenuItem>
             <MenuItem value="subjects">Subjects</MenuItem>
             <MenuItem value="electives">Electives</MenuItem>
-            <MenuItem value="users">users</MenuItem>
-            <MenuItem value="theoryscore1">TheoryScore1</MenuItem>
-            <MenuItem value="labscore1">LabScore1</MenuItem>
-            <MenuItem value="cf1">CF1</MenuItem>
-            <MenuItem value="questions">questions</MenuItem>
           </CustTextField>
         </div>
 

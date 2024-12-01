@@ -147,57 +147,60 @@ export default function Sem() {
                 </FeedbackCard>
 
                 {/* Course End Survey Section */}
-                <FeedbackCard
-                    title="Course End Survey"
-                    icon={ClipboardCheck}
-                    gradientFrom="blue-600"
-                    gradientTo="purple-600"
-                >
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {semesters.map((semesterString, index) => {
-                            const isEnabled = isSemesterEnabled(semesterString);
-                            const isCompleted = done === 'done' && isEnabled;
+                <div className="opacity-50 pointer-events-none">
 
-                            return (
-                                <div
-                                    key={index}
-                                    className="relative"
-                                    onMouseEnter={() => setActiveHover(index + 100)}
-                                    onMouseLeave={() => setActiveHover(null)}
-                                >
-                                    <button
-                                        onClick={handleButtonClick}
-                                        disabled={!isEnabled}
-                                        className={`w-full p-6 rounded-xl transition-all duration-300 transform hover:scale-105 flex items-center justify-between ${isEnabled
-                                            ? 'bg-gradient-to-r from-indigo-500 to-pink-500 text-white shadow-lg hover:shadow-xl'
-                                            : 'bg-gray-100 text-gray-400'
-                                            }`}
+                    <FeedbackCard
+                        title="Course End Survey (IN PROGRESS)"
+                        icon={ClipboardCheck}
+                        gradientFrom="blue-600"
+                        gradientTo="purple-600"
+                    >
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {semesters.map((semesterString, index) => {
+                                const isEnabled = isSemesterEnabled(semesterString);
+                                // const isCompleted = done === 'done' && isEnabled;
+
+                                return (
+                                    <div
+                                        key={index}
+                                        className="relative"
+                                        onMouseEnter={() => setActiveHover(index + 100)}
+                                        onMouseLeave={() => setActiveHover(null)}
                                     >
-                                        <div className="flex items-center space-x-4">
-                                            <ClipboardCheck className={`w-6 h-6 ${isEnabled ? 'text-white' : 'text-gray-400'}`} />
-                                            <div className="text-left">
-                                                <span className="block text-lg font-semibold">Semester {semesterString}</span>
-                                                <span className="text-sm opacity-80">
-                                                    {isCompleted ? 'Survey completed' : isEnabled ? 'Survey available' : 'Locked'}
-                                                </span>
+                                        <button
+                                            onClick={handleButtonClick}
+                                            disabled={!isEnabled}
+                                            className={`w-full p-6 rounded-xl transition-all duration-300 transform hover:scale-105 flex items-center justify-between ${isEnabled
+                                                ? 'bg-gradient-to-r from-indigo-500 to-pink-500 text-white shadow-lg hover:shadow-xl'
+                                                : 'bg-gray-100 text-gray-400'
+                                                }`}
+                                        >
+                                            <div className="flex items-center space-x-4">
+                                                <ClipboardCheck className={`w-6 h-6 ${isEnabled ? 'text-white' : 'text-gray-400'}`} />
+                                                <div className="text-left">
+                                                    <span className="block text-lg font-semibold">Semester {semesterString}</span>
+                                                    <span className="text-sm opacity-80">
+                                                        {/* {isCompleted ? 'Survey completed' : isEnabled ? 'Survey available' : 'Locked'} */}
+                                                    </span>
+                                                </div>
                                             </div>
-                                        </div>
-                                        {isCompleted ? (
-                                            <CheckCircle2 className="w-6 h-6 text-green-300" />
-                                        ) : (
-                                            <ChevronRight className={`w-5 h-5 ${isEnabled ? 'text-white' : 'text-gray-400'}`} />
-                                        )}
-                                    </button>
-                                    {activeHover === index + 100 && isEnabled && !isCompleted && (
-                                        <div className="absolute -top-2 -right-2">
-                                            <Sparkles className="w-6 h-6 text-yellow-400 animate-pulse" />
-                                        </div>
-                                    )}
-                                </div>
-                            );
-                        })}
-                    </div>
-                </FeedbackCard>
+                                            {/* {isCompleted ? (
+                                                <CheckCircle2 className="w-6 h-6 text-green-300" />
+                                            ) : (
+                                                <ChevronRight className={`w-5 h-5 ${isEnabled ? 'text-white' : 'text-gray-400'}`} />
+                                            )} */}
+                                        </button>
+                                        {/* {activeHover === index + 100 && isEnabled && !isCompleted && (
+                                            <div className="absolute -top-2 -right-2">
+                                                <Sparkles className="w-6 h-6 text-yellow-400 animate-pulse" />
+                                            </div>
+                                        )} */}
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </FeedbackCard>
+                </div>
 
                 {/* Guest Lecture Feedback Section */}
                 <FeedbackCard
