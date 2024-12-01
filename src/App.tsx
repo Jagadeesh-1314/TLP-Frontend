@@ -166,6 +166,7 @@ function App() {
         },
       ]
     },
+    
     {
       path: "*",
       element: <NotFoundPage />,
