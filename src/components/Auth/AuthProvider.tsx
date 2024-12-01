@@ -68,6 +68,8 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     () => () => {
       setUser(null);
       setToken("");
+      sessionStorage.clear();
+      localStorage.clear();
     },
     []
   );

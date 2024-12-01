@@ -26,22 +26,44 @@ import {
   AvailableDbTables,
   ManageDBResponseArr,
   ManageDBResponseProps,
+  TableVisibilityType,
 } from "../../Types/responseTypes";
 import { CustDialog } from "../../components/Custom/CustDialog";
 import { useAuth } from "../../components/Auth/AuthProvider";
 import Title from "../../components/Title";
 
+
 export default function ManageDB() {
   const alert = useContext(AlertContext);
   const loading = useContext(LoadingContext);
+  const { user } = useAuth()!;
 
   // ANCHOR STATES && VARS  ||========================================================================
   const [table, setTable] = useState<AvailableDbTables>("timetable");
   const [responseData, setResponseData] = useState<ManageDBResponseArr>([]);
   const [selectedRows, setSelectedRows] = useState<GridRowSelectionModel>([]);
   const [branch, setBranch] = useState<string>("");
+  const [showPreview, setShowPreview] = useState(false);
   const [branches, setBranches] = useState<string[]>([]);
-  const { user } = useAuth()!;
+  const [showRollNos, setShowRollNos] = useState<Record<string, boolean>>({});
+  const [tableVisibility, setTableVisibility] = useState<TableVisibilityType>({});
+
+  const toggleTableVisibility = (semester: string, section: string) => {
+    const key = `${semester}-${section}`;
+    setTableVisibility((prev) => ({
+      ...prev,
+      [key]: !prev[key],
+    }));
+  };
+
+  const toggleRollNos = (facIndex: number, subIndex: number) => {
+    const key = `${facIndex}-${subIndex}`;
+    setShowRollNos((prev) => ({
+      ...prev,
+      [key]: !prev[key],
+    }));
+  };
+
 
   const studentdatagridCols: GridColDef[] = [
     { field: "id", headerName: "S No.", minWidth: 80, editable: false },
@@ -76,6 +98,12 @@ export default function ManageDB() {
       minWidth: 130,
     },
     {
+      field: "batch",
+      headerName: "Batch",
+      flex: 1,
+      minWidth: 130,
+    },
+    {
       field: "actions",
       type: "actions",
       headerName: "Actions",
@@ -87,8 +115,8 @@ export default function ManageDB() {
             key={1}
             row={row as ManageDBResponseProps}
             type="edit"
-            responseData={responseData}
             setResponseData={setResponseData}
+            selectedBranch={branch}
             table={table}
           />,
           <DeleteConfirmDialog
@@ -129,8 +157,8 @@ export default function ManageDB() {
             key={1}
             row={row as ManageDBResponseProps}
             type="edit"
-            responseData={responseData}
             setResponseData={setResponseData}
+            selectedBranch={branch}
             table={table}
           />,
           <DeleteConfirmDialog
@@ -186,8 +214,8 @@ export default function ManageDB() {
             key={1}
             row={row as ManageDBResponseProps}
             type="edit"
-            responseData={responseData}
             setResponseData={setResponseData}
+            selectedBranch={branch}
             table={table}
           />,
           <DeleteConfirmDialog
@@ -211,7 +239,7 @@ export default function ManageDB() {
       minWidth: 170,
     },
     {
-      field: "facname",
+      field: "facName",
       headerName: "Faculty Name",
       flex: 1,
       minWidth: 170,
@@ -258,8 +286,8 @@ export default function ManageDB() {
             key={1}
             row={row as ManageDBResponseProps}
             type="edit"
-            responseData={responseData}
             setResponseData={setResponseData}
+            selectedBranch={branch}
             table={table}
           />,
           <DeleteConfirmDialog
@@ -275,12 +303,73 @@ export default function ManageDB() {
   ];
 
   const tablesNames: Record<AvailableDbTables, string> = {
-    studentInfo: "Student Database",
+    studentinfo: "Student Database",
     subjects: "Subjects",
     faculty: "Faculty",
     timetable: "TimeTable",
+    electives: "Electives",
   };
-  
+
+  const electivesdatagridCols: GridColDef[] = [
+    { field: "id", headerName: "S No.", minWidth: 80, editable: false },
+    {
+      field: "rollno",
+      headerName: "Rollno",
+      flex: 1,
+      minWidth: 170,
+    },
+    {
+      field: "subCode",
+      headerName: "Subject Code",
+      flex: 1,
+      minWidth: 170,
+    },
+    {
+      field: "subName",
+      headerName: "Subject Name",
+      flex: 1,
+      minWidth: 170,
+    },
+    {
+      field: "facID",
+      headerName: "Faculty ID",
+      flex: 1,
+      minWidth: 170,
+    },
+    {
+      field: "facName",
+      headerName: "Faculty Name",
+      flex: 1,
+      minWidth: 170,
+    },
+    {
+      field: "actions",
+      type: "actions",
+      headerName: "Actions",
+      width: 130,
+      cellClassName: "actions",
+      renderCell: ({ row }) => {
+        return [
+          <ManageRowDetails
+            key={1}
+            row={row as ManageDBResponseProps}
+            type="edit"
+            setResponseData={setResponseData}
+            selectedBranch={branch}
+            table={table}
+          />,
+          <DeleteConfirmDialog
+            table={table}
+            tablesNames={tablesNames}
+            row={row}
+            setResponseData={setResponseData}
+            key={2}
+          />,
+        ];
+      },
+    },
+  ]
+
   if (user?.branch === 'FME' || user?.branch === '') {
     useLayoutEffect(() => {
       Axios.get(`/api/manage/branchdetails`)
@@ -295,6 +384,7 @@ export default function ManageDB() {
     <>
       <Title title="Manage DataBase" />
       <div className="grid sm:grid-cols-3 grid-cols-1 gap-4 no-print items-center">
+        {/* Table Selection */}
         <CustTextField
           select
           label="Table"
@@ -303,14 +393,21 @@ export default function ManageDB() {
             setTable(value as AvailableDbTables);
             setResponseData([]);
             setSelectedRows([]);
+            setShowPreview(false);
           }}
         >
           <MenuItem value={"timetable"}>Time Table</MenuItem>
-          <MenuItem value={"studentInfo"}>Student Database</MenuItem>
+          <MenuItem value={"studentinfo"}>Student Database</MenuItem>
           <MenuItem value={"subjects"}>Subjects</MenuItem>
           <MenuItem value={"faculty"}>Faculty</MenuItem>
+          {user?.branch !== 'FME' && (
+            <MenuItem value={"electives"}>Electives</MenuItem>
+          )}
+
         </CustTextField>
-        {((table === 'timetable' || table === 'studentInfo') &&
+
+        {/* Branch Selection (conditional) */}
+        {((table === 'timetable' || table === 'studentinfo') &&
           (user?.branch === 'FME' || user?.branch === '')) && (
             <CustTextField
               select
@@ -329,21 +426,17 @@ export default function ManageDB() {
               ))}
             </CustTextField>
           )}
-      </div>
 
-      {/* ANCHOR FORM ||======================================================================== */}
-      <div className="grid sm:grid-cols-3 grid-cols-1 gap-4 no-print items-center">
+        {/* ANCHOR FORM ||======================================================================== */}
         <form
-          className="row-start-2 grid sm:grid-cols-3 grid-cols-1 items-center gap-x-4 gap-y-2 sm:col-span-3 w-full"
+          className="sm:col-span-2 w-full flex items-center gap-4"
           onSubmit={(e) => {
             e.preventDefault();
-            if (branches.length !== 0 && branch === '') {
-              alert?.showAlert('Please select a branch', "warning");
+            if (branches.length !== 0 && branch === '' && table !== 'subjects' && table !== 'faculty') {
+              alert?.showAlert('Please select a branch', 'warning');
             } else {
               loading?.showLoading(true);
-              Axios.get(
-                `api/manage/table?tableName=${table}&fbranch=${branch}`
-              )
+              Axios.get(`api/manage/table?tableName=${table}&fbranch=${branch}`)
                 .then(
                   ({
                     data: { tableData },
@@ -352,7 +445,7 @@ export default function ManageDB() {
                   }) => {
                     if (tableData.length === 0) {
                       setResponseData([]);
-                      alert?.showAlert("No data found", "warning");
+                      alert?.showAlert('No data found', 'warning');
                     } else
                       setResponseData(
                         tableData.map((element, indx) => ({
@@ -363,26 +456,153 @@ export default function ManageDB() {
                   }
                 )
                 .catch(() =>
-                  alert?.showAlert("Couldn't connect to the server", "error")
+                  alert?.showAlert("Couldn't connect to the server", 'error')
                 )
                 .finally(() => loading?.showLoading(false));
             }
           }}
         >
-          <button
-            className="blue-button-filled flex items-center gap-2"
-          >
+          {/* Search button */}
+          <button className="blue-button-filled flex items-center gap-2">
             <SearchOutlined fontSize="small" />
             Search
           </button>
         </form>
       </div>
 
+      {/* Preview Section */}
+      {(table === 'electives' || table === 'timetable') && (
+        <button
+          className="blue-button-filled mt-4"
+          disabled={responseData.length <= 0}
+          onClick={() => {
+            if (responseData.length <= 0) {
+              alert?.showAlert("No data available to display. Click Search!", "info");
+            } else {
+              setShowPreview((prev) => !prev);
+            }
+          }}
+        >
+          {showPreview ? "Hide Preview" : "Show Preview"}
+        </button>
+      )}
+
+      {showPreview && table === "electives" && (
+        Object.entries(
+          responseData.reduce<Record<string, Record<string, ManageDBResponseProps[]>>>((acc, row) => {
+            const facID = row.facID || "No Faculty";
+            const subcode = row.subCode || "No Subject";
+
+            if (!acc[facID]) acc[facID] = {};
+            if (!acc[facID][subcode]) acc[facID][subcode] = [];
+
+            acc[facID][subcode].push(row);
+            return acc;
+          }, {})
+        ).map(([_facID, subcodes], facIndex) => (
+          <div key={facIndex} className="mb-5 mt-5 ml-5 mr-5 rounded-xl border border-green-500 p-4">
+            {Object.entries(subcodes).map(([_subcode, rows], subIndex) => {
+              const totalCount = rows.length;
+              return (
+                <div key={subIndex} className="mb-4">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
+                    <h4 className="font-semibold text-lg mb-2 sm:mb-0">
+                      Faculty: <span className="text-orange-700">{`${rows[0].facName || "No Faculty"}`}</span> -
+                      Subject: <span className="text-purple-700">{`${rows[0].subName || "No Subject"}`}</span>
+                    </h4>
+                    <button
+                      onClick={() => toggleRollNos(facIndex, subIndex)}
+                      className="ml-0 mb-3 sm:ml-4 p-2 bg-blue-500 text-white rounded"
+                    >
+                      {showRollNos[`${facIndex}-${subIndex}`] ? "Hide Roll Numbers" : "Show Roll Numbers"}
+                    </button>
+                  </div>
+                  <span className="ml-4 font-bold text-black-600">Total Count: {totalCount}</span>
+                  {showRollNos[`${facIndex}-${subIndex}`] && (
+                    <div className="overflow-x-auto mt-2">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                        {rows.map((row, idx) => (
+                          <div key={idx} className="p-4 border border-gray-300 rounded-lg text-center bg-orange-100">
+                            {row.rollno || "N/A"}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        ))
+      )}
+
+
+      {showPreview && table === "timetable" && (
+        Object.entries(
+          responseData.reduce<Record<string, Record<string, ManageDBResponseProps[]>>>((acc, row) => {
+            const semester = row.sem || "No Semester";
+            const section = row.sec || "No Section";
+
+            if (!acc[semester]) acc[semester] = {};
+            if (!acc[semester][section]) acc[semester][section] = [];
+
+            acc[semester][section].push(row);
+
+            return acc;
+          }, {})
+        ).map(([semester, sections], semIndex) => (
+          <div key={semIndex} className="mb-5 mt-5 ml-4 mr-4 rounded-xl border border-green-500 p-4 ">
+            {Object.entries(sections).map(([section, rows], secIndex) => {
+              const key = `${semester}-${section}`;
+
+              return (
+                <div key={secIndex} className="mb-4">
+                  <div className="flex justify-between items-center">
+                    <h4 className="font-semibold text-orange-700 text-lg">Section: {`${semester} - ${section}`}</h4>
+                    <button
+                      onClick={() => toggleTableVisibility(semester, section)}
+                      className="bg-blue-500 text-white py-1 px-2 rounded hover:bg-blue-600"
+                    >
+                      {tableVisibility[key] ? 'Hide Table' : 'Show Table'}
+                    </button>
+                  </div>
+
+                  {tableVisibility[key] && (
+                    <div className="w-full mt-2 bg-white border border-pink-500 rounded-lg overflow-hidden">
+                      <div className="overflow-x-auto">
+                        <table className="w-full">
+                          <thead>
+                            <tr>
+                              <th className="p-2 border border-gray-300">S.No</th>
+                              <th className="p-2 border border-gray-300">Subject Name</th>
+                              <th className="p-2 border border-gray-300">Faculty</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {rows.map((row, idx) => (
+                              <tr key={idx}>
+                                <td className="p-2 border border-gray-300">{idx + 1 || "N/A"}</td>
+                                <td className="p-2 border border-gray-300">{row.subName || "N/A"}</td>
+                                <td className="p-2 border border-gray-300">{row.facName || "N/A"}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        ))
+      )}
+
       {/* ANCHOR DATAGRID ||======================================================================== */}
       {responseData.length > 0 && (
         <div className={`bg-white p-4 rounded-sm mt-8 h-fit`}>
           <CustDataGrid
-            columns={table === "timetable" ? timetabledatagridCols : table === "studentInfo" ? studentdatagridCols : table === "faculty" ? facultydatagridCols : subjectsdatagridCols}
+            columns={table === "timetable" ? timetabledatagridCols : table === "studentinfo" ? studentdatagridCols : table === "faculty" ? facultydatagridCols : table === "electives" ? electivesdatagridCols : subjectsdatagridCols}
             rows={responseData}
             disableRowSelectionOnClick
             checkboxSelection
@@ -396,10 +616,10 @@ export default function ManageDB() {
                     {tablesNames[table]}
                   </div>
                   <ManageRowDetails
-                    responseData={responseData}
                     setResponseData={setResponseData}
                     type="add"
                     table={table}
+                    selectedBranch={branch}
                   />
                 </div>
               ),
@@ -417,10 +637,6 @@ export default function ManageDB() {
               ),
             }}
             initialState={{ pagination: { paginationModel: { pageSize: 50 } } }}
-            getRowClassName={({ row }) => {
-              if (row?.grade == "F") return "datagrid-row-red";
-              return "";
-            }}
           />
         </div>
       )}
@@ -432,35 +648,41 @@ export default function ManageDB() {
 function ManageRowDetails({
   row,
   type,
-  responseData,
   setResponseData,
+  selectedBranch,
   table,
 }: {
   row?: ManageDBResponseProps;
   type: "add" | "edit";
-  responseData: ManageDBResponseArr;
   setResponseData: React.Dispatch<React.SetStateAction<ManageDBResponseArr>>;
+  selectedBranch: string;
   table: AvailableDbTables;
 }) {
   // STATES && VARS  ||========================================================================
-  const { user } = useAuth()!;
   const alert = useContext(AlertContext);
   const loading = useContext(LoadingContext);
+  const { user } = useAuth()!;
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: 4 }, (_, index) => currentYear - index);
   const [openRowDetailsDialog, setOpenRowDetailsDialog] = useState(false);
   const [neuroDetails, setNeuroDetails] = useState<ManageDBResponseProps>(
     row
       ? { ...row }
       : ({
         facID: "",
+        facName: "",
+        qtype: "",
         subCode: "",
-        sem: 1,
+        def: "",
+        subName: "",
+        rollno: "",
+        Name: "",
+        sem: "",
         sec: "",
         branch: "",
+        batch: "",
       })
   );
-  const [subjectAlreadyExists, setSubjectAlreadyExists] = useState(false);
-
-  // EFFECTS  ||========================================================================
 
   // JSX  ||========================================================================
   return (
@@ -504,52 +726,94 @@ function ManageRowDetails({
           onSubmit={(e) => {
             e.preventDefault();
             loading?.showLoading(true);
+            const payload: ManageDBResponseProps = (() => {
+              if (table === "timetable") {
+                return {
+                  facID: neuroDetails.facID,
+                  subCode: neuroDetails.subCode,
+                  sem: neuroDetails.sem,
+                  sec: neuroDetails.sec,
+                  branch: user?.branch === "FME" ? selectedBranch : user?.branch,
+                  batch: neuroDetails.batch,
+                };
+              } else if (table === "subjects") {
+                return {
+                  subCode: neuroDetails.subCode,
+                  subName: neuroDetails.subName,
+                  qtype: neuroDetails.qtype,
+                  def: neuroDetails.def,
+                };
+              } else if (table === "studentinfo") {
+                return {
+                  rollno: neuroDetails.rollno,
+                  Name: neuroDetails.Name,
+                  sec: neuroDetails.sec,
+                  sem: neuroDetails.sem,
+                  branch: neuroDetails.branch,
+                  batch: neuroDetails.batch,
+                };
+              } else if (table === "electives") {
+                return {
+                  rollno: neuroDetails.rollno,
+                  facID: neuroDetails.facID,
+                  subCode: neuroDetails.subCode,
+                };
+              } else if (table === "faculty") {
+                return {
+                  facID: neuroDetails.facID,
+                  facName: neuroDetails.facName,
+                };
+              }
+              return {};
+            })();
+
+
             if (type === "add") {
               Axios.post(`api/manage/database`, {
-                details: neuroDetails,
-                tableName: "timetable",
+                details: payload,
+                tableName: table,
               })
                 .then(({ data }) => {
                   if (data.done) {
                     alert?.showAlert("New record created", "success");
-                    setResponseData((prevVals) => {
-                      const indx = prevVals.findIndex(
-                        ({ facID }) => facID === row?.facID
-                      );
-                      if (indx > -1) {
-                        return [
-                          ...prevVals.slice(0, indx),
-                          neuroDetails,
-                          ...prevVals.slice(indx + 1),
-                        ];
-                      }
-
-                      return [
-                        ...prevVals,
-                        { ...neuroDetails, id: prevVals.length + 1 },
-                      ];
-                    });
+                    setResponseData((prevVals) => [...prevVals, { ...payload, id: prevVals.length + 1 }]);
                     setOpenRowDetailsDialog(false);
-                  } else alert?.showAlert(data.error.message, "error");
+                  } else {
+                    alert?.showAlert(data.error.message, "error");
+                    console.log(data)
+                  }
                 })
-                .catch(() => {
-                  // console.log(e);
-                  alert?.showAlert("There was an error while saving", "error");
+                .catch((err) => {
+                  console.error(err);
+                  alert?.showAlert(err.response.data.message, "error");
                 })
-                .finally(() => loading?.showLoading(false));
+                .finally(() => {
+                  loading?.showLoading(false);
+                });
             } else {
               Axios.patch(`api/manage/database`, {
-                details: { ...neuroDetails, oldSubCode: row?.facID },
+                details: { ...payload },
                 tableName: table,
-                username: user?.username
               })
                 .then(({ data }) => {
                   if (data.updated) {
                     alert?.showAlert("Record updated", "success");
+
                     setResponseData((prevVals) => {
-                      const indx = prevVals.findIndex(
-                        ({ subCode }) => subCode === row?.subCode
-                      );
+                      let indx: number = -1;
+
+                      if (table === 'timetable') {
+                        indx = prevVals.findIndex(({ subCode }) => subCode === row?.subCode);
+                      } else if (table === 'subjects') {
+                        indx = prevVals.findIndex(({ subCode }) => subCode === row?.subCode);
+                      } else if (table === 'studentinfo') {
+                        indx = prevVals.findIndex(({ rollno }) => rollno === row?.rollno);
+                      } else if (table === 'electives') {
+                        indx = prevVals.findIndex(({ rollno, subCode }) => rollno === row?.rollno && subCode === row?.subCode);
+                      } else if (table === 'faculty') {
+                        indx = prevVals.findIndex(({ facID }) => facID === row?.facID);
+                      }
+
                       if (indx > -1) {
                         return [
                           ...prevVals.slice(0, indx),
@@ -563,6 +827,7 @@ function ManageRowDetails({
                         { ...neuroDetails, id: prevVals.length + 1 },
                       ];
                     });
+
                     setOpenRowDetailsDialog(false);
                     return;
                   }
@@ -573,113 +838,311 @@ function ManageRowDetails({
           }}
         >
           <DialogContent>
-            <div className="grid md:grid-cols-3 grid-cols-1 gap-6">
-              {table === "timetable" && (
-                <CustTextField
-                  label="Subject Code"
-                  value={neuroDetails.subCode ?? ""}
-                  onChange={({ target: { value } }) => {
-                    setNeuroDetails({
-                      ...neuroDetails,
-                      subCode: value.toUpperCase(),
-                    });
-                  }}
-                  onBlur={({ target: { value } }) => {
-                    value = value.trim();
-                    const subCodeSplitted = value.split("");
-                    setNeuroDetails((prevVals) => ({
-                      ...prevVals,
-                      acYear: parseInt(subCodeSplitted[4] ?? "1") as
-                        | 1
-                        | 2
-                        | 3
-                        | 4,
-                      sem: parseInt(subCodeSplitted[5] ?? "1") as 1 | 2,
-                    }));
-
-                    if (value.length > 0) {
-                      Axios.get(`api/manage/database/sub-name/${value}`)
-                        .then(({ data }) => {
-                          if (!data.error)
-                            setNeuroDetails((prevVals) => ({
-                              ...prevVals,
-                              subName: data.subName,
-                            }));
-                        })
-                        .catch((e) => {
-                          alert?.showAlert(e.response.data.error, "error");
-                        });
-                    }
-
-                    if (
-                      responseData.filter(
-                        ({ subCode }) =>
-                          subCode.toLowerCase() === value.toLowerCase()
-                      ).length > 0 &&
-                      value !== row?.subCode
-                    ) {
-                      setSubjectAlreadyExists(true);
-                      setOpenRowDetailsDialog(true);
-                      alert?.showAlert("Subject code already exists", "warning");
-                    } else setSubjectAlreadyExists(false);
-                  }}
-                />
-              )}
-            </div>
-            <div className="grid md:grid-cols-2 grid-cols-1 mt-6 items-center gap-6">
+            <div className="grid md:grid-cols-2 grid-cols-1 gap-6">
+              {/* For 'Time Table' table */}
               {table === "timetable" && (
                 <>
                   <CustTextField
                     label="Faculty ID"
-                    value={neuroDetails?.sec}
-                    onChange={({ }) => {
-
-                      setNeuroDetails({
-                        ...neuroDetails,
-                        facID: ""
-                      });
-                    }}
-                  >
-                  </CustTextField>
-                  <CustTextField
-                    label="Semester"
-                    value={neuroDetails?.sem}
+                    value={neuroDetails.facID ?? ""}
                     onChange={({ target: { value } }) => {
                       setNeuroDetails({
                         ...neuroDetails,
-                        sem: parseInt(value) as 1 | 2,
+                        facID: value.toUpperCase(),
+                      });
+                    }}
+                  />
+                  <CustTextField
+                    label="Subject Code"
+                    value={neuroDetails.subCode ?? ""}
+                    disabled={type !== "add"}
+                    onChange={({ target: { value } }) => {
+                      setNeuroDetails({
+                        ...neuroDetails,
+                        subCode: value.toUpperCase(),
+                      });
+                    }}
+                  // onBlur={({ target: { value } }) => {
+                  //   value = value.trim();
+                  //   const subCodeSplitted = value.split("");
+                  //   setNeuroDetails((prevVals) => ({
+                  //     ...prevVals,
+                  //     acYear: parseInt(subCodeSplitted[4] ?? "1") as 1 |
+                  //       2 |
+                  //       3 |
+                  //       4,
+                  //     sem: parseInt(subCodeSplitted[5] ?? "1") as 1 | 2,
+                  //   }));
+
+                  // if (value.length > 0) {
+                  //   Axios.get(`api/manage/database/sub-name/${value}`)
+                  //     .then(({ data }) => {
+                  //       if (!data.error)
+                  //         setNeuroDetails((prevVals) => ({
+                  //           ...prevVals,
+                  //           subName: data.subName,
+                  //         }));
+                  //     })
+                  //     .catch((e) => {
+                  //       alert?.showAlert(e.response.data.error, "error");
+                  //     });
+                  // }
+
+                  // }} 
+                  />
+                  <CustTextField
+                    label="Semester"
+                    value={neuroDetails.sem ?? ""}
+                    disabled={type !== "add"}
+                    onChange={({ target: { value } }) => {
+                      const singleDigitPattern = /^[1-8]?$/;
+                      if (singleDigitPattern.test(value)) {
+                        setNeuroDetails({
+                          ...neuroDetails,
+                          sem: value,
+                        });
+                      }
+                    }}
+                  />
+                  {/* <CustTextField
+                    label="Batch"
+                    value={neuroDetails.batch ?? ""}
+                    select
+                    disabled={type !== "add"}
+                    onChange={({ target: { value } }) => {
+                      setNeuroDetails({
+                        ...neuroDetails,
+                        batch: value,
+                      });
+                    }}
+                  >
+                    {years.map((year) => (
+                      <MenuItem key={year} value={year}>
+                        {year}
+                      </MenuItem>
+                    ))}
+                  </CustTextField> */}
+                  <CustTextField
+                    label="Section"
+                    value={neuroDetails?.sec}
+                    disabled={type !== "add"}
+                    onChange={({ target: { value } }) => {
+                      if (value.length <= 1 && /^[A-Za-z]*$/.test(value)) {
+                        setNeuroDetails({
+                          ...neuroDetails,
+                          sec: value.toUpperCase(),
+                        });
+                      }
+                    }}
+                  />
+                  <CustTextField
+                    label="Branch"
+                    value={user?.branch === "FME" ? selectedBranch : user?.branch}
+                    disabled
+                  />
+                </>
+              )}
+
+
+              {/* For 'subjects' table */}
+              {table === "subjects" && (
+                <>
+                  <CustTextField
+                    label="Subject Code"
+                    value={neuroDetails.subCode ?? ""}
+                    disabled={type !== "add"}
+                    onChange={({ target: { value } }) => {
+                      setNeuroDetails({
+                        ...neuroDetails,
+                        subCode: value.toUpperCase(),
+                      });
+                    }}
+                  />
+                  <CustTextField
+                    label="Subject Name"
+                    value={neuroDetails.subName ?? ""}
+                    onChange={({ target: { value } }) => {
+                      setNeuroDetails({
+                        ...neuroDetails,
+                        subName: value,
+                      });
+                    }}
+                  />
+                  <CustTextField
+                    label="Subject Type"
+                    value={neuroDetails.qtype ?? ""}
+                    onChange={({ target: { value } }) => {
+                      setNeuroDetails({
+                        ...neuroDetails,
+                        qtype: value,
                       });
                     }}
                     select
                   >
-                    <MenuItem value="1">1</MenuItem>
-                    <MenuItem value="2">2</MenuItem>
-                    <MenuItem value="3">3</MenuItem>
-                    <MenuItem value="4">4</MenuItem>
-                    <MenuItem value="5">5</MenuItem>
-                    <MenuItem value="6">6</MenuItem>
-                    <MenuItem value="7">7</MenuItem>
-                    <MenuItem value="8">8</MenuItem>
+                    <MenuItem value="theory">Theory</MenuItem>
+                    <MenuItem value="lab">Lab</MenuItem>
                   </CustTextField>
                   <CustTextField
-                    label="Section"
-                    value={neuroDetails?.sec}
-                    onChange={({ }) => {
+                    label="R (Core) / E (Elective)"
+                    value={neuroDetails.def ?? ""}
+                    onChange={({ target: { value } }) => {
                       setNeuroDetails({
                         ...neuroDetails,
-                        sec: ""
+                        def: value,
                       });
                     }}
+                    select
                   >
+                    <MenuItem value="r">R - Core</MenuItem>
+                    <MenuItem value="e">E - Elective</MenuItem>
                   </CustTextField>
                 </>
               )}
-              {table !== "studentInfo" && (
-                <CustTextField
-                  value={user?.branch}
-                  label="Branch"
-                  disabled
-                />
+
+              {/* For 'studentinfo' table */}
+              {table === "studentinfo" && (
+                <>
+                  <CustTextField
+                    label="Roll Number"
+                    value={neuroDetails.rollno ?? ""}
+                    disabled={type !== "add"}
+                    onChange={({ target: { value } }) => {
+                      setNeuroDetails({
+                        ...neuroDetails,
+                        rollno: value.toUpperCase(),
+                      });
+                    }}
+                  />
+                  <CustTextField
+                    label="Name"
+                    value={neuroDetails.Name ?? ""}
+                    onChange={({ target: { value } }) => {
+                      setNeuroDetails({
+                        ...neuroDetails,
+                        Name: value,
+                      });
+                    }}
+                  />
+                  <CustTextField
+                    label="Section"
+                    value={neuroDetails?.sec}
+                    disabled={type !== "add"}
+                    onChange={({ target: { value } }) => {
+                      if (value.length <= 1 && /^[A-Za-z]*$/.test(value)) {
+                        setNeuroDetails({
+                          ...neuroDetails,
+                          sec: value.toUpperCase(),
+                        });
+                      }
+                    }}
+                  />
+                  <CustTextField
+                    label="Semester"
+                    value={neuroDetails.sem ?? ""}
+                    onChange={({ target: { value } }) => {
+                      const singleDigitPattern = /^[1-8]?$/;
+                      if (singleDigitPattern.test(value)) {
+                        setNeuroDetails({
+                          ...neuroDetails,
+                          sem: value,
+                        });
+                      }
+                    }}
+                  />
+                  <CustTextField
+                    label="Batch"
+                    value={neuroDetails.batch ?? ""}
+                    select
+                    onChange={({ target: { value } }) => {
+                      setNeuroDetails({
+                        ...neuroDetails,
+                        batch: value,
+                      });
+                    }}
+                  >
+                    {years.map((year) => (
+                      <MenuItem key={year} value={year}>
+                        {year}
+                      </MenuItem>
+                    ))}
+                  </CustTextField>
+                  <CustTextField
+                    label="Branch"
+                    value={neuroDetails?.branch}
+                    disabled={type !== "add"}
+                    onChange={({ target: { value } }) => {
+                      setNeuroDetails({
+                        ...neuroDetails,
+                        branch: value.toUpperCase(),
+                      });
+                    }}
+                  />
+                </>
+              )}
+
+              {/* For 'electives' table */}
+              {table === "electives" && (
+                <>
+                  <CustTextField
+                    label="Faculty ID"
+                    value={neuroDetails.facID ?? ""}
+                    onChange={({ target: { value } }) => {
+                      setNeuroDetails({
+                        ...neuroDetails,
+                        facID: value.toUpperCase(),
+                      });
+                    }}
+                  />
+                  <CustTextField
+                    label="Roll Number"
+                    value={neuroDetails.rollno ?? ""}
+                    disabled={type !== "add"}
+                    onChange={({ target: { value } }) => {
+                      setNeuroDetails({
+                        ...neuroDetails,
+                        rollno: value.toUpperCase(),
+                      });
+                    }}
+                  />
+                  <CustTextField
+                    label="Subject Code"
+                    value={neuroDetails.subCode ?? ""}
+                    disabled={type !== "add"}
+                    onChange={({ target: { value } }) => {
+                      setNeuroDetails({
+                        ...neuroDetails,
+                        subCode: value.toUpperCase(),
+                      });
+                    }}
+                  />
+                </>
+              )}
+
+              {/* For 'faculty' table */}
+              {table === "faculty" && (
+                <>
+                  <CustTextField
+                    label="Faculty ID"
+                    value={neuroDetails.facID ?? ""}
+                    disabled={type !== "add"}
+                    onChange={({ target: { value } }) => {
+                      setNeuroDetails({
+                        ...neuroDetails,
+                        facID: value.toUpperCase(),
+                      });
+                    }}
+                  />
+                  <CustTextField
+                    label="Faculty Name"
+                    value={neuroDetails.facName ?? ""}
+                    onChange={({ target: { value } }) => {
+                      setNeuroDetails({
+                        ...neuroDetails,
+                        facName: value,
+                      });
+                    }}
+                  />
+                </>
               )}
             </div>
           </DialogContent>
@@ -688,7 +1151,7 @@ function ManageRowDetails({
               className="red-button"
               onClick={() => {
                 setOpenRowDetailsDialog(false);
-                setNeuroDetails(row as ManageDBResponseProps);
+                type !== "add" ? setNeuroDetails(row as ManageDBResponseProps) : "";
               }}
               type="button"
             >
@@ -696,10 +1159,9 @@ function ManageRowDetails({
             </button>
             <button
               className="blue-button"
-              disabled={
-                !neuroDetails.subCode ||
-                subjectAlreadyExists
-              }
+              // disabled={
+              //   subjectAlreadyExists
+              // }
               type="submit"
             >
               Save
@@ -708,8 +1170,6 @@ function ManageRowDetails({
         </form>
       </CustDialog>
 
-
-      {/* ANCHOR DELETE CONFIRM DIALOG  */}
     </>
   );
 }
@@ -733,6 +1193,71 @@ function DeleteConfirmDialog({
 
   const [openDeleteConfirmDialog, setOpenDeleteConfirmDialog] = useState(false);
 
+  const handleDelete = () => {
+    loading?.showLoading(true);
+    setOpenDeleteConfirmDialog(false);
+
+    let deleteUrl = "";
+    let keyField: Partial<ManageDBResponseProps> = {};
+
+    if (table === "timetable") {
+      deleteUrl = `api/manage/database?facID=${row.facID}&subCode=${row.subCode}&sem=${row.sem}&sec=${row.sec}&branch=${row.branch}&batch=${row.batch}&tableName=${table}`;
+      keyField = {
+        subCode: row.subCode,
+        facID: row.facID,
+        sec: row.sec,
+        sem: row.sem,
+      };
+    } else if (table === "subjects") {
+      deleteUrl = `api/manage/database?subCode=${row.subCode}&tableName=${table}`;
+      keyField = { subCode: row.subCode };
+    } else if (table === "studentinfo") {
+      deleteUrl = `api/manage/database?rollno=${row.rollno}&tableName=${table}`;
+      keyField = { rollno: row.rollno };
+    } else if (table === "electives") {
+      deleteUrl = `api/manage/database?rollno=${row.rollno}&subCode=${row.subCode}&tableName=${table}`;
+      keyField = { rollno: row.rollno, subCode: row.subCode };
+    } else if (table === "faculty") {
+      deleteUrl = `api/manage/database?facID=${row.facID}&tableName=${table}`;
+      keyField = { facID: row.facID };
+    }
+
+    Axios.delete(deleteUrl)
+      .then(({ data }) => {
+        if (data.deleted) {
+          setResponseData((prevVals) =>
+            prevVals
+              .filter((item) => {
+                if (table === "timetable") {
+                  return !(
+                    item.subCode === row.subCode &&
+                    item.facID === row.facID &&
+                    item.sec === row.sec &&
+                    item.sem === row.sem
+                  );
+                }
+                if (table === "electives") {
+                  return !(
+                    item.rollno === row.rollno &&
+                    item.subCode === row.subCode
+                  );
+                }
+                return Object.keys(keyField).every(
+                  (key) => item[key as keyof ManageDBResponseProps] !== keyField[key as keyof ManageDBResponseProps]
+                );
+              })
+              .map((details, indx) => ({ ...details, id: indx + 1 }))
+          );
+          alert?.showAlert("Record deleted", "success");
+        }
+      })
+      .catch((e) => {
+        alert?.showAlert("There was an error while deleting.", "error");
+        console.log(e)
+      })
+      .finally(() => loading?.showLoading(false));
+  };
+
   return (
     <>
       <GridActionsCellItem
@@ -751,13 +1276,13 @@ function DeleteConfirmDialog({
       >
         <DialogTitle component={"div"}>
           <span className="text-red-600 font-semibold text-4xl">
-            Delete {row?.subCode}-{row?.subCode}?
+            Delete {row?.subCode || row?.rollno || row?.facID}?
           </span>
         </DialogTitle>
         <DialogContent>
           <div>
-            This will permanatly delete this subject from{" "}
-            <span className="font-bold">{tablesNames[table]}</span> for{" "}
+            This will permanently delete this entry from
+            <span className="font-bold"> {tablesNames[table]}</span> {row?.subCode || row?.rollno || row?.facID}?
           </div>
         </DialogContent>
         <DialogActions>
@@ -767,34 +1292,7 @@ function DeleteConfirmDialog({
           >
             Cancel
           </button>
-          <button
-            className="blue-button"
-            onClick={() => {
-              loading?.showLoading(true);
-              setOpenDeleteConfirmDialog(false);
-              Axios.delete(
-                `api/manage/database?subCode=${JSON.stringify([
-                  row.subCode,
-                ])}&tableName=${table}`
-              )
-                .then(() => {
-                  setResponseData((prevVals) =>
-                    prevVals
-                      .filter(({ subCode }) => subCode !== row?.subCode)
-                      .map((details, indx) => ({ ...details, id: indx + 1 }))
-                  );
-                  alert?.showAlert("Record deleted", "success");
-                })
-                .catch(() => {
-                  // console.log(e);
-                  alert?.showAlert(
-                    "There was an error while downloading.",
-                    "error"
-                  );
-                })
-                .finally(() => loading?.showLoading(false));
-            }}
-          >
+          <button className="blue-button" onClick={handleDelete}>
             Delete
           </button>
         </DialogActions>
@@ -803,21 +1301,18 @@ function DeleteConfirmDialog({
   );
 }
 
+
 // ANCHOR MULTI DELETE CONFIRM DIALOG  ||================================================================
 function MultiDeleteDialog({
   table,
   setResponseData,
   responseData,
-  // rollNo,
   selectedRows,
   setSelectedRows,
 }: {
   table: AvailableDbTables;
-  setResponseData: React.Dispatch<
-    React.SetStateAction<ManageDBResponseProps[]>
-  >;
+  setResponseData: React.Dispatch<React.SetStateAction<ManageDBResponseProps[]>>;
   responseData: ManageDBResponseProps[];
-  // rollNo: string;
   selectedRows: GridRowSelectionModel;
   setSelectedRows: React.Dispatch<React.SetStateAction<GridRowSelectionModel>>;
 }) {
@@ -825,9 +1320,51 @@ function MultiDeleteDialog({
   const loading = useContext(LoadingContext);
 
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
-  let selectedRowsSubCodes: string[] = [];
+
+  const selectedRowKeys: { [key: string]: string[] } = {
+    subCodes: [],
+    facIDs: [],
+    rollnos: [],
+  };
+
+  const getKeyFields = () => {
+    switch (table) {
+      case 'subjects':
+        return { subCodes: 'subCode' };
+      case 'faculty':
+        return { facIDs: 'facID' };
+      case 'studentinfo':
+        return { rollnos: 'rollno' };
+      case 'timetable':
+        return {
+          subCodes: 'subCode',
+          facIDs: 'facID',
+          sem: 'sem',
+          sec: 'sec',
+          branch: 'branch',
+          batch: 'batch',
+        };
+      case 'electives':
+        return { rollnos: 'rollno', subCodes: 'subCode' };
+      default:
+        return { id: 'id' };
+    }
+  };
+
+  const keyFields = getKeyFields();
+
   selectedRows.forEach((rowId) => {
-    selectedRowsSubCodes.push(responseData[(rowId as number) - 1].subCode);
+    const rowData = responseData[(rowId as number) - 1];
+    if (rowData) {
+      Object.entries(keyFields).forEach(([key, field]) => {
+        if (rowData[field as keyof ManageDBResponseProps]) {
+          if (!selectedRowKeys[key]) {
+            selectedRowKeys[key] = [];
+          }
+          selectedRowKeys[key].push(rowData[field as keyof ManageDBResponseProps] as string);
+        }
+      });
+    }
   });
 
   return (
@@ -836,11 +1373,14 @@ function MultiDeleteDialog({
         className="red-button-outline ml-auto"
         disabled={selectedRows.length === 0}
         onClick={() => {
-          if (table.substring(0, 5) !== "print") setOpenDeleteDialog(true);
-          else {
-            if (selectedRows.length === responseData.length)
+          if (table.substring(0, 5) !== 'print') {
+            setOpenDeleteDialog(true);
+          } else {
+            if (selectedRows.length === responseData.length) {
               setOpenDeleteDialog(true);
-            else alert?.showAlert("Select all records to delete", "warning");
+            } else {
+              alert?.showAlert('Select all records to delete', 'warning');
+            }
           }
         }}
       >
@@ -853,7 +1393,7 @@ function MultiDeleteDialog({
         maxWidth="md"
         fullWidth
       >
-        <DialogTitle component={"div"}>
+        <DialogTitle component={'div'}>
           <span className="text-4xl text-red-600 font-semibold">
             Delete multiple records
           </span>
@@ -862,13 +1402,14 @@ function MultiDeleteDialog({
           <div className="font-semibold">
             All the following records will be deleted permanently.
           </div>
-          <div className="mt-4">{selectedRowsSubCodes.join(", ")}</div>
+          <div className="mt-4">
+            SubCodes: {selectedRowKeys.subCodes.join(', ')}<br />
+            FacIDs: {selectedRowKeys.facIDs.join(', ')}<br />
+            Rollnos: {selectedRowKeys.rollnos.join(', ')}
+          </div>
         </DialogContent>
         <DialogActions>
-          <button
-            className="red-button"
-            onClick={() => setOpenDeleteDialog(false)}
-          >
+          <button className="red-button" onClick={() => setOpenDeleteDialog(false)}>
             Cancel
           </button>
           <button
@@ -876,27 +1417,25 @@ function MultiDeleteDialog({
             onClick={() => {
               loading?.showLoading(true);
               Axios.delete(
-                `api/manage/database?subCode=${JSON.stringify(
-                  selectedRowsSubCodes
-                )}&tableName=${table}`
+                `api/manage/database?subCodes=${selectedRowKeys.subCodes
+                }&facIDs=${selectedRowKeys.facIDs}&rollnos=${selectedRowKeys.rollnos
+                }&tableName=${table}`
               )
                 .then(({ data }) => {
                   if (data.deleted) {
-                    alert?.showAlert("Record deleted", "success");
+                    alert?.showAlert('Records deleted', 'success');
                     setResponseData((prevVals) =>
-                      prevVals
-                        .filter(({ sem }) => !selectedRows.includes(sem))
-                        .map((row, indx) => ({ ...row, id: indx + 1 }))
+                      prevVals.filter((row) =>
+                        !selectedRowKeys.subCodes.includes(row.subCode as string) &&
+                        !selectedRowKeys.facIDs.includes(row.facID as string) &&
+                        !selectedRowKeys.rollnos.includes(row.rollno as string)
+                      )
                     );
                     setSelectedRows([]);
                   }
                 })
                 .catch(() => {
-                  // console.log(e);
-                  alert?.showAlert(
-                    "There was an error while deleting",
-                    "error"
-                  );
+                  alert?.showAlert('There was an error while deleting', 'error');
                 })
                 .finally(() => loading?.showLoading(false));
             }}
@@ -908,3 +1447,4 @@ function MultiDeleteDialog({
     </>
   );
 }
+

@@ -6,62 +6,45 @@ interface LoginResponseParams {
   error?: string;
 }
 
-
-export interface ExamSearchSubjectsProps {
-  A: {
-    subCodes: string[];
-    subNames: string[];
-  };
-  B: {
-    subCodes: string[];
-    subNames: string[];
-  };
-  C: {
-    subCodes: string[];
-    subNames: string[];
-  };
-  D: {
-    subCodes: string[];
-    subNames: string[];
-  };
-  E: {
-    subCodes: string[];
-    subNames: string[];
-  };
-  F: {
-    subCodes: string[];
-    subNames: string[];
-  };
-  G: {
-    subCodes: string[];
-    subNames: string[];
-  };
-  H: {
-    subCodes: string[];
-    subNames: string[];
-  };
-}
-
-export interface ExamSemProps {
-  subCodes: string[];
-  subNames: string[];
+export interface Branch {
+  branch: string;
 }
 
 export interface ManageDBResponseProps {
-  facID: string;
-  subCode: string;
-  sem: number;
-  sec: string;
-  branch: string;
+  id?: number;
+  facID?: string;
+  facName?: string;
+  qtype?: string;
+  def?: string;
+  batch?: string;
+  subCode?: string;
+  subName?: string;
+  rollno?: string;
+  Name?: string;
+  sem?: string;
+  sec?: string;
+  branch?: string;
 }
+
 
 export type ManageDBResponseArr = ManageDBResponseProps[];
 
 export type AvailableDbTables =
-  | "studentInfo"
+  | "studentinfo"
   | "subjects"
   | "faculty"
   | "timetable"
+  | "electives"
+
+export type TableVisibilityType = {
+  [key: string]: boolean;
+}
+
+export interface Question {
+  qtype: string;
+  question: string;
+  seq: number
+}
 
 export interface UserDetailsProps {
   username: string;
@@ -72,3 +55,108 @@ export interface UserDetailsProps {
 }
 
 export type UsersTableArr = UserDetailsProps[];
+
+export interface Subjects {
+  subCode: string;
+  subname: string;
+  qtype: string;
+  facID: string;
+  facName: string;
+}
+
+export interface Score {
+  [key: string]: { [key: string]: number };
+}
+
+export interface Token {
+  token: string;
+}
+
+export interface EmptyFeedbackProps {
+  title: string;
+  subtitle: string;
+}
+
+export interface FeedbackCardProps {
+  title: string;
+  icon: LucideIcon;
+  gradientFrom: string;
+  gradientTo: string;
+  children: React.ReactNode;
+}
+
+export interface StepperComponentProps {
+  sub: Subjects[];
+  len: number;
+}
+
+export interface ReportDetails {
+  facName: string;
+  subcode: string;
+  facID: string;
+  subname: string;
+  sec: string;
+  sem: number;
+  percentile: number;
+  batch: number;
+  branch: string;
+  percentile1: number;
+  percentile2: number;
+  completed: number;
+  total_students: number;
+}
+
+
+export interface SecList {
+  sec: string;
+}
+
+export interface ReportResponse {
+  done: boolean;
+  details: ReportDetail[];
+}
+export interface ReportQuestion {
+  question: string;
+  branch: string;
+  sem: number;
+  batch: number;
+  sec: string;
+  subcode: string;
+  facID: string;
+  count: number;
+  total: number;
+  adjusted_total: number;
+  avg_adjusted_total: number;
+  adjusted_total1: number;
+  adjusted_total2: number;
+}
+
+
+export interface Student {
+  rollno: number;
+  name: string;
+  sec: string;
+  sem: number;
+  status: string;
+}
+
+
+export interface CFReportResponse {
+  details: { batch: number; branch: string, sem: number }[];
+  done: boolean;
+}
+
+export interface CFQuestion {
+  question: string;
+  branch: string;
+  sem: number;
+  term: number;
+  total: number;
+  adjusted_total: number;
+}
+
+export interface CFReportItem {
+  branch: string;
+  batch: number;
+  percentile: number;
+}

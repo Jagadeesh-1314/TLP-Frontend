@@ -1,45 +1,23 @@
 import { useContext, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Radiobuttons from "../../components/Custom/Radiobuttons";
-import { Box, Card } from "@mui/material";
 import Axios from "axios";
 import { AlertContext } from "../../components/Context/AlertDetails";
 import { useAuth } from "../../components/Auth/AuthProvider";
 import StepperComponent from "../../components/Custom/StepperComponent";
-import Title from "../../components/Title";
 import { LoadingContext } from "../../components/Context/Loading";
-import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrowLeft';
-import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArrowRight';
-
-interface Question {
-  qtype: string;
-  question: string;
-}
-
-interface Subjects {
-  subCode: string;
-  subname: string;
-  qtype: string;
-  facID: string;
-  facName: string;
-}
-
-interface Score {
-  [key: string]: { [key: string]: number };
-}
-
-interface Token {
-  token: string;
-}
+import { ArrowLeft, ArrowRight, Send } from 'lucide-react';
+import { Question, Score, Subjects, Token } from "../../Types/responseTypes";
+import { motion, AnimatePresence } from "framer-motion";
+import SubjectCard from "../../components/SubjectCard";
+import Title from "../../components/Title";
 
 export default function Feedback() {
   const alert = useContext(AlertContext);
   const navigate = useNavigate();
   const { user } = useAuth()!;
-
   const [score, setScore] = useState<Score>(() => JSON.parse(localStorage.getItem("score") || "{}"));
   const [len, setLen] = useState<number>(() => Number(localStorage.getItem("len")) || 0);
-  // const [reset, setReset] = useState<boolean>(() => JSON.parse(localStorage.getItem("reset") || "false"));
   const [theory, setTheory] = useState<Question[]>([]);
   const [lab, setLab] = useState<Question[]>([]);
   const [sub, setSub] = useState<Subjects[]>([]);
@@ -103,7 +81,7 @@ export default function Feedback() {
   }, []);
 
   useLayoutEffect(() => {
-    if (len > Object(score).length || Object.keys(score).length === 0 ) {
+    if (len > Object(score).length || Object.keys(score).length === 0) {
       setLen(0);
     }
     localStorage.setItem("score", JSON.stringify(score));
@@ -120,27 +98,6 @@ export default function Feedback() {
       secondCard.scrollIntoView({ behavior: "smooth", block: "center" });
     }
   };
-
-  const handleFieldSelect = (index: number) => {
-    setUnfilledFields((prev) => prev.filter((i) => i !== index));
-  };
-
-
-  const cards = sub && (sub[len] && sub[len].qtype === "lab" ? lab : theory).map((obj, index) => (
-    <Radiobuttons
-      id={index.toString()}
-      key={index}
-      itemKey={index}
-      ref={(el) => (questionRefs.current[index] = el)}
-      score={score}
-      len={len}
-      setScore={setScore}
-      onClick={() => handleCardClick(index)}
-      question={obj.question}
-      isUnfilled={unfilledFields.includes(index)}
-      onSelect={() => handleFieldSelect(index)}
-    />
-  ));
 
 
   async function handleNext(): Promise<void> {
@@ -219,74 +176,108 @@ export default function Feedback() {
   };
 
 
+  const setIsUnfilled = (id: string, isUnfilled: boolean) => {
+    const fieldIndex = parseInt(id);
+
+    setUnfilledFields((prev) =>
+      isUnfilled
+        ? [...prev, fieldIndex]
+        : prev.filter((unfilled) => unfilled !== fieldIndex) 
+    );
+  };
+
+  const cards = sub && (sub[len] && sub[len].qtype === "lab" ? lab : theory).map((obj, index) => (
+    <Radiobuttons
+      id={index.toString()}
+      key={index}
+      itemKey={index}
+      ref={(el) => (questionRefs.current[index] = el)}
+      score={score}
+      len={len}
+      setScore={setScore}
+      onClick={() => handleCardClick(index)}
+      question={obj.question}
+      isUnfilled={unfilledFields.includes(index)} 
+      setIsUnfilled={setIsUnfilled} 
+    />
+  ));
+
   return (
-    <div className="bg-blue-100 py-7 px-3 md:px-6 rounded-lg">
-      <Title title="Feedback Form" />
-      <div className="flex flex-col items-center">
-        <div className="flex justify-center" style={{ width: '85vw', overflowY: 'auto' }}>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-8 px-4">
+      <Title title={"Academic Feedback Form"} />
+      <div className="max-w-7xl mx-auto">
+        {/* Header Section */}
+        {/* <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center mb-8"
+        >
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            Academic Feedback Form
+          </h1>
+          <p className="text-gray-600 mt-2">Help us improve your learning experience</p>
+        </motion.div> */}
+
+        {/* Progress Stepper */}
+        <div className="mb-8 overflow-x-auto">
           <StepperComponent sub={sub} len={len} />
         </div>
-      </div>
 
-      <div className="flex flex-col items-center">
-        <form className="flex flex-col items-center w-full">
+        {/* Subject Info Card */}
+        <AnimatePresence mode="wait">
           {sub && sub[len] && (
-            <div style={{ margin: 10, width: '95%' }}>
-              <Card
-                sx={{
-                  width: '100%',
-                  '@media (min-width: 600px)': {
-                    width: '65%',
-                  },
-                  margin: 'auto',
-                }}
-                style={{ padding: 20 }}
-                variant="outlined"
-              >
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', rowGap: '10px', columnGap: '2px' }}>
-                    <div><b>Faculty Name</b></div> <div>{sub[len].facName}</div>
-                    <div><b>Subject Code</b></div><div>{sub[len].subCode}</div>
-                    <div><b>Subject Name</b></div> <div>{sub[len].subname}</div>
-                  </div>
-                </div>
-              </Card>
+            <div className="mb-8">
+              <SubjectCard
+                facName={sub[len].facName}
+                subCode={sub[len].subCode}
+                subname={sub[len].subname}
+                qtype={sub[len].qtype}
+              />
             </div>
           )}
+        </AnimatePresence>
+
+        {/* Questions Section */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2 }}
+          className="space-y-6"
+        >
           {cards}
-        </form>
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            width: '95%',
-            margin: '10px',
-            '@media (min-width: 600px)': {
-              width: '62%',
-            },
-          }}
+        </motion.div>
+
+        {/* Navigation Buttons */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="mt-8 flex justify-between items-center max-w-2xl mx-auto"
         >
           <button
-            className="blue-button-filled col-span-1 flex items-center gap-2"
             onClick={handlePrevious}
             disabled={len === 0}
+            className={`flex items-center space-x-2 px-6 py-3 rounded-lg transition-all duration-300 ${len === 0
+              ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+              : 'bg-white text-blue-600 hover:bg-blue-50 hover:shadow-md'
+              }`}
           >
-            <KeyboardDoubleArrowLeftIcon /> Previous
+            <ArrowLeft className="w-5 h-5" />
+            <span>Previous</span>
           </button>
 
           <button
-            className="blue-button-filled col-span-1 flex items-center gap-2"
             onClick={handleNext}
             disabled={isButtonDisabled}
+            className={`flex items-center space-x-2 px-6 py-3 rounded-lg transition-all duration-300 ${isButtonDisabled
+              ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+              : 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:shadow-lg transform hover:scale-105'
+              }`}
           >
-            {isButtonDisabled ? "Processing..." : (len === sub.length - 1 ? "Submit" : "Next")} <KeyboardDoubleArrowRightIcon />
+            <span>{isButtonDisabled ? "Processing..." : (len === sub?.length - 1 ? "Submit" : "Next")}</span>
+            {len === sub?.length - 1 ? <Send className="w-5 h-5" /> : <ArrowRight className="w-5 h-5" />}
           </button>
-        </Box>
-
+        </motion.div>
       </div>
     </div>
   );

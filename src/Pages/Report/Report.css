@@ -1,7 +1,6 @@
 .filter-buttons {
-    margin-top: 20px;
+    margin-top: 2px;
     display: flex;
-    gap: 10px;
     flex-wrap: wrap;
 }
 
@@ -75,7 +74,7 @@
 .center-button {
     display: flex;
     justify-content: center;
-    margin-top: 20px;
+    margin-top: 10px;
     gap: 10px;
 }
 

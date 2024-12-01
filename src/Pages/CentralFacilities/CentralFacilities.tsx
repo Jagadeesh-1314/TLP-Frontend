@@ -4,28 +4,21 @@ import Radiobuttons from "../../components/Custom/Radiobuttons";
 import { useAuth } from "../../components/Auth/AuthProvider";
 import { AlertContext } from "../../components/Context/AlertDetails";
 import { useNavigate } from "react-router-dom";
-import Title from "../../components/Title";
 import { LoadingContext } from "../../components/Context/Loading";
 import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrowLeft';
 import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArrowRight';
+import { Question, Score, Token } from "../../Types/responseTypes";
+import { motion } from "framer-motion";
+import Title from "../../components/Title";
 
-interface Question {
-    qtype: string;
-    question: string;
-}
-
-interface Score {
-    [key: string]: { [key: string]: number };
-}
-interface Token {
-    token: string;
-}
 
 export default function CentralFacilities() {
 
     const { user } = useAuth()!;
     const navigate = useNavigate();
     const alert = useContext(AlertContext);
+    const loading = useContext(LoadingContext);
+
     const [CentralFacilities, setCentralFacilities] = useState<Question[]>([]);
     const questionRefs = useRef<(HTMLDivElement | null)[]>([]);
     const [score, setScore] = useState<Score>(() => JSON.parse(localStorage.getItem("score") || "{}"));
@@ -33,7 +26,6 @@ export default function CentralFacilities() {
     const [unfilledFields, setUnfilledFields] = useState<number[]>([]);
     const [done, setDone] = useState<string>("");
     const [isButtonDisabled, setIsButtonDisabled] = useState(false);
-    const loading = useContext(LoadingContext);
 
     useLayoutEffect(() => {
         const storedPage = localStorage.getItem("currentPage");
@@ -59,15 +51,15 @@ export default function CentralFacilities() {
         }
     }, [user?.username]);
 
-    useEffect(() => {
-        loading?.showLoading(true, "Loading data...");
-        if (done === 'facdone') {
-            navigate("/centralfacilities");
-        } else if (done === 'undone') {
-            navigate("/feedback");
-        }
-        loading?.showLoading(false);
-    }, [done, navigate])
+    // useEffect(() => {
+    //     loading?.showLoading(true, "Loading data...");
+    //     if (done === 'facdone') {
+    //         navigate("/centralfacilities");
+    //     } else if (done === 'undone') {
+    //         navigate("/feedback");
+    //     }
+    //     loading?.showLoading(false);
+    // }, [done, navigate])
 
     useLayoutEffect(() => {
         localStorage.setItem("score", JSON.stringify(score));
@@ -80,9 +72,6 @@ export default function CentralFacilities() {
         }
     };
 
-    const handleFieldSelect = (index: number) => {
-        setUnfilledFields((prev) => prev.filter((i) => i !== index));
-    };
 
     useLayoutEffect(() => {
         Axios.get<{ questions: Question[] }>("api/questions")
@@ -94,6 +83,16 @@ export default function CentralFacilities() {
             });
     }, []);
 
+
+    const setIsUnfilled = (id: string, isUnfilled: boolean) => {
+        const fieldIndex = parseInt(id);
+
+        setUnfilledFields((prev) =>
+            isUnfilled
+                ? [...prev, fieldIndex]
+                : prev.filter((unfilled) => unfilled !== fieldIndex)
+        );
+    };
 
     const cards = CentralFacilities.map((obj, index) => (
         <Radiobuttons
@@ -107,7 +106,7 @@ export default function CentralFacilities() {
             onClick={() => handleCardClick(index)}
             question={obj.question}
             isUnfilled={unfilledFields.includes(index)}
-            onSelect={() => handleFieldSelect(index)}
+            setIsUnfilled={setIsUnfilled}
         />
     ));
 
@@ -166,12 +165,25 @@ export default function CentralFacilities() {
 
     return (
         <div className="bg-blue-100 py-7 px-3 md:px-6 rounded-lg">
-            <Title title="Central Facilities Form" />
+            <Title title={"Central Facilities Form"} />
+            {/* <motion.div
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-center mb-8"
+            >
+                <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                    Central Facilities Form
+                </h1>
+            </motion.div> */}
             <div className="flex flex-col items-center">
                 {cards}
                 <button
-                    className="blue-button-filled col-span-1 flex items-center gap-2 mt-4"
                     onClick={handleSubmit}
+                    disabled={isButtonDisabled}
+                    className={`flex items-center space-x-2 px-6 py-3 rounded-lg transition-all duration-300 ${isButtonDisabled
+                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                        : 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:shadow-lg transform hover:scale-105'
+                        }`}
                 >
                     <KeyboardDoubleArrowLeftIcon /> {isButtonDisabled ? "Processing..." : `Submit`} <KeyboardDoubleArrowRightIcon />
                 </button>
