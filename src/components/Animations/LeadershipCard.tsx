@@ -49,7 +49,7 @@ export default function LeadershipCard({ name, role, image, icon: Icon, descript
                         animate={{ y: 0, opacity: 1 }}
                         transition={{ delay: 0.2 }}
                     >
-                        <h3 className="text-3xl font-bold text-gray-900 mb-4 bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-pink-600">{name}-({role})</h3>
+                        <h3 className="text-3xl font-bold text-gray-900 mb-4 bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-pink-600">{name} - {role}</h3>
                         <div className="flex justify-center mb-4">
                             <Icon className="w-10 h-10 text-purple-600" />
                         </div>
