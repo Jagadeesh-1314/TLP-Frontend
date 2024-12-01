@@ -7,14 +7,14 @@ export default function StepperComponent({ sub, len }: StepperComponentProps) {
   const subjectRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   useEffect(() => {
-    if (subjectRefs.current[len]) {
-      subjectRefs.current[len].scrollIntoView({
+    if (subjectRefs?.current && subjectRefs.current[len]) {
+      subjectRefs.current[len]?.scrollIntoView({
         behavior: 'smooth',
         block: 'center',
         inline: 'center'
       });
     }
-  }, [len]);
+  }, [len]);  
 
   if (!sub || sub.length === 0) return null;
 

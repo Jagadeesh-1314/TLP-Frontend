@@ -11,7 +11,6 @@ import {
 import { useState } from "react";
 import { CustDialog } from "./CustDialog";
 import Axios from "axios";
-import { ExamSearchSubjectsProps, ExamSemProps } from "../../Types/responseTypes";
 import { AlertContext } from "../Context/AlertDetails";
 import { LoadingContext } from "../Context/Loading";
 
@@ -19,7 +18,6 @@ export function PrintDialog({
   rollNo,
   exam,
   setStudentCopyGenerated,
-  selectedSubjects,
   printTable,
   reset,
   grandTotal,
@@ -27,7 +25,6 @@ export function PrintDialog({
   rollNo: string;
   exam: "supple" | "reval" | "cbt";
   setStudentCopyGenerated: React.Dispatch<React.SetStateAction<boolean>>;
-  selectedSubjects: ExamSearchSubjectsProps | ExamSemProps;
   printTable: boolean;
   reset: () => void;
   grandTotal: number;
@@ -131,7 +128,6 @@ export function PrintDialog({
               loading?.showLoading(true);
               setOpenPrintDialog(false);
               Axios.post(`api/${exam}/print/${rollNo}`, {
-                subjects: selectedSubjects,
                 username: sessionStorage.getItem("username"),
                 grandTotal,
               })

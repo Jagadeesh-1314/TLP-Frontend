@@ -11,10 +11,6 @@ import {
 import { useState } from "react";
 import { CustDialog } from "./CustDialog";
 import Axios from "axios";
-import {
-  ExamSearchSubjectsProps,
-  ExamSemProps,
-} from "../../Types/responseTypes";
 import { AlertContext } from "../Context/AlertDetails";
 import { LoadingContext } from "../Context/Loading";
 
@@ -25,7 +21,6 @@ export function Print({
   printTable,
   acYear,
   sem,
-  selectedSubjects,
   branch,
   reset,
   grandTotal,
@@ -33,7 +28,6 @@ export function Print({
   rollNo: string;
   exam: "supple" | "reval" | "cbt";
   setStudentCopyGenerated: React.Dispatch<React.SetStateAction<boolean>>;
-  selectedSubjects: ExamSearchSubjectsProps | ExamSemProps;
   printTable: boolean;
   reset: () => void;
   acYear: number;
@@ -133,7 +127,6 @@ export function Print({
               loading?.showLoading(true);
               setOpenPrintDialog(false);
               Axios.post(`api/${exam}/print/${rollNo}`, {
-                subjects: selectedSubjects,
                 acYear: acYear,
                 sem: sem,
                 branch: branch,

@@ -8,7 +8,6 @@ import { LoadingContext } from "../../components/Context/Loading";
 import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrowLeft';
 import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArrowRight';
 import { Question, Score, Token } from "../../Types/responseTypes";
-import { motion } from "framer-motion";
 import Title from "../../components/Title";
 
 
@@ -51,15 +50,15 @@ export default function CentralFacilities() {
         }
     }, [user?.username]);
 
-    // useEffect(() => {
-    //     loading?.showLoading(true, "Loading data...");
-    //     if (done === 'facdone') {
-    //         navigate("/centralfacilities");
-    //     } else if (done === 'undone') {
-    //         navigate("/feedback");
-    //     }
-    //     loading?.showLoading(false);
-    // }, [done, navigate])
+    useEffect(() => {
+        loading?.showLoading(true, "Loading data...");
+        if (done === 'facdone') {
+            navigate("/centralfacilities");
+        } else if (done === 'undone') {
+            navigate("/feedback");
+        }
+        loading?.showLoading(false);
+    }, [done, navigate])
 
     useLayoutEffect(() => {
         localStorage.setItem("score", JSON.stringify(score));
