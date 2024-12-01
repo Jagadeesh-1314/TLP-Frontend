@@ -29,6 +29,7 @@ import NonAdminRoutes from "./components/Auth/NonAdminRoutes";
 import Questions from "./Pages/Questions/Questions";
 import Countdown from "./components/Countdown/Countdown";
 import AboutUs from "./Pages/AboutUs/AboutUs";
+import NotFoundPage from "./components/Custom/NotFoundPage";
 // export const Bus = createContext<{ sub: Subjects[] | null, setSub: React.Dispatch<React.SetStateAction<Subjects[] | null>> } | null>(null);
 
 const LoginForm = lazy(() => import("./Pages/Login/Login"));
@@ -162,8 +163,13 @@ function App() {
               ]
             }
           ]
-        }
+        },
       ]
+    },
+    
+    {
+      path: "*",
+      element: <NotFoundPage />,
     }
   ]);
 
