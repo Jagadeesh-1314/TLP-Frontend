@@ -7,6 +7,8 @@ interface LoginCredentialsProps {
   username: string;
   password: string;
   displayName: string;
+  branch: string;
+  batch: number;
 }
 
 

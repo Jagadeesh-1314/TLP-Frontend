@@ -75,7 +75,7 @@ function App() {
       children: [
         {
           path: '/',
-          element: <Navigate to='/timer' />,
+          element: <Navigate to='/login' />,
         },
         {
           path: "/change-password",

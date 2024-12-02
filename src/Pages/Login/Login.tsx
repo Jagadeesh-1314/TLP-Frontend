@@ -16,16 +16,9 @@ import Axios from "axios";
 import { LoadingContext } from "../../components/Context/Loading";
 import { useAuth } from "../../components/Auth/AuthProvider";
 import { useNavigate } from "react-router-dom";
-import LoginConfetti from "../../components/CountDownAnimations/LoginConfetti";
-import React from "react";
+// import LoginConfetti from "../../components/CountDownAnimations/LoginConfetti";
+// import React from "react";
 
-interface LoginCredentialsProps {
-  username: string;
-  password: string;
-  displayName: string;
-  branch: string;
-  batch: number;
-}
 
 export default function LoginForm() {
   const alert = useContext(AlertContext);
@@ -54,15 +47,15 @@ export default function LoginForm() {
     }
   };
 
-  const [showConfetti, setShowConfetti] = useState(true);
+  // const [showConfetti, setShowConfetti] = useState(true);
 
   // Hide confetti after animation
-  React.useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowConfetti(false);
-    }, 4000);
-    return () => clearTimeout(timer);
-  }, []);
+  // React.useEffect(() => {
+  //   const timer = setTimeout(() => {
+  //     setShowConfetti(false);
+  //   }, 4000);
+  //   return () => clearTimeout(timer);
+  // }, []);
 
 
   const itemVariants = {
@@ -73,7 +66,7 @@ export default function LoginForm() {
   return (
     <div className="h-screen flex justify-center items-center bg-cover relative overflow-hidden"
       style={{ backgroundImage: `url(${Logo})` }}>
-      {showConfetti && <LoginConfetti />}
+      {/* {showConfetti && <LoginConfetti />} */}
 
       {/* Animated particles overlay */}
       {/* <div className="absolute inset-0 bg-black/40 backdrop-blur-sm">
