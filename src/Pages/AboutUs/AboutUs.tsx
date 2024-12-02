@@ -79,7 +79,7 @@ const studentDevelopers = [
     {
         name: "B Vignesh",
         role: "Student Developer",
-        image: '/principal.png',
+        image: '/vignesh.jpg',
         icon: Code,
         socials: {
             instagram: "https://instagram.com/username1",
@@ -101,7 +101,7 @@ const studentDevelopers = [
     {
         name: "Y Rahul",
         role: "Student Developer",
-        image: '/principal.png',
+        image: '/rahul.jpg',
         icon: Code,
         socials: {
             instagram: "https://instagram.com/username1",
