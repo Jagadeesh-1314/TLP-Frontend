@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useLayoutEffect } from "react";
 import { motion } from "framer-motion";
 import {
   TextField,
@@ -34,6 +34,13 @@ export default function LoginForm() {
     branch: "",
     batch: 0,
   });
+  const [showTooltip, setShowTooltip] = useState(true);
+
+  useLayoutEffect(() => {
+    const timer = setTimeout(() => setShowTooltip(false), 4000);
+    return () => clearTimeout(timer);
+  }, []);
+
 
   const containerVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -133,45 +140,47 @@ export default function LoginForm() {
             onSubmit={async (e) => {
               e.preventDefault();
               loading?.showLoading(true);
+              try {
+                const { data } = await Axios.post(`api/login`, {
+                  withCredentials: true,
+                  username: loginCreds.username.trim(),
+                  password: loginCreds.password,
+                });
 
-              Axios.post(`api/login`, {
-                withCredentials: true,
-                username: loginCreds.username.trim(),
-                password: loginCreds.password,
-              })
-                .then(({ data }) => {
-                  if (!data.goahead) {
-                    alert?.showAlert(data.error as string, "error");
-                  } else {
-                    sessionStorage.setItem("username", loginCreds.username);
-                    sessionStorage.setItem("displayName", data.displayName);
-                    sessionStorage.setItem("desg", data.desg);
-                    sessionStorage.setItem("branch", data.branch);
-                    sessionStorage.setItem("batch", data.batch);
-                    sessionStorage.setItem("sem", data.sem);
-                    localStorage.setItem("token", data.token);
-                    setUser({
-                      username: loginCreds.username,
-                      displayName: data.displayName,
-                      desg: data.desg,
-                      branch: data.branch,
-                      batch: data.batch,
-                      sem: data.sem,
-                    });
-                    document.cookie = `Token=${data.token}`;
-                    if (data.passwordSameAsUsername) {
-                      navigate("/change-password")
-                    } else {
-                      if (data.desg === "admin") {
-                        navigate("/report");
-                      } else {
-                        navigate("/sem");
-                      }
-                    }
-                  }
-                })
-                .catch((_error) => alert?.showAlert("Server Down Contact Admin", "warning"))
-                .finally(() => loading?.showLoading(false));
+                if (!data.goahead) {
+                  alert?.showAlert(data.error as string, "error");
+                  return;
+                }
+
+                sessionStorage.setItem("username", loginCreds.username);
+                sessionStorage.setItem("displayName", data.displayName);
+                sessionStorage.setItem("desg", data.desg);
+                sessionStorage.setItem("branch", data.branch);
+                sessionStorage.setItem("batch", data.batch);
+                sessionStorage.setItem("sem", data.sem);
+                localStorage.setItem("token", data.token);
+
+                setUser({
+                  username: loginCreds.username,
+                  displayName: data.displayName,
+                  desg: data.desg,
+                  branch: data.branch,
+                  batch: data.batch,
+                  sem: data.sem,
+                });
+
+                document.cookie = `Token=${data.token}`;
+
+                if (data.passwordSameAsUsername) {
+                  navigate("/change-password");
+                } else {
+                  navigate(data.desg === "admin" ? "/report" : "/sem");
+                }
+              } catch (_error) {
+                alert?.showAlert("Server Down Contact Admin", "warning");
+              } finally {
+                loading?.showLoading(false);
+              }
             }}
           >
             <motion.div variants={itemVariants} className="w-full">
@@ -257,7 +266,12 @@ export default function LoginForm() {
         </div>
 
         {/* About button */}
-        <Tooltip title="About Us" placement="left" arrow>
+        <Tooltip
+          title="About Us"
+          placement="left"
+          arrow
+          open={showTooltip}
+        >
           <motion.button
             onClick={() => navigate('/aboutus')}
             whileHover={{ scale: 1.1, rotate: 360 }}

@@ -8,11 +8,13 @@ import Axios from "axios";
 import { AlertContext } from "../../components/Context/AlertDetails";
 import { LoadingContext } from "../../components/Context/Loading";
 import ProgressSteps from "../../components/Animations/OTPProgressSteps";
+import { useAuth } from "../../components/Auth/AuthProvider";
 
 export default function SetPasswordWithOTP() {
     const navigate = useNavigate();
     const alert = useContext(AlertContext);
     const loading = useContext(LoadingContext);
+    const { user } = useAuth()!;
 
     const [step, setStep] = useState(1);
     const [username, setUsername] = useState("");
@@ -91,6 +93,12 @@ export default function SetPasswordWithOTP() {
             setError("Password must be at least 10 characters long.");
             return;
         }        
+
+        if (username === password || user?.username === password){
+            setError("Password Should not be same as Username(Rollno).");
+            alert?.showAlert("Password Should not be same as Username", "warning");
+            return;
+        }
 
         loading?.showLoading(true);
         setButton(true);
