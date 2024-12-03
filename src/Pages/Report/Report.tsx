@@ -169,8 +169,8 @@ export default function Report() {
                 const sortedReport = data.report.sort((a, b) => a.sec.localeCompare(b.sec));
                 setReport(sortedReport);
                 setShowReport(true);
-                setDoneStudents(data.report[0].completed);
-                setDoneTotStudents(data.report[0].total_students);
+                setDoneStudents(data.report.length !== 0 ? data.report[0].completed : 0);
+                setDoneTotStudents(data.report.length !== 0 ? data.report[0].total_students : 0);
             }
         } catch (error) {
             console.error("An error occurred:", error);

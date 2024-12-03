@@ -172,16 +172,15 @@ export default function LoginForm() {
                 document.cookie = `Token=${data.token}`;
 
                 if (data.passwordSameAsUsername) {
+                  loading?.showLoading(false);
                   navigate("/change-password");
-                  loading?.showLoading(false);
                 } else {
-                  navigate(data.desg === "admin" ? "/report" : "/sem");
                   loading?.showLoading(false);
+                  navigate(data.desg === "admin" ? "/report" : "/sem");
                 }
               } catch (_error) {
                 alert?.showAlert("Server Down Contact Admin", "warning");
               } finally {
-                console.log("Finally block executed");
                 loading?.showLoading(false);
               }              
             }}

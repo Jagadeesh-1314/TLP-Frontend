@@ -30,6 +30,8 @@ import Questions from "./Pages/Questions/Questions";
 import Countdown from "./components/Countdown/Countdown";
 import AboutUs from "./Pages/AboutUs/AboutUs";
 import NotFoundPage from "./components/Custom/NotFoundPage";
+import Sem from "./Pages/Sem/Sem";
+import SetPassword from "./Pages/SetPassword/SetPassword";
 // export const Bus = createContext<{ sub: Subjects[] | null, setSub: React.Dispatch<React.SetStateAction<Subjects[] | null>> } | null>(null);
 
 const LoginForm = lazy(() => import("./Pages/Login/Login"));
@@ -37,7 +39,7 @@ const Feedback = lazy(() => import("./Pages/Feedback/Feedback"));
 const CentralFacilities = lazy(() => import("./Pages/CentralFacilities/CentralFacilities"));
 // const Report = lazy(() => import("./Pages/Report/Report"));
 // const ControlForm = lazy(() => import("./Pages/ControlForm/ControlForm"));
-const Sem = lazy(() => import("./Pages/Sem/Sem"));
+// const Sem = lazy(() => import("./Pages/Sem/Sem"));
 // const Download = lazy(() => import("./Pages/Download/Download"));
 // const Upload = lazy(() => import("./Pages/Upload/Upload"));
 // const ManageUsers = lazy(() => import("./Pages/ManageUsers/ManageUsers"));
@@ -47,7 +49,7 @@ const Sem = lazy(() => import("./Pages/Sem/Sem"));
 const ThankYou = lazy(() => import("./Pages/ThankYou/ThankYou"));
 const CompletedFeedback = lazy(() => import("./Pages/CompletedFeedback/CompletedFeedback"));
 const ShowNavbar = lazy(() => import('./components/Custom/useShowNavbar'));
-const SetPassword = lazy(() => import("./Pages/SetPassword/SetPassword"));
+// const SetPassword = lazy(() => import("./Pages/SetPassword/SetPassword"));
 
 function App() {
   const router = createBrowserRouter([
