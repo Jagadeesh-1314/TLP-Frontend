@@ -173,14 +173,17 @@ export default function LoginForm() {
 
                 if (data.passwordSameAsUsername) {
                   navigate("/change-password");
+                  loading?.showLoading(false);
                 } else {
                   navigate(data.desg === "admin" ? "/report" : "/sem");
+                  loading?.showLoading(false);
                 }
               } catch (_error) {
                 alert?.showAlert("Server Down Contact Admin", "warning");
               } finally {
+                console.log("Finally block executed");
                 loading?.showLoading(false);
-              }
+              }              
             }}
           >
             <motion.div variants={itemVariants} className="w-full">

@@ -94,7 +94,7 @@ export default function SetPasswordWithOTP() {
             return;
         }        
 
-        if (username === password || user?.username === password){
+        if (username === password.trim() || user?.username === password.trim()){
             setError("Password Should not be same as Username(Rollno).");
             alert?.showAlert("Password Should not be same as Username", "warning");
             return;
