@@ -42,9 +42,9 @@ export default function ManageDB() {
   const [table, setTable] = useState<AvailableDbTables>("timetable");
   const [responseData, setResponseData] = useState<ManageDBResponseArr>([]);
   const [selectedRows, setSelectedRows] = useState<GridRowSelectionModel>([]);
-  const [branch, setBranch] = useState<string>("");
   const [showPreview, setShowPreview] = useState(false);
   const [branches, setBranches] = useState<string[]>([]);
+  const [SelectedBranch, setSelectedBranch] = useState<string>("");
   const [showRollNos, setShowRollNos] = useState<Record<string, boolean>>({});
   const [tableVisibility, setTableVisibility] = useState<TableVisibilityType>({});
 
@@ -116,7 +116,7 @@ export default function ManageDB() {
             row={row as ManageDBResponseProps}
             type="edit"
             setResponseData={setResponseData}
-            selectedBranch={branch}
+            selectedBranch={SelectedBranch}
             table={table}
           />,
           <DeleteConfirmDialog
@@ -158,7 +158,7 @@ export default function ManageDB() {
             row={row as ManageDBResponseProps}
             type="edit"
             setResponseData={setResponseData}
-            selectedBranch={branch}
+            selectedBranch={SelectedBranch}
             table={table}
           />,
           <DeleteConfirmDialog
@@ -215,7 +215,7 @@ export default function ManageDB() {
             row={row as ManageDBResponseProps}
             type="edit"
             setResponseData={setResponseData}
-            selectedBranch={branch}
+            selectedBranch={SelectedBranch}
             table={table}
           />,
           <DeleteConfirmDialog
@@ -287,7 +287,7 @@ export default function ManageDB() {
             row={row as ManageDBResponseProps}
             type="edit"
             setResponseData={setResponseData}
-            selectedBranch={branch}
+            selectedBranch={SelectedBranch}
             table={table}
           />,
           <DeleteConfirmDialog
@@ -355,7 +355,7 @@ export default function ManageDB() {
             row={row as ManageDBResponseProps}
             type="edit"
             setResponseData={setResponseData}
-            selectedBranch={branch}
+            selectedBranch={SelectedBranch}
             table={table}
           />,
           <DeleteConfirmDialog
@@ -412,9 +412,9 @@ export default function ManageDB() {
             <CustTextField
               select
               label="Branch"
-              value={branch}
+              value={SelectedBranch}
               onChange={({ target: { value } }) => {
-                setBranch(value);
+                setSelectedBranch(value);
                 setResponseData([]);
                 setSelectedRows([]);
               }}
@@ -432,11 +432,11 @@ export default function ManageDB() {
           className="sm:col-span-2 w-full flex items-center gap-4"
           onSubmit={(e) => {
             e.preventDefault();
-            if (branches.length !== 0 && branch === '' && table !== 'subjects' && table !== 'faculty') {
+            if (branches.length !== 0 && SelectedBranch === '' && table !== 'subjects' && table !== 'faculty') {
               alert?.showAlert('Please select a branch', 'warning');
             } else {
               loading?.showLoading(true);
-              Axios.get(`api/manage/table?tableName=${table}&fbranch=${branch}`)
+              Axios.get(`api/manage/table?tableName=${table}&fbranch=${SelectedBranch}`)
                 .then(
                   ({
                     data: { tableData },
@@ -619,7 +619,7 @@ export default function ManageDB() {
                     setResponseData={setResponseData}
                     type="add"
                     table={table}
-                    selectedBranch={branch}
+                    selectedBranch={SelectedBranch}
                   />
                 </div>
               ),
@@ -726,6 +726,7 @@ function ManageRowDetails({
           onSubmit={(e) => {
             e.preventDefault();
             loading?.showLoading(true);
+
             const payload: ManageDBResponseProps = (() => {
               if (table === "timetable") {
                 return {
@@ -798,7 +799,7 @@ function ManageRowDetails({
                 .then(({ data }) => {
                   if (data.updated) {
                     alert?.showAlert("Record updated", "success");
-
+                    setOpenRowDetailsDialog(false);
                     setResponseData((prevVals) => {
                       let indx: number = -1;
 

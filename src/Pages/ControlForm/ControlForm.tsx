@@ -1,7 +1,6 @@
 import { useContext, useLayoutEffect, useState } from "react";
 import Axios from "axios";
 import { AlertContext } from "../../components/Context/AlertDetails";
-// import "./ControlForm.css";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { motion, AnimatePresence } from "framer-motion";
@@ -17,7 +16,7 @@ export default function ControlForm() {
     const [semesters, setSemesters] = useState<number[]>([]);
     const [promoteAll, setPromoteAll] = useState(false);
     const [branches, setBranches] = useState<string[]>([]);
-    const [selectedBranches, setSelectedBranches] = useState<string[]>([]);
+    const [selectedBranch, setSelectedBranch] = useState<string[]>([]);
 
     const [startDate, setStartDate] = useState<Date | null>(null);
     const [endDate, setEndDate] = useState<Date | null>(null);
@@ -45,7 +44,7 @@ export default function ControlForm() {
         Axios.get(`/api/manage/branchdetails`)
             .then(({ data }) => {
                 setBranches(data.branchDetails);
-                setSelectedBranches(data.branchDetails);
+                setSelectedBranch(data.branchDetails);
             });
     }, []);
 
@@ -128,12 +127,12 @@ export default function ControlForm() {
         setOpenDialog(false);
         setSelectedSem(null);
         setPromoteAll(false);
-        setSelectedBranches(branches);
+        setSelectedBranch(branches);
     };
 
     const dateSubmit = async () => {
-        if (!startDate || !endDate) {
-            alert?.showAlert("Please select both start and end dates.", "warning");
+        if (!startDate || !endDate || !selectedBranch) {
+            alert?.showAlert("Please select Branches, start and end dates.", "warning");
             return;
         }
 
@@ -165,10 +164,15 @@ export default function ControlForm() {
         try {
             loading?.showLoading(true, "Scheduling emails...");
 
-            const response = await Axios.post("api/schedule-emails", {
+            const response = await Axios.post("api/schedule-emails", JSON.stringify({
                 startDate: startDateString,
                 endDate: endDateString,
-            });
+                branches: selectedBranch,
+            }), {
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            });            
 
             if (response.data.success) {
                 alert?.showAlert(
@@ -188,7 +192,6 @@ export default function ControlForm() {
             setDateOpen(false);
         }
     };
-
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-white to-purple-100">
@@ -370,13 +373,13 @@ export default function ControlForm() {
                                                 >
                                                     <input
                                                         type="checkbox"
-                                                        checked={selectedBranches.includes(branch)}
+                                                        checked={selectedBranch.includes(branch)}
                                                         onChange={(e) => {
                                                             if (e.target.checked) {
-                                                                setSelectedBranches([...selectedBranches, branch]);
+                                                                setSelectedBranch([...selectedBranch, branch]);
                                                             } else {
-                                                                setSelectedBranches(
-                                                                    selectedBranches.filter((id) => id !== branch)
+                                                                setSelectedBranch(
+                                                                    selectedBranch.filter((id) => id !== branch)
                                                                 );
                                                             }
                                                         }}
@@ -460,6 +463,35 @@ export default function ControlForm() {
                                                 placeholderText="Select End Date"
                                                 dateFormat="dd/MM/yyyy"
                                             />
+                                        </div>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="block text-sm font-medium text-gray-700">
+                                            Select Branches
+                                        </label>
+                                        <div className="grid grid-cols-2 gap-2">
+                                            {branches.map((branch) => (
+                                                <label
+                                                    key={branch}
+                                                    className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-50"
+                                                >
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={selectedBranch.includes(branch)}
+                                                        onChange={(e) => {
+                                                            if (e.target.checked) {
+                                                                setSelectedBranch([...selectedBranch, branch]);
+                                                            } else {
+                                                                setSelectedBranch(
+                                                                    selectedBranch.filter((id) => id !== branch)
+                                                                );
+                                                            }
+                                                        }}
+                                                        className="w-4 h-4 text-indigo-600 rounded"
+                                                    />
+                                                    <span className="text-sm text-gray-700">{branch}</span>
+                                                </label>
+                                            ))}
                                         </div>
                                     </div>
 
