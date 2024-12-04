@@ -735,7 +735,6 @@ function ManageRowDetails({
                   sem: neuroDetails.sem,
                   sec: neuroDetails.sec,
                   branch: user?.branch === "FME" ? selectedBranch : user?.branch,
-                  batch: neuroDetails.batch,
                 };
               } else if (table === "subjects") {
                 return {

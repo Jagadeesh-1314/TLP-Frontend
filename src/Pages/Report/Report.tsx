@@ -22,7 +22,7 @@ export default function Report() {
     const location = useLocation();
     const { user } = useAuth()!;
 
-    const [report, setReport] = useState<ReportDetails[]>(location.state?.report || []);
+    const [report, setReport] = useState<ReportDetails[]>([]);
     const [sems, setSems] = useState<number[]>([]);
     const [secs, setSecs] = useState<string[]>([]);
     const [batches, setBatches] = useState<number[]>([]);
@@ -150,11 +150,13 @@ export default function Report() {
                     }
                 );
                 const data = response.data;
-                const sortedReport = data.report.sort((a, b) => a.sec.localeCompare(b.sec));
+                const sortedReport = data.report.sort((a, b) =>
+                    (a.sec ?? "").localeCompare(b.sec ?? "")
+                );
                 setReport(sortedReport);
                 setShowReport(true);
-                setDoneStudents(data.report[0].completed);
-                setDoneTotStudents(data.report[0].total_students);
+                setDoneStudents(sortedReport[0]?.completed ?? 0);
+                setDoneTotStudents(sortedReport[0]?.total_students ?? 0);
             } else {
                 const response = await Axios.post<{ report: ReportDetails[] }>(
                     `api/fetchavgreport`,
@@ -166,11 +168,13 @@ export default function Report() {
                     }
                 );
                 const data = response.data;
-                const sortedReport = data.report.sort((a, b) => a.sec.localeCompare(b.sec));
+                const sortedReport = data.report.sort((a, b) =>
+                    (a.sec ?? "").localeCompare(b.sec ?? "")
+                );
                 setReport(sortedReport);
                 setShowReport(true);
-                setDoneStudents(data.report.length !== 0 ? data.report[0].completed : 0);
-                setDoneTotStudents(data.report.length !== 0 ? data.report[0].total_students : 0);
+                setDoneStudents(sortedReport[0]?.completed ?? 0);
+                setDoneTotStudents(sortedReport[0]?.total_students ?? 0);
             }
         } catch (error) {
             console.error("An error occurred:", error);
@@ -295,17 +299,17 @@ export default function Report() {
             datasets: [
                 {
                     label: 'Percentage',
-                    data: report.map(r => r.percentile),
+                    data: report.map(r => r.percentile ?? 0),
                     backgroundColor: report.map(r =>
-                        r.percentile > 70 ? 'rgba(2, 97, 250, 0.2)' : 'rgba(255, 99, 132, 0.2)'
+                        (r.percentile ?? 0) > 70 ? 'rgba(2, 97, 250, 0.2)' : 'rgba(255, 99, 132, 0.2)'
                     ),
                     borderColor: report.map(r =>
-                        r.percentile > 70 ? 'rgba(2, 97, 250, 1)' : 'rgba(255, 99, 132, 1)'
+                        (r.percentile ?? 0) > 70 ? 'rgba(2, 97, 250, 1)' : 'rgba(255, 99, 132, 1)'
                     ),
                     borderWidth: 0.5,
                     barThickness: 50,
                 },
-            ],
+            ]
         };
 
     const options = {
@@ -729,10 +733,11 @@ export default function Report() {
                                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                             {report.length > 0 ? (
                                                 report
-                                                    .filter(item => (selectedBatch === null || item.batch === selectedBatch) &&
+                                                    .filter(item =>
+                                                        (selectedBatch === null || item.batch === selectedBatch) &&
                                                         (selectedSem === null || item.sem === selectedSem) &&
                                                         (selectedSec === "" || item.sec === selectedSec) &&
-                                                        (!filterLowPercentile || item.percentile <= 70)
+                                                        (!filterLowPercentile || (item.percentile !== undefined && item.percentile <= 70))
                                                     )
                                                     .map((item, index) => (
                                                         <motion.div
@@ -748,8 +753,7 @@ export default function Report() {
                                                                 scale: 1.05,
                                                                 boxShadow: '0 10px 20px rgba(0, 0, 0, 0.1)',
                                                             }}
-                                                            className={`rounded-xl shadow-lg overflow-hidden ${item.percentile < 70 ? 'bg-red-100' : 'bg-white'
-                                                                }`}
+                                                            className={`rounded-xl shadow-lg overflow-hidden ${(item.percentile ?? 0) < 70 ? 'bg-red-100' : 'bg-white'}`}
                                                         >
                                                             <div className="p-4 space-y-3">
                                                                 <div className="flex items-center gap-2">
@@ -782,15 +786,15 @@ export default function Report() {
                                                                         <div className="flex items-center gap-2">
                                                                             <BarChart2 className="w-5 h-5 text-green-600" />
                                                                             <span className="text-gray-600">Report 1 Percentage:</span>
-                                                                            <span className={`font-medium ${item.percentile >= 70 ? 'text-green-600' : 'text-red-600'}`}>
-                                                                                {item.percentile1}
+                                                                            <span className={`font-medium ${(item.percentile1 ?? 0) >= 70 ? 'text-green-600' : 'text-red-600'}`}>
+                                                                                {item.percentile1 ?? 0}
                                                                             </span>
                                                                         </div>
                                                                         <div className="flex items-center gap-2">
                                                                             <BarChart2 className="w-5 h-5 text-green-600" />
                                                                             <span className="text-gray-600">Report 2 Percentage:</span>
-                                                                            <span className={`font-medium ${item.percentile >= 70 ? 'text-green-600' : 'text-red-600'}`}>
-                                                                                {item.percentile2}
+                                                                            <span className={`font-medium ${(item.percentile2 ?? 0) >= 70 ? 'text-green-600' : 'text-red-600'}`}>
+                                                                                {item.percentile2 ?? 0}
                                                                             </span>
                                                                         </div>
                                                                     </>
@@ -798,9 +802,8 @@ export default function Report() {
                                                                 <div className="flex items-center gap-2">
                                                                     <BarChart2 className="w-5 h-5 text-green-600" />
                                                                     <span className="text-gray-600">Percentage:</span>
-                                                                    <span className={`font-medium ${item.percentile >= 70 ? 'text-green-600' : 'text-red-600'
-                                                                        }`}>
-                                                                        {item.percentile}
+                                                                    <span className={`font-medium ${(item.percentile ?? 0) >= 70 ? 'text-green-600' : 'text-red-600'}`}>
+                                                                        {item.percentile ?? 0}
                                                                     </span>
                                                                 </div>
                                                                 <motion.button
@@ -829,7 +832,7 @@ export default function Report() {
                                             )}
                                         </div>
 
-                                        {filterClicked && report.filter(item => filterLowPercentile && item.percentile <= 70).length === 0 ? (
+                                        {filterClicked && report.filter(item => filterLowPercentile && (item.percentile ?? 0) <= 70).length === 0 ? (
                                             <div className="no-report-message flex items-center justify-center gap-3 py-6 px-4 bg-red-100 rounded-md shadow-md">
                                                 <AlertCircle className="w-6 h-6 text-red-600" />
                                                 <p className="text-red-600 font-semibold text-lg">
@@ -928,7 +931,7 @@ export default function Report() {
                                         <motion.div
                                             key={`${selectedItem.batch}-${selectedItem.branch}`}
                                             whileHover={{ scale: 1.02 }}
-                                            className={`rounded-xl shadow-lg overflow-hidden mx-auto ${selectedItem.percentile < 70 ? 'bg-red-100' : 'bg-white'} max-w-xs sm:max-w-sm md:max-w-md`}
+                                            className={`rounded-xl shadow-lg overflow-hidden mx-auto ${(selectedItem.percentile ?? 0) < 70 ? 'bg-red-100' : 'bg-white'} max-w-xs sm:max-w-sm md:max-w-md`}
                                         >
                                             <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-4">
                                                 <h3 className="text-white font-semibold center">Report Details</h3>
@@ -964,14 +967,14 @@ export default function Report() {
                                                         <div className="flex items-center gap-2">
                                                             <BarChart2 className="w-5 h-5 text-green-600" />
                                                             <span className="text-gray-600">Report 1 Percentage:</span>
-                                                            <span className={`font-medium ${selectedItem.percentile >= 70 ? 'text-green-600' : 'text-red-600'}`}>
+                                                            <span className={`font-medium ${(selectedItem.percentile1 ?? 0) >= 70 ? 'text-green-600' : 'text-red-600'}`}>
                                                                 {selectedItem.percentile1}
                                                             </span>
                                                         </div>
                                                         <div className="flex items-center gap-2">
                                                             <BarChart2 className="w-5 h-5 text-green-600" />
                                                             <span className="text-gray-600">Report 2 Percentage:</span>
-                                                            <span className={`font-medium ${selectedItem.percentile >= 70 ? 'text-green-600' : 'text-red-600'}`}>
+                                                            <span className={`font-medium ${(selectedItem.percentile2 ?? 0) >= 70 ? 'text-green-600' : 'text-red-600'}`}>
                                                                 {selectedItem.percentile2}
                                                             </span>
                                                         </div>
@@ -980,8 +983,7 @@ export default function Report() {
                                                 <div className="flex items-center gap-2">
                                                     <BarChart2 className="w-5 h-5 text-green-600" />
                                                     <span className="text-gray-600">Percentage:</span>
-                                                    <span className={`font-medium ${selectedItem.percentile >= 70 ? 'text-green-600' : 'text-red-600'
-                                                        }`}>
+                                                    <span className={`font-medium ${(selectedItem.percentile ?? 0) >= 70 ? 'text-green-600' : 'text-red-600'}`}>
                                                         {selectedItem.percentile}
                                                     </span>
                                                 </div>
