@@ -91,21 +91,20 @@ export interface StepperComponentProps {
 }
 
 export interface ReportDetails {
-  facName: string;
-  subcode: string;
-  facID: string;
-  subname: string;
-  sec: string;
-  sem: number;
-  percentile: number;
-  batch: number;
-  branch: string;
-  percentile1: number;
-  percentile2: number;
-  completed: number;
-  total_students: number;
+  facName?: string;
+  subcode?: string;
+  facID?: string;
+  subname?: string;
+  sec?: string;
+  sem?: number;
+  percentile?: number;
+  batch?: number;
+  branch?: string;
+  percentile1?: number;
+  percentile2?: number;
+  completed?: number;
+  total_students?: number;
 }
-
 
 export interface SecList {
   sec: string;
