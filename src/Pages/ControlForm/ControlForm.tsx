@@ -10,19 +10,19 @@ import { LoadingContext } from "../../components/Context/Loading";
 export default function ControlForm() {
     const alert = useContext(AlertContext);
     const loading = useContext(LoadingContext);
+
     const [fTerm, setFTerm] = useState<number | null>(null);
     const [selectedSem, setSelectedSem] = useState<number | null>(null);
-    const [openDialog, setOpenDialog] = useState(false);
+    const [promoteOpenDialog, setPromorteOpenDialog] = useState<boolean>(false);
+    const [termOpenDialog, setTermOpenDialog] = useState<boolean>(false);
+    const [updateConfirmation, setUpdateConfirmation] = useState<'term-1' | 'term-2' | null>();
     const [semesters, setSemesters] = useState<number[]>([]);
     const [promoteAll, setPromoteAll] = useState(false);
     const [branches, setBranches] = useState<string[]>([]);
     const [selectedBranch, setSelectedBranch] = useState<string[]>([]);
-
     const [startDate, setStartDate] = useState<Date | null>(null);
     const [endDate, setEndDate] = useState<Date | null>(null);
-
     const [dateOpen, setDateOpen] = useState<boolean>(false);
-    // const [animationClass, setAnimationClass] = useState("");
 
     const fetchTerm = async () => {
         try {
@@ -48,7 +48,7 @@ export default function ControlForm() {
             });
     }, []);
 
-    const incrementcount = async () => {
+    const activateTerm2 = async () => {
         try {
             const { data } = await Axios.post<{ done: boolean, term: number }>(`api/term1`);
             if (data.done) {
@@ -63,7 +63,7 @@ export default function ControlForm() {
         }
     };
 
-    const decrementcount = async () => {
+    const activateTerm1 = async () => {
         try {
             const { data } = await Axios.post<{ done: boolean, term: number }>(`api/term2`);
             if (data.done) {
@@ -102,7 +102,7 @@ export default function ControlForm() {
             console.error("Error Occurred in Promoting:", error);
             alert?.showAlert("Error Occurred in Promoting", "error");
         } finally {
-            setOpenDialog(false);
+            setPromorteOpenDialog(false);
         }
     };
 
@@ -113,7 +113,7 @@ export default function ControlForm() {
                 console.log(data)
                 const sortedSemesters = data.semesters.sort((a, b) => a - b);
                 setSemesters(sortedSemesters);
-                setOpenDialog(true);
+                setPromorteOpenDialog(true);
             } else {
                 alert?.showAlert("Error fetching semesters", "error");
             }
@@ -124,15 +124,15 @@ export default function ControlForm() {
     };
 
     const handleCloseDialog = () => {
-        setOpenDialog(false);
+        setPromorteOpenDialog(false);
         setSelectedSem(null);
         setPromoteAll(false);
         setSelectedBranch(branches);
     };
 
     const dateSubmit = async () => {
-        if (!startDate || !endDate || !selectedBranch) {
-            alert?.showAlert("Please select Branches, start and end dates.", "warning");
+        if (!startDate || !endDate) {
+            alert?.showAlert("Please select start and end dates.", "warning");
             return;
         }
 
@@ -172,7 +172,7 @@ export default function ControlForm() {
                 headers: {
                     "Content-Type": "application/json"
                 }
-            });            
+            });
 
             if (response.data.success) {
                 alert?.showAlert(
@@ -201,6 +201,7 @@ export default function ControlForm() {
                     animate={{ opacity: 1, y: 0 }}
                     className="max-w-4xl mx-auto"
                 >
+                    {/* Title */}
                     <div className="text-center mb-12">
                         <motion.div
                             className="inline-block p-2 rounded-full bg-indigo-100 mb-4"
@@ -219,6 +220,7 @@ export default function ControlForm() {
                         animate={{ opacity: 1, scale: 1 }}
                     >
                         <div className="flex items-center justify-center space-x-6">
+                            {/* Term 1 and Term 2 Buttons */}
                             <motion.button
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
@@ -226,7 +228,10 @@ export default function ControlForm() {
                                     ? 'bg-indigo-600 text-white'
                                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                                     }`}
-                                onClick={() => decrementcount()}
+                                onClick={() => {
+                                    setTermOpenDialog(true);
+                                    setUpdateConfirmation('term-1');
+                                }}
                             >
                                 <div className="flex items-center space-x-2">
                                     <ChevronDown className="w-5 h-5" />
@@ -241,7 +246,10 @@ export default function ControlForm() {
                                     ? 'bg-indigo-600 text-white'
                                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                                     }`}
-                                onClick={() => incrementcount()}
+                                onClick={() => {
+                                    setTermOpenDialog(true);
+                                    setUpdateConfirmation('term-2');
+                                }}
                             >
                                 <div className="flex items-center space-x-2">
                                     <ChevronUp className="w-5 h-5" />
@@ -249,6 +257,7 @@ export default function ControlForm() {
                                 </div>
                             </motion.button>
 
+                            {/* Activation Set Date */}
                             <motion.button
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
@@ -260,23 +269,44 @@ export default function ControlForm() {
                             >
                                 <div className="flex items-center space-x-2">
                                     <Calendar />
-                                    <span>Set Date</span>
+                                    <span>Activate Feedback</span>
                                 </div>
                             </motion.button>
                         </div>
-
                         <div className="mt-8 text-center">
                             <motion.div
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 exit={{ opacity: 0 }}
-                                className="text-2xl font-semibold text-gray-700"
+                                transition={{ duration: 0.8 }}
+                                className="relative text-2xl font-semibold text-white p-4 rounded-lg overflow-hidden"
                             >
-                                Current Term: {fTerm}
+                                {/* Animated Background Color Change */}
+                                <motion.div
+                                    animate={{
+                                        backgroundColor: [
+                                            "#3383FF", // Blue
+                                            "#FF5733", // Orange-Red
+                                            "#FF33A1",  // Pink
+                                            "#3383FF", // Blue
+                                        ]
+                                    }}
+                                    transition={{
+                                        duration: 5,
+                                        repeat: Infinity,
+                                        ease: "easeInOut" // Smooth transition
+                                    }}
+                                    className="absolute inset-0 w-full h-full rounded-lg"
+                                />
+
+                                {/* Text */}
+                                <span className="relative z-10">Current Term: {fTerm}</span>
                             </motion.div>
                         </div>
+
                     </motion.div>
 
+                    {/* Promote Button */}
                     <motion.div
                         className="text-center"
                         initial={{ opacity: 0 }}
@@ -295,8 +325,9 @@ export default function ControlForm() {
                     </motion.div>
                 </motion.div>
 
+                {/* Handle Dialog box */}
                 <AnimatePresence>
-                    {openDialog && (
+                    {promoteOpenDialog && (
                         <motion.div
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
@@ -465,41 +496,12 @@ export default function ControlForm() {
                                             />
                                         </div>
                                     </div>
-                                    <div className="space-y-2">
-                                        <label className="block text-sm font-medium text-gray-700">
-                                            Select Branches
-                                        </label>
-                                        <div className="grid grid-cols-2 gap-2">
-                                            {branches.map((branch) => (
-                                                <label
-                                                    key={branch}
-                                                    className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-50"
-                                                >
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={selectedBranch.includes(branch)}
-                                                        onChange={(e) => {
-                                                            if (e.target.checked) {
-                                                                setSelectedBranch([...selectedBranch, branch]);
-                                                            } else {
-                                                                setSelectedBranch(
-                                                                    selectedBranch.filter((id) => id !== branch)
-                                                                );
-                                                            }
-                                                        }}
-                                                        className="w-4 h-4 text-indigo-600 rounded"
-                                                    />
-                                                    <span className="text-sm text-gray-700">{branch}</span>
-                                                </label>
-                                            ))}
-                                        </div>
-                                    </div>
 
                                     <div className="flex justify-end space-x-3 mt-8">
                                         <motion.button
                                             whileHover={{ scale: 1.02 }}
                                             whileTap={{ scale: 0.98 }}
-                                            className="px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-100"
+                                            className="px-4 py-2 rounded-lg text-gray-700 hover:bg-red-100"
                                             onClick={() => setDateOpen(false)}
                                         >
                                             Cancel
@@ -511,9 +513,68 @@ export default function ControlForm() {
                                             onClick={dateSubmit}
                                             disabled={!startDate || !endDate}
                                         >
-                                            Set Date
+                                            Activate
                                         </motion.button>
                                     </div>
+                                </div>
+                            </motion.div>
+                        </motion.div>
+                    )}
+
+                    {termOpenDialog && (
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center"
+                        >
+                            <motion.div
+                                initial={{ scale: 0.9 }}
+                                animate={{ scale: 1 }}
+                                exit={{ scale: 0.9 }}
+                                className="bg-white rounded-2xl shadow-2xl p-8 w-[90%] max-w-md text-center"
+                            >
+                                <motion.h2
+                                    initial={{ opacity: 0, y: -10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    className="text-2xl font-bold text-gray-800"
+                                >
+                                    Confirm Update
+                                </motion.h2>
+                                <motion.p
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    className="text-lg font-medium text-gray-600 mt-4"
+                                >
+                                    Are you sure you want to set term to :
+                                </motion.p>
+                                <motion.p
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    className="text-xl font-medium text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-blue-500 mt-4"
+                                >
+                                    {updateConfirmation ? updateConfirmation.charAt(0).toUpperCase() + updateConfirmation.slice(1) : ''}
+                                </motion.p>
+                                <div className="mt-6 flex justify-center gap-4">
+                                    {/* Cancel Button */}
+                                    <motion.button
+                                        whileHover={{ scale: 1.1 }}
+                                        whileTap={{ scale: 0.95 }}
+                                        onClick={() => setTermOpenDialog(false)}
+                                        className="px-6 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition"
+                                    >
+                                        Cancel
+                                    </motion.button>
+
+                                    {/* Confirm Button */}
+                                    <motion.button
+                                        whileHover={{ scale: 1.1 }}
+                                        whileTap={{ scale: 0.95 }}
+                                        onClick={() => { (updateConfirmation === 'term-1' ? activateTerm1() : activateTerm2()); setTermOpenDialog(false) }}
+                                        className="px-6 py-2 bg-gradient-to-r from-green-500 to-blue-500 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition"
+                                    >
+                                        Confirm
+                                    </motion.button>
                                 </div>
                             </motion.div>
                         </motion.div>

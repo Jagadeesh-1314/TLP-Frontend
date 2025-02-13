@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { LoadingContext } from "../../components/Context/Loading";
 import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrowLeft';
 import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArrowRight';
-import { Question, Score, Token } from "../../Types/responseTypes";
+import { Question, Score } from "../../Types/responseTypes";
 import Title from "../../components/Title";
 
 
@@ -36,8 +36,13 @@ export default function CentralFacilities() {
     useEffect(() => {
         if (user?.username) {
             loading?.showLoading(true);
-            Axios.post<Token>(`api/token`)
+            Axios.post<{ token: string, status: string }>(`api/token`)
                 .then(({ data }) => {
+                    if (data.status !== "active") {
+                        alert?.showAlert("Feedback is inactive", "info");
+                        navigate("/sem");
+                        return;
+                    }
                     setDone(data.token);
                 })
                 .catch((error) => {

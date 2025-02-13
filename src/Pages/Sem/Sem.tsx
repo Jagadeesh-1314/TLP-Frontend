@@ -5,7 +5,7 @@ import { useAuth } from '../../components/Auth/AuthProvider';
 import { LoadingContext } from '../../components/Context/Loading';
 import { AlertContext } from '../../components/Context/AlertDetails';
 import { BookOpen, GraduationCap, Users, Sparkles, ChevronRight, ClipboardCheck, CheckCircle2 } from 'lucide-react';
-import { Subjects, Token } from '../../Types/responseTypes';
+import { Subjects } from '../../Types/responseTypes';
 import EmptyFeedback from '../../components/Animations/EmptyFeedback';
 import FeedbackCard from '../../components/Animations/SemPageCard';
 import Title from '../../components/Title';
@@ -15,6 +15,7 @@ export default function Sem() {
     const navigate = useNavigate();
     const [done, setDone] = useState<string>("");
     const [subs, setSubs] = useState<boolean>(false);
+    const [status, setStatus] = useState<string>("");
     const { user } = useAuth()!;
     const alert = useContext(AlertContext);
     const loading = useContext(LoadingContext);
@@ -30,21 +31,26 @@ export default function Sem() {
     useEffect(() => {
         if (user?.username) {
             loading?.showLoading(true, "Loading data...");
-            Axios.get<{ sub: Subjects[], token: string }>(`api/subjects`)
+            Axios.get<{ sub: Subjects[], status: string }>(`api/subjects`)
                 .then(({ data }) => {
-                    if (data.sub.length === 0) {
-                        setSubs(false);
-                        alert?.showAlert("No subjects found", "info");
+                    setStatus(data.status);
+                    if (data.status !== 'active') {
+                        alert?.showAlert("Feedback is inactive", "info");
+                        return;
                     } else {
-                        setSubs(true);
-                        alert?.showAlert("Subjects loaded", 'success');
+                        if (data.sub.length === 0) {
+                            setSubs(false);
+                            alert?.showAlert("No subjects found", "info");
+                        } else {
+                            setSubs(true);
+                            alert?.showAlert("Subjects loaded", 'success');
+                        }
                     }
                 })
                 .catch((error) => {
                     console.error("Error fetching subjects:", error);
-                    localStorage.clear();
-                    sessionStorage.clear();
-                    navigate("/login");
+                    // localStorage.clear();
+                    // sessionStorage.clear();
                     alert?.showAlert("Error fetching subjects", "error");
                 })
                 .finally(() => loading?.showLoading(false));
@@ -54,7 +60,7 @@ export default function Sem() {
     useEffect(() => {
         if (user?.username) {
             loading?.showLoading(true);
-            Axios.post<Token>(`api/token`)
+            Axios.post<{ token: string }>(`api/token`)
                 .then(({ data }) => {
                     setDone(data.token);
                 })
@@ -70,6 +76,11 @@ export default function Sem() {
 
     const handleButtonClick = () => {
         loading?.showLoading(true, "Loading data...");
+        if (status !== 'active') {
+            alert?.showAlert("Feedback is inactive", "info");
+            loading?.showLoading(false);
+            return;
+        }
         if (done === 'done') {
             navigate("/completed");
         } else if (done === 'facdone') {
@@ -125,7 +136,7 @@ export default function Sem() {
                                             <div className="text-left">
                                                 <span className="block text-lg font-semibold">Semester {semesterString}</span>
                                                 <span className="text-sm opacity-80">
-                                                    {isCompleted ? 'Feedback completed' : isEnabled ? 'Available for feedback' : 'Locked'}
+                                                    {isCompleted ? 'Feedback completed' : status === 'active' && isEnabled ? 'Available for feedback' : 'Locked'}
                                                 </span>
                                             </div>
                                         </div>

@@ -275,6 +275,12 @@ export default function ManageDB() {
       minWidth: 130,
     },
     {
+      field: "batch",
+      headerName: "Batch",
+      flex: 1,
+      minWidth: 130,
+    },
+    {
       field: "actions",
       type: "actions",
       headerName: "Actions",
@@ -663,7 +669,7 @@ function ManageRowDetails({
   const loading = useContext(LoadingContext);
   const { user } = useAuth()!;
   const currentYear = new Date().getFullYear();
-  const years = Array.from({ length: 4 }, (_, index) => currentYear - index);
+  const years = Array.from({ length: 5 }, (_, index) => currentYear - index);
   const [openRowDetailsDialog, setOpenRowDetailsDialog] = useState(false);
   const [neuroDetails, setNeuroDetails] = useState<ManageDBResponseProps>(
     row
@@ -735,6 +741,7 @@ function ManageRowDetails({
                   sem: neuroDetails.sem,
                   sec: neuroDetails.sec,
                   branch: user?.branch === "FME" ? selectedBranch : user?.branch,
+                  batch: neuroDetails.batch,
                 };
               } else if (table === "subjects") {
                 return {
@@ -862,33 +869,6 @@ function ManageRowDetails({
                         subCode: value.toUpperCase(),
                       });
                     }}
-                  // onBlur={({ target: { value } }) => {
-                  //   value = value.trim();
-                  //   const subCodeSplitted = value.split("");
-                  //   setNeuroDetails((prevVals) => ({
-                  //     ...prevVals,
-                  //     acYear: parseInt(subCodeSplitted[4] ?? "1") as 1 |
-                  //       2 |
-                  //       3 |
-                  //       4,
-                  //     sem: parseInt(subCodeSplitted[5] ?? "1") as 1 | 2,
-                  //   }));
-
-                  // if (value.length > 0) {
-                  //   Axios.get(`api/manage/database/sub-name/${value}`)
-                  //     .then(({ data }) => {
-                  //       if (!data.error)
-                  //         setNeuroDetails((prevVals) => ({
-                  //           ...prevVals,
-                  //           subName: data.subName,
-                  //         }));
-                  //     })
-                  //     .catch((e) => {
-                  //       alert?.showAlert(e.response.data.error, "error");
-                  //     });
-                  // }
-
-                  // }} 
                   />
                   <CustTextField
                     label="Semester"
@@ -904,7 +884,7 @@ function ManageRowDetails({
                       }
                     }}
                   />
-                  {/* <CustTextField
+                  <CustTextField
                     label="Batch"
                     value={neuroDetails.batch ?? ""}
                     select
@@ -921,7 +901,7 @@ function ManageRowDetails({
                         {year}
                       </MenuItem>
                     ))}
-                  </CustTextField> */}
+                  </CustTextField>
                   <CustTextField
                     label="Section"
                     value={neuroDetails?.sec}

@@ -7,7 +7,7 @@ import { useAuth } from "../../components/Auth/AuthProvider";
 import StepperComponent from "../../components/Custom/StepperComponent";
 import { LoadingContext } from "../../components/Context/Loading";
 import { ArrowLeft, ArrowRight, Send } from 'lucide-react';
-import { Question, Score, Subjects, Token } from "../../Types/responseTypes";
+import { Question, Score, Subjects } from "../../Types/responseTypes";
 import { motion, AnimatePresence } from "framer-motion";
 import SubjectCard from "../../components/SubjectCard";
 import Title from "../../components/Title";
@@ -24,14 +24,20 @@ export default function Feedback() {
   const [unfilledFields, setUnfilledFields] = useState<number[]>([]);
   const questionRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [done, setDone] = useState<string>("");
+  // const [status, setStatus] = useState<string>("");
   const loading = useContext(LoadingContext);
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
 
   useEffect(() => {
     if (user?.username) {
       loading?.showLoading(true);
-      Axios.post<Token>(`api/token`)
+      Axios.post<{ token: string, status: string }>(`api/token`)
         .then(({ data }) => {
+          if (data.status !== "active") {
+            alert?.showAlert("Feedback is inactive", "info");
+            navigate("/sem");
+            return;
+          }
           setDone(data.token);
         })
         .catch((error) => {
@@ -58,8 +64,13 @@ export default function Feedback() {
 
   useEffect(() => {
     if (user) {
-      Axios.get<{ sub: Subjects[], token: string }>(`api/subjects`)
+      Axios.get<{ sub: Subjects[], status: string }>(`api/subjects`)
         .then(({ data }) => {
+          if (data.status !== "active") {
+            alert?.showAlert("Feedback is inactive", "info");
+            navigate("/sem");
+            return;
+          }
           setSub(data.sub);
           // console.log(data.sub)
         })
@@ -89,8 +100,7 @@ export default function Feedback() {
 
   useLayoutEffect(() => {
     localStorage.setItem("len", len.toString());
-    // localStorage.setItem("reset", JSON.stringify(reset));
-  }, [len/*reset*/]);
+  }, [len]);
 
   const handleCardClick = (index: number) => {
     const secondCard = document.querySelector(`#card-${index + 1}`);
@@ -182,7 +192,7 @@ export default function Feedback() {
     setUnfilledFields((prev) =>
       isUnfilled
         ? [...prev, fieldIndex]
-        : prev.filter((unfilled) => unfilled !== fieldIndex) 
+        : prev.filter((unfilled) => unfilled !== fieldIndex)
     );
   };
 
@@ -197,8 +207,8 @@ export default function Feedback() {
       setScore={setScore}
       onClick={() => handleCardClick(index)}
       question={obj.question}
-      isUnfilled={unfilledFields.includes(index)} 
-      setIsUnfilled={setIsUnfilled} 
+      isUnfilled={unfilledFields.includes(index)}
+      setIsUnfilled={setIsUnfilled}
     />
   ));
 
@@ -206,17 +216,6 @@ export default function Feedback() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-8 px-4">
       <Title title={"Academic Feedback Form"} />
       <div className="max-w-7xl mx-auto">
-        {/* Header Section */}
-        {/* <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-8"
-        >
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            Academic Feedback Form
-          </h1>
-          <p className="text-gray-600 mt-2">Help us improve your learning experience</p>
-        </motion.div> */}
 
         {/* Progress Stepper */}
         <div className="mb-8 overflow-x-auto">
@@ -257,7 +256,7 @@ export default function Feedback() {
           <button
             onClick={handlePrevious}
             disabled={len === 0}
-            className={`flex items-center space-x-2 px-6 py-3 rounded-lg transition-all duration-300 ${len === 0
+            className={`flex items-center space-x-2 px-1 lg:px-6 md:px-6 py-3 rounded-lg transition-all duration-300 ${len === 0
               ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
               : 'bg-white text-blue-600 hover:bg-blue-50 hover:shadow-md'
               }`}
@@ -269,12 +268,12 @@ export default function Feedback() {
           <button
             onClick={handleNext}
             disabled={isButtonDisabled}
-            className={`flex items-center space-x-2 px-6 py-3 rounded-lg transition-all duration-300 ${isButtonDisabled
+            className={`flex items-center space-x-1 px-2 lg:px-6 md:px-6 py-3 text-md rounded-lg transition-all duration-300 ${isButtonDisabled
               ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
               : 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:shadow-lg transform hover:scale-105'
               }`}
           >
-            <span>{isButtonDisabled ? "Processing..." : (len === sub?.length - 1 ? "Submit" : "Next")}</span>
+            <span>{isButtonDisabled ? "Processing..." : (len === sub?.length - 1 ? "Proceed to CF" : "Next")}</span>
             {len === sub?.length - 1 ? <Send className="w-5 h-5" /> : <ArrowRight className="w-5 h-5" />}
           </button>
         </motion.div>

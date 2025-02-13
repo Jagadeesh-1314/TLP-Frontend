@@ -62,14 +62,14 @@ const Radiobuttons = forwardRef<HTMLDivElement, RadiobuttonsProps>(
         transition={{ delay: itemKey * 0.1 }}
         className={`w-full max-w-2xl mx-auto mb-6 ${isUnfilled ? 'animate-shake' : ''}`}
       >
-        <div className={`bg-white/80 backdrop-blur-sm rounded-xl shadow-md transition-all duration-300 p-6 ${isUnfilled ? 'ring-2 ring-red-500 ring-opacity-50' : 'hover:shadow-xl'
+        <div className={`bg-white/80 rounded-xl shadow-md transition-all duration-300 p-6 ${isUnfilled ? 'ring-2 ring-red-500 ring-opacity-50' : 'hover:shadow-xl'
           }`}>
-          <div className="mb-4 flex items-start justify-between">
-            <h3 className="text-md sm:text-sm md:text-md lg:text-lg font-medium text-gray-800 flex items-center">
+          <div className="mb-4 flex items-start justify-between bg-gradient-to-l from-violet-100 to-blue-100 rounded-xl p-4">
+            <h3 className="text-sm sm:text-base md:text-lg lg:text-xl font-semibold text-gray-800 flex items-center break-words whitespace-normal">
               <span className="inline-flex items-center justify-center w-8 h-8 mr-3 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 text-white">
                 {parseInt(id) + 1}
               </span>
-              {question}
+              <span className="flex-1">{question}</span>
             </h3>
             {isUnfilled && (
               <AlertCircle className="w-5 h-5 text-red-500 animate-pulse flex-shrink-0 ml-2" />

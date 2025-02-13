@@ -3,15 +3,18 @@ import Axios from "axios";
 import { AlertContext } from "./Context/AlertDetails";
 import { useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useAuth } from "./Auth/AuthProvider";
 
 interface TitleProps {
   title: string;
 }
 
 export default function Title({ title }: TitleProps) {
+  const { user } = useAuth()!;
   const alert = useContext(AlertContext);
-  const [term, setTerm] = useState<number>(0);
   const { pathname } = useLocation();
+
+  const [term, setTerm] = useState<number>(0);
 
   useLayoutEffect(() => {
     Axios.get<{ done: boolean, term: number }>(`api/fetchterm`)
@@ -64,16 +67,16 @@ export default function Title({ title }: TitleProps) {
         `}
       </style>
 
-      <motion.div 
-        className="flex flex-col md:flex-row items-center justify-between mb-6" 
-        initial={{ opacity: 0, y: 20 }} 
-        animate={{ opacity: 1, y: 0 }} 
+      <motion.div
+        className="flex flex-col md:flex-row items-center justify-between mb-6"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <motion.div 
-          className="flex-1 text-center md:text-center lg:ml-[190px] md:ml-[160px]" 
-          initial={{ opacity: 0, x: -20 }} 
-          animate={{ opacity: 1, x: 0 }} 
+        <motion.div
+          className="flex-1 text-center md:text-center lg:ml-[190px] md:ml-[160px]"
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6 }}
         >
           <span className="page-title text-2xl font-semibold text-gray-800">
@@ -84,11 +87,11 @@ export default function Title({ title }: TitleProps) {
           </span>
         </motion.div>
 
-        {(pathname !== "/control" && pathname !== "/manage-users") && (
-          <motion.div 
-            className="term-box ml-auto mt-2 md:mt-0" 
-            initial={{ opacity: 0, scale: 0.95 }} 
-            animate={{ opacity: 1, scale: 1 }} 
+        {(pathname !== "/control" && pathname !== "/manage-users" && user?.username !== 'admin') && (
+          <motion.div
+            className="term-box ml-auto mt-2 md:mt-0"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5 }}
           >
             <span className="blinker-dot"></span>
