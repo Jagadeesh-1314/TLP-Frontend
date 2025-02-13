@@ -68,9 +68,6 @@ export interface Score {
   [key: string]: { [key: string]: number };
 }
 
-export interface Token {
-  token: string;
-}
 
 export interface EmptyFeedbackProps {
   title: string;
@@ -141,7 +138,7 @@ export interface Student {
 
 
 export interface CFReportResponse {
-  details: { batch: number; branch: string, sem: number }[];
+  details: { batch: number; branch: string, sem: number, sem_type: string, percentile: number, percentile1: number, percentile2: number, avg_percentile: number }[];
   done: boolean;
 }
 
@@ -157,5 +154,9 @@ export interface CFQuestion {
 export interface CFReportItem {
   branch: string;
   batch: number;
-  percentile: number;
+  percentile: number;  
+  percentile1: number;
+  percentile2: number;
+  sem_type: string;
+  avg_percentile: number;
 }

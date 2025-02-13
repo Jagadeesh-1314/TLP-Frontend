@@ -2,19 +2,17 @@ import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { InputAdornment, IconButton } from "@mui/material";
 import { VpnKeyOutlined } from "@mui/icons-material";
-import { Mail, Lock, KeyRound, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { Mail, Lock, KeyRound, ArrowRight, CheckCircle2, Eye, EyeClosed } from 'lucide-react';
 import { CustTextField } from "../../components/Custom/CustTextField";
 import Axios from "axios";
 import { AlertContext } from "../../components/Context/AlertDetails";
 import { LoadingContext } from "../../components/Context/Loading";
 import ProgressSteps from "../../components/Animations/OTPProgressSteps";
-import { useAuth } from "../../components/Auth/AuthProvider";
 
 export default function SetPasswordWithOTP() {
     const navigate = useNavigate();
     const alert = useContext(AlertContext);
     const loading = useContext(LoadingContext);
-    const { user } = useAuth()!;
 
     const [step, setStep] = useState(1);
     const [username, setUsername] = useState("");
@@ -42,7 +40,7 @@ export default function SetPasswordWithOTP() {
         setError("");
         setButton(true);
         try {
-            const { data } = await Axios.post("/api/request-otp", { username: username.trim() });
+            const { data } = await Axios.post("/api/request-otp", { username: username });
             if (data.success) {
                 setStep(2);
                 alert?.showAlert("OTP sent to your College E-mail", "success");
@@ -68,12 +66,13 @@ export default function SetPasswordWithOTP() {
         setButton(true);
         setError("");
         try {
-            const { data } = await Axios.post("/api/verify-otp", { username: username.trim(), user_otp: otp });
+            const { data } = await Axios.post("/api/verify-otp", { username: username, user_otp: otp });
             if (data.verified) {
                 setStep(3);
                 alert?.showAlert("OTP Verified, please set your new password", "success");
             } else {
-                setError(data.error);
+                setError(data.message);
+                alert?.showAlert(data.message, "warning");
             }
         } catch (error) {
             setError("Server error. Please try again.");
@@ -89,30 +88,21 @@ export default function SetPasswordWithOTP() {
             setError("Passwords do not match.");
             return;
         }
-        if (password.length < 10) {
-            setError("Password must be at least 10 characters long.");
-            return;
-        }        
-
-        if (username === password.trim() || user?.username === password.trim()){
-            setError("Password Should not be same as Username(Rollno).");
-            alert?.showAlert("Password Should not be same as Username", "warning");
-            return;
-        }
 
         loading?.showLoading(true);
         setButton(true);
         try {
             const { data } = await Axios.post("/api/setpassword", {
                 password,
-                usernameInToken: username,
+                username,
             });
             if (data.done) {
                 alert?.showAlert("Password updated successfully", "success");
                 sessionStorage.clear();
                 navigate("/login");
             } else {
-                setError("Failed to update password.");
+                setError(data.message);
+                alert?.showAlert(data.message, "warning");
             }
         } catch (error) {
             alert?.showAlert("Server error", "error");
@@ -234,7 +224,7 @@ export default function SetPasswordWithOTP() {
                                                     onClick={() => setShowPassword(!showPassword)}
                                                     edge="end"
                                                 >
-                                                    {showPassword ? <CheckCircle2 /> : <Lock />}
+                                                    {showPassword ? <Eye /> : <EyeClosed />}
                                                 </IconButton>
                                             </InputAdornment>
                                         ),

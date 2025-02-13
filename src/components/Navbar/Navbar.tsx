@@ -36,14 +36,17 @@ export default function Navbar({
   const pageLocation = pathname.split("/").filter((path) => path !== "")[0];
   const [openSideMenu, setOpenSideMenu] = useState(() => { return false; });
   const navigate = useNavigate();
+  const location = useLocation();
+
   const adminNavLinks = [
-    { name: "Questions", icon: <QuestionMarkIcon /> },
     { name: "Unfilled List", icon: <FormatListBulleted /> },
     { name: "Report", icon: <PlagiarismOutlined /> },
     { name: "CFReport", icon: <PlagiarismOutlined /> },
-    { name: "Electives", icon: <PostAdd /> },
     { name: "Upload", icon: <FileUploadOutlined /> },
+    { name: "Control", icon: <ControlCamera /> },
     { name: "Manage Database", icon: <StorageOutlined /> },
+    { name: "Electives", icon: <PostAdd /> },
+    { name: "Questions", icon: <QuestionMarkIcon /> },
     { name: "Backup and Restore", icon: <BackupOutlined /> },
   ];
 
@@ -67,8 +70,11 @@ export default function Navbar({
         .split("-")
         .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
         .join(" ")
-      : "GCET TLP FEEDBACK";
-  }, [pathname]);
+      : "GCET TLP FEEDBACK APPLICATION";
+    const savedScrollPosition = location.state?.scrollPosition || 0;
+    window.scrollTo(0, savedScrollPosition);
+  }, [pathname, location.state?.scrollPosition]);
+
   const { logOut } = useAuth()!;
 
   return (
@@ -83,12 +89,12 @@ export default function Navbar({
         <div className="flex justify-start items-center gap-4">
           <button
             onClick={() => setOpenSideMenu(true)}
-            className={`rounded-full ${user === "admin" ? "inline-block" : "lg:hidden inline-block"}`}
+            className={`rounded-full ${desg === "admin" ? "inline-block" : "lg:hidden inline-block"}`}
           >
             <Menu fontSize="medium" />
           </button>
           {desg === "admin"
-            ? adminNavLinks.map(({ name, icon }, indx) => {
+            ? adminNavLinks.slice(0, 6).map(({ name, icon }, indx) => {
               const activePage = name.toLowerCase().split(" ").join("-");
 
               return (
@@ -96,7 +102,7 @@ export default function Navbar({
                   key={indx}
                   to={activePage}
                   className={`nav-link relative ${activePage === pageLocation ? "active" : ""
-                    } lg:flex hidden items-center gap-2 rounded-t-sm px-3 py-2 hover:bg-zinc-800 duration-300`}
+                    } lg:flex hidden items-center gap-3 rounded-t-sm px-5 py-2 hover:bg-zinc-800 duration-300`}
                 >
                   {icon}
                   {name}
@@ -119,17 +125,17 @@ export default function Navbar({
             })}
         </div>
         <Logout logOut={() => { logOut(); navigate("/login"); }} />
+        <SideMenu
+          user={user}
+          desg={desg}
+          openSideMenu={openSideMenu}
+          setOpenSideMenu={(a) => { setOpenSideMenu(a) }}
+          adminNavLinks={adminNavLinks}
+          nonAdminNavLinks={nonAdminNavLinks}
+          miscLinks={miscLinks}
+          pageLocation={pageLocation}
+        />
       </nav>
-      <SideMenu
-        user={user}
-        desg={desg}
-        openSideMenu={openSideMenu}
-        setOpenSideMenu={(a) => { setOpenSideMenu(a) }}
-        adminNavLinks={adminNavLinks}
-        nonAdminNavLinks={nonAdminNavLinks}
-        miscLinks={miscLinks}
-        pageLocation={pageLocation}
-      />
     </>
   );
 }

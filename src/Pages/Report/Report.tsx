@@ -7,7 +7,6 @@ import { LoadingContext } from "../../components/Context/Loading";
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title as ChartTitle, Tooltip, Legend } from "chart.js";
 import { Bar } from 'react-chartjs-2';
 import Title from "../../components/Title";
-import { useLocation } from "react-router-dom";
 import { Dialog, DialogTitle, DialogContent, FormControlLabel, DialogActions, Button, Radio, RadioGroup } from "@mui/material";
 import { useAuth } from "../../components/Auth/AuthProvider";
 import { ReportDetails, ReportQuestion, ReportResponse, SecList } from "../../Types/responseTypes";
@@ -19,7 +18,6 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, ChartTitle, Tooltip, Le
 export default function Report() {
     const alert = useContext(AlertContext);
     const loading = useContext(LoadingContext);
-    const location = useLocation();
     const { user } = useAuth()!;
 
     const [report, setReport] = useState<ReportDetails[]>([]);
@@ -43,12 +41,6 @@ export default function Report() {
     const [showQuestions, setShowQuestions] = useState<boolean>(false);
     const [dialogOpen, setDialogOpen] = useState<boolean>(false);
     const [rsec, setRsec] = useState<string>(selectedSec);
-
-
-    useLayoutEffect(() => {
-        const savedScrollPosition = location.state?.scrollPosition || 0;
-        window.scrollTo(0, savedScrollPosition);
-    }, [location.state?.scrollPosition]);
 
 
     async function generateReport(reportType: 'report' | 'reportavg', term: number, successMessage: string) {
@@ -103,8 +95,9 @@ export default function Report() {
     function handleSemClick(sem: number) {
         setSelectedSem(sem);
         Axios.post<{ secList: SecList[] }>(`api/seclist`, {
-            batch: selectedBatch,
+            term: term,
             sem: sem,
+            batch: selectedBatch,
             fbranch: selectedBranch,
         })
             .then(({ data }) => {
@@ -615,6 +608,7 @@ export default function Report() {
                             </motion.div>
                         </AnimatePresence>
 
+                        {/* Batch */}
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -703,7 +697,7 @@ export default function Report() {
                                         </button>
                                     </div>
                                 ) : (
-                                    <div className="mt-10 flex items-center justify-center gap-3 py-6 px-4 bg-grey-100 rounded-md shadow-md">
+                                    <div className="mt-10 flex bg-orange-100 items-center justify-center gap-3 py-6 px-4 bg-grey-100 rounded-md shadow-md">
                                         <AlertCircle className="w-6 h-6 text-gray-600" />
                                         <p className="text-gray-600 font-semibold text-lg">
                                             No sections available to display.
@@ -715,13 +709,13 @@ export default function Report() {
 
                         {showReport && (
                             <>
-                                <div className="bg-yellow-100 p-2 rounded-lg text-center text-lg text-gray-800 w-1/2 max-w-xs mx-auto mb-6">
+                                <div className="bg-yellow-100 p-2 rounded-xl text-center text-lg text-gray-800 w-1/2 max-w-max mx-auto mb-6">
                                     {donestudents !== undefined && donetotstudents !== undefined ? (
                                         <p>
                                             <strong>Completed Students: </strong>
                                             <span className="ml-1 text-green-700 font-bold">
                                                 {donestudents}
-                                            </span> / {donetotstudents}
+                                            </span> / {donetotstudents} <b>({Math.round((donestudents / donetotstudents) * 100)}%)</b>
                                         </p>
                                     ) : (
                                         <p>Loading data...</p>
@@ -747,7 +741,6 @@ export default function Report() {
                                                             transition={{
                                                                 duration: 0.5,
                                                                 ease: 'easeOut',
-                                                                delay: index * 0.1,
                                                             }}
                                                             whileHover={{
                                                                 scale: 1.05,

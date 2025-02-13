@@ -185,9 +185,9 @@ export default function Upload() {
                   loading?.showLoading(true, "Downloading file...");
                   let columnNames: string[] = [];
                   let name: string | null = null;
-                  if (user?.branch === 'FME') {
+                  if (user?.branch === 'FME' || user?.username === 'admin') {
                     if (tableName === "timetable") {
-                      columnNames = ["facId", "subCode", "sec", "sem", "branch"];
+                      columnNames = ["facId", "subCode", "sem(eg: 1,2,...8)", "sec", "batch(eg: 2021(Admitted year))", "branch"];
                       name = "Time-Table";
                     } else if (tableName === "studentinfo") {
                       columnNames = ["rollno", "Name", "sec", "sem", "branch"];
@@ -201,10 +201,10 @@ export default function Upload() {
                     }
                   } else {
                     if (tableName === "timetable") {
-                      columnNames = ["facId", "subCode", "sem", "sec"];
+                      columnNames = ["facId", "subCode", "sem(eg: 1,2,...8)", "sec", "batch(eg: 2021(Admitted year))"];
                       name = "Time-Table";
                     } else if (tableName === "studentinfo") {
-                      columnNames = ["rollno", "Name", "sec", "sem"];
+                      columnNames = ["rollno", "Name", "sec", "sem(eg: 1,2,...8)"];
                       name = `${user?.branch} StudentsInfo ${currentYear}`;
                     } else if (tableName === "faculty") {
                       columnNames = ["facultyId", "facultyName"];

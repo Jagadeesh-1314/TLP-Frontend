@@ -22,35 +22,6 @@
     background-color: #4CAF50; 
 }
 
-.report-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 16px;
-    padding: 16px;
-    margin-top: 20px;
-}
-
-.report-item {
-    background: #f9f9f9;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 16px;
-    align-items: center;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s, background-color 0.2s;
-}
-
-.report-item:hover {
-    transform: scale(1.02);
-}
-
-.report-item p {
-    margin: 8px 0;
-}
-
-.report-item strong {
-    color: #333;
-}
 
 .green-button-filled {
     background-color: #4CAF50;
