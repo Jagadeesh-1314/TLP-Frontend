@@ -2,7 +2,7 @@ import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { InputAdornment, IconButton } from "@mui/material";
 import { VpnKeyOutlined } from "@mui/icons-material";
-import { Mail, Lock, KeyRound, ArrowRight, CheckCircle2, Eye, EyeClosed } from 'lucide-react';
+import { Mail, Lock, KeyRound, ArrowRight, Eye, EyeClosed } from 'lucide-react';
 import { CustTextField } from "../../components/Custom/CustTextField";
 import Axios from "axios";
 import { AlertContext } from "../../components/Context/AlertDetails";
@@ -254,7 +254,7 @@ export default function SetPasswordWithOTP() {
                                                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                                                     edge="end"
                                                 >
-                                                    {showConfirmPassword ? <CheckCircle2 /> : <Lock />}
+                                                    {showConfirmPassword ? <Eye /> : <EyeClosed />}
                                                 </IconButton>
                                             </InputAdornment>
                                         ),

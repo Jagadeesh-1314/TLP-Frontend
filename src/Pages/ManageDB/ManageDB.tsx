@@ -798,6 +798,7 @@ function ManageRowDetails({
                   loading?.showLoading(false);
                 });
             } else {
+              setOpenRowDetailsDialog(false);
               Axios.patch(`api/manage/database`, {
                 details: { ...payload },
                 tableName: table,
@@ -805,7 +806,6 @@ function ManageRowDetails({
                 .then(({ data }) => {
                   if (data.updated) {
                     alert?.showAlert("Record updated", "success");
-                    setOpenRowDetailsDialog(false);
                     setResponseData((prevVals) => {
                       let indx: number = -1;
 
@@ -835,7 +835,7 @@ function ManageRowDetails({
                       ];
                     });
 
-                    setOpenRowDetailsDialog(false);
+                    // setOpenRowDetailsDialog(false);
                     return;
                   }
                   alert?.showAlert(data.error.message, "error");
