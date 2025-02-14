@@ -199,6 +199,10 @@ export default function Upload() {
                       columnNames = ["subjectCode", "subjectName", "type(lab, theory)", "core(r) / Elective(e))"];
                       name = "Subjects";
                     }
+                    else if (tableName === "electives") {
+                      columnNames = ["rollno", "facID", "subCode"];
+                      name = "Electives";
+                    }
                   } else {
                     if (tableName === "timetable") {
                       columnNames = ["facId", "subCode", "sem(eg: 1,2,...8)", "sec", "batch(eg: 2021(Admitted year))"];
@@ -212,6 +216,10 @@ export default function Upload() {
                     } else if (tableName === "subjects") {
                       columnNames = ["subjectCode", "subjectName", "type(lab, theory)", "core(r) / Elective(e))"];
                       name = "Subjects";
+                    }
+                    else if (tableName === "electives") {
+                      columnNames = ["rollno", "facID", "subCode"];
+                      name = "Electives";
                     }
                   }
                   const wb = xlsx.utils.book_new();
