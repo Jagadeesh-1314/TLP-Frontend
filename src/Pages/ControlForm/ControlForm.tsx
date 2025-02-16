@@ -460,7 +460,7 @@ export default function ControlForm() {
                                 className="bg-white rounded-2xl p-8 max-w-2xl w-full"
                             >
                                 <div className="flex justify-between items-center mb-6">
-                                    <h2 className="text-2xl font-bold text-gray-800">Set Date for Accouncement</h2>
+                                    <h2 className="text-2xl font-bold text-gray-800">Set Date for Announcement</h2>
                                     <button
                                         onClick={() => setDateOpen(false)}
                                         className="text-gray-500 hover:text-gray-700"
